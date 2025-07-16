@@ -16,4 +16,4 @@ RUN npm install -g pnpm \
 
 EXPOSE 3000
 
-CMD ["pnpm", "dev"]
+CMD ["pnpm", "start"]
