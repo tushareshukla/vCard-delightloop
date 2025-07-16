@@ -2,17 +2,13 @@ FROM node:20
 
 WORKDIR /app
 
+COPY package.json pnpm-lock.yaml ./
+
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
+
 COPY . .
-RUN rm -rf node_modules
 
-# Disable Corepack prompts
-ENV COREPACK_ENABLE_PROMPT=0
-
-# Enable pnpm via Corepack
-RUN npm install -g pnpm \
-    && pnpm config set allow-scripts true \
-    && pnpm install
-
+RUN pnpm build
 
 EXPOSE 3000
 
