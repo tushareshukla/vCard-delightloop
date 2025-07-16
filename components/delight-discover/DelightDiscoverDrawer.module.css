@@ -1,0 +1,419 @@
+/* Enhanced Delight Discover Drawer Styles */
+
+/* Custom animations for smooth interactions */
+@keyframes pulse-subtle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Delight Discover specific component styles */
+.delight-discover-drawer {
+  /* Backdrop blur effect */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Enhanced filter section hover effects */
+.filter-section {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-section:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.02) 0%,
+    rgba(236, 72, 153, 0.02) 100%
+  );
+  border-left: 3px solid rgba(124, 58, 237, 0.1);
+}
+
+.filter-section.active {
+  background: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.05) 0%,
+    rgba(236, 72, 153, 0.05) 100%
+  );
+  border-left: 3px solid rgb(124, 58, 237);
+}
+
+/* Smart toggle animations */
+.smart-toggle {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.smart-toggle::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #7c3aed, #ec4899, #7c3aed);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.smart-toggle.checked::before {
+  opacity: 0.1;
+  animation: pulse-subtle 2s infinite;
+}
+
+/* Enhanced chip animations */
+.filter-chip {
+  animation: bounce-in 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: all 0.2s ease;
+}
+
+.filter-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+}
+
+/* Results preview component */
+.results-preview {
+  background: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.05) 0%,
+    rgba(236, 72, 153, 0.05) 100%
+  );
+  border: 1px solid rgba(124, 58, 237, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.results-preview::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+/* Enhanced dropdown animations */
+.dropdown-content {
+  animation: fade-in-up 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
+}
+
+.dropdown-option {
+  transition: all 0.15s ease;
+}
+
+.dropdown-option:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.05) 0%,
+    rgba(236, 72, 153, 0.05) 100%
+  );
+  transform: translateX(4px);
+}
+
+/* Tab navigation styles */
+.tab-nav {
+  position: relative;
+}
+
+.tab-nav::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(124, 58, 237, 0.2),
+    transparent
+  );
+}
+
+.tab-button {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-button.active::before {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #7c3aed, #ec4899);
+  border-radius: 1px;
+}
+
+/* Search input enhancements */
+.search-input {
+  transition: all 0.3s ease;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(249, 250, 251, 0.9) 100%
+  );
+}
+
+.search-input:focus {
+  background: white;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Target count input special styling */
+.target-count-input {
+  background: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.02) 0%,
+    rgba(236, 72, 153, 0.02) 100%
+  );
+  border: 2px solid rgba(124, 58, 237, 0.1);
+  transition: all 0.3s ease;
+}
+
+.target-count-input:focus {
+  background: white;
+  border-color: rgb(124, 58, 237);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  transform: scale(1.02);
+}
+
+/* Action button enhancements */
+.primary-action-button {
+  background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.primary-action-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.primary-action-button:hover::before {
+  left: 100%;
+}
+
+.primary-action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
+}
+
+.primary-action-button:active {
+  transform: translateY(0);
+}
+
+/* Loading states */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Responsive design helpers */
+@media (max-width: 768px) {
+  .delight-discover-drawer {
+    width: 100vw !important;
+  }
+
+  .filter-section {
+    padding: 12px 16px;
+  }
+
+  .tab-button {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .filter-section {
+    border: 2px solid;
+  }
+
+  .smart-toggle {
+    outline: 2px solid;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode support (future-ready) */
+@media (prefers-color-scheme: dark) {
+  .delight-discover-drawer {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+
+  .filter-section {
+    border-color: #374151;
+  }
+
+  .filter-section:hover {
+    background: rgba(124, 58, 237, 0.1);
+  }
+}
+
+/* Custom scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(156, 163, 175, 0.1);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #6d28d9, #db2777);
+}
+
+/* Focus indicators for accessibility */
+.focus-visible:focus {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+/* Special effects for premium features */
+.premium-feature {
+  position: relative;
+}
+
+.premium-feature::after {
+  content: "✨";
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  font-size: 12px;
+  animation: pulse-subtle 2s infinite;
+}
+
+/* Interactive micro-animations */
+.micro-bounce {
+  transition: transform 0.1s ease;
+}
+
+.micro-bounce:active {
+  transform: scale(0.98);
+}
+
+/* Gradient text effects */
+.gradient-text {
+  background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Floating action button effects */
+.floating-action {
+  position: relative;
+  overflow: hidden;
+}
+
+.floating-action::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.floating-action:hover::before {
+  width: 300px;
+  height: 300px;
+}
