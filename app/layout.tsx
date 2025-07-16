@@ -25,12 +25,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} antialiased`}>
+
         <ClientWrapper>
           {children}
         </ClientWrapper>
-      </body>
-    </html>
+
   );
 }
