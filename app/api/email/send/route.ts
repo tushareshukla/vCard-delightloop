@@ -1,17 +1,12 @@
+export const runtime = "nodejs";
+
+
 import { NextResponse } from "next/server";
 import sgMail from "@sendgrid/mail";
 
 // Initialize SendGrid with API key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
-// // Add detailed logs to check environment variable and configuration
-// console.log("Email Configuration:", {
-//   sendgridKey: process.env.SENDGRID_API_KEY
-//     ? "SENDGRID_API_KEY is set"
-//     : "SENDGRID_API_KEY is missing",
-//   appUrl: process.env.NEXT_PUBLIC_APP_URL,
-//   environment: process.env.NEXT_PUBLIC_ENV,
-// });
 
 export async function POST(request: Request) {
   try {
