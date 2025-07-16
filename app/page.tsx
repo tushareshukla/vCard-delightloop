@@ -279,7 +279,7 @@ export default function Page() {
       } else if (searchParams.get("vcr") || searchParams.get("vid")) {
         router.push(`/manage-vcard?vcarduser=true`);
       } else {
-        router.push("/dashboard");
+        router.push("/manage-vcard");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to login");
