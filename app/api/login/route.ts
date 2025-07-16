@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/database/dbConnect";
 import { validateLogin } from "@/utils/auth";
 import User from "@/models/User";
-import { updateUnitipleAccountId } from "@/services/unipileService";
 import jwt, { SignOptions } from "jsonwebtoken";
 import VCard, { IVCard } from "@/models/VCard";
 import mongoose from "mongoose";
@@ -89,13 +88,6 @@ export async function POST(request: Request) {
       // Update the login_count in the result to reflect the new value
       if (updatedUser) {
         result.user.login_count = updatedUser.login_count;
-      }
-
-      //for updating the unipile account id
-      try {
-        updateUnitipleAccountId(result.user.id);
-      } catch (error) {
-        console.log("Error updating Unipile account: ", error);
       }
 
       addLog("9. Updated last login time and incremented login count");
