@@ -5,7 +5,7 @@ import Organization from "@/models/Organization";
 import EmailVerificationToken from "@/models/EmailVerificationToken";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import { getUnipileAccountAddLink } from "@/services/unipileService";
+// import { getUnipileAccountAddLink } from "@/services/unipileService";
 import sgMail from "@sendgrid/mail";
 import PublicDomain from "@/models/PublicDomain";
 import VCard, { IVCard } from "@/models/VCard";
@@ -149,26 +149,26 @@ export async function POST(request: Request) {
 
     if (user) {
       const userToUpdate = await User.findById(user._id); //startfor unipile email register link get
-      try {
-        const date = new Date();
-        date.setDate(date.getDate() + 1);
-        if (user._id) {
-          const unipileResponse = await getUnipileAccountAddLink(
-            user._id.toString(),
-            date.toISOString()
-          );
-          if (unipileResponse !== null) {
-            if (unipileResponse.status === 201) {
-              userToUpdate.unipile.add_email_link = unipileResponse.data.url;
-              unipileRegisterlink = unipileResponse.data.url;
-            }
-          }
-        }
+      // try {
+      //   const date = new Date();
+      //   date.setDate(date.getDate() + 1);
+      //   if (user._id) {
+      //     const unipileResponse = await getUnipileAccountAddLink(
+      //       user._id.toString(),
+      //       date.toISOString()
+      //     );
+      //     if (unipileResponse !== null) {
+      //       if (unipileResponse.status === 201) {
+      //         userToUpdate.unipile.add_email_link = unipileResponse.data.url;
+      //         unipileRegisterlink = unipileResponse.data.url;
+      //       }
+      //     }
+      //   }
 
-        userToUpdate.save();
-      } catch (error) {
-        console.log(error);
-      }
+      //   userToUpdate.save();
+      // } catch (error) {
+      //   console.log(error);
+      // }
       //startfor unipile email register link get
     }
 
