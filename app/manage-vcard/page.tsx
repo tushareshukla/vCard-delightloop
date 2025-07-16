@@ -1,13 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Cookies from "js-cookie";
 import AdminSidebar from "@/components/layouts/AdminSidebar";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import {
-  UserCircle,
   Megaphone,
   AlertTriangle,
   Info,
@@ -16,12 +14,10 @@ import {
   Zap,
   MessageCircle,
   Star,
-  Trash2,
   Link as LinkIcon,
   Copy,
 } from "lucide-react";
 import PageHeader from "@/components/layouts/PageHeader";
-import { Button } from "@/components/ui/button";
 
 // User interface (without publicProfileCard)
 interface UserProfile {

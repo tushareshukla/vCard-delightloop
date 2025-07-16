@@ -15,7 +15,6 @@ import {
   Calendar,
   Database,
   User,
-  Building,
   Heart,
   CheckCircle2,
   ThumbsUp,
@@ -24,7 +23,6 @@ import {
   MessageSquare,
   Sparkles,
   CheckCheck,
-  Star,
 } from "lucide-react"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"

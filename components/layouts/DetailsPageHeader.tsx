@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 

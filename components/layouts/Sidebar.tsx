@@ -1,10 +1,9 @@
 import Radio from "../common/Radio";
 import Image from "next/image";
 import Logo from "../common/Logo";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import InfinityLoader from "../common/InfinityLoader";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 import { useAuth } from "@/app/context/AuthContext";
 import Link from 'next/link';
 

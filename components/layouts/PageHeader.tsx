@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { LucideIcon, ArrowLeft, Share, Plus } from 'lucide-react';
+import { LucideIcon, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface ButtonProps {

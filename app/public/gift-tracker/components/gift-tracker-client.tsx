@@ -5,15 +5,9 @@ import {
   ArrowUpRight,
   Gift ,
   Truck,
-  MapPin,
   Package,
-  BarChart3,
   ExternalLink,
-  HelpCircle,
-  Linkedin,
   Mail,
-  Calendar,
-  Database,
   User,
   Building,
   Heart,
@@ -21,12 +15,10 @@ import {
   ThumbsUp,
   ChevronRight,
   ChevronLeft,
-  MessageSquare,
   Sparkles,
   CheckCheck,
   Star,
 } from "lucide-react";
-import Image from "next/image";
 import React from "react";
 
 interface RecipientData {

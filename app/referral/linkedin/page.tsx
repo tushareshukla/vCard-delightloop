@@ -7,10 +7,6 @@ import { Input } from "@/components/ui/input";
 import {
   ArrowLeft,
   ArrowRight,
-  Linkedin,
-  User,
-  Zap,
-  Sparkles,
 } from "lucide-react";
 
 export default function LinkedInInputPage() {

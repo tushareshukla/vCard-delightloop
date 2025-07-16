@@ -5,7 +5,6 @@ import PageHeader from "@/components/layouts/PageHeader";
 import { Gift, X } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface GiftItem {

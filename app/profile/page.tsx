@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Cookies from "js-cookie";
 import AdminSidebar from "@/components/layouts/AdminSidebar";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import {
-  UserCircle,
   Megaphone,
   AlertTriangle,
   Info,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback } from "react";
-import { ContactModalProps } from "./ContactModal.types";
 import { ProfileData } from "../../types/vcard.types";
 import { EmailService } from "../../services/email.service";
 import { useContactModal } from "../../hooks/useContactModal";

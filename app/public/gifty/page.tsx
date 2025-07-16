@@ -8,8 +8,6 @@ import { Search, User, Briefcase, Award, MessageSquare, Gift, BookOpen, Check, X
 import { tsParticles } from "tsparticles-engine";
 import { loadSlim } from "tsparticles-slim";
 import type { Container, Engine } from "tsparticles-engine";
-import { getUserFromCookie } from '@/utils/getUserFromCookie';
-import { useAuth } from '@/app/context/AuthContext';
 
 interface Gift {
   giftId: string;

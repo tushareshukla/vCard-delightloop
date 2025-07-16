@@ -8,12 +8,8 @@ import Link from "next/link";
 import InfinityLoader from "@/components/common/InfinityLoader";
 import {
   MessageCircle,
-  Mail,
   ExternalLink,
   MapPin,
-  ArrowLeft,
-  Download,
-  Share2,
 } from "lucide-react";
 
 // Import brand icons from react-icons

@@ -8,18 +8,10 @@ import {
   ArrowLeft,
   ArrowRight,
   CreditCard,
-  Truck,
   Shield,
-  MapPin,
-  User,
-  Mail,
-  Lock,
   CheckCircle,
-  ExternalLink,
   Smartphone,
-  Sparkles,
 } from "lucide-react";
-import InfinityLoader from "@/components/common/InfinityLoader";
 
 interface DraftVCardData {
   draft_vcardId: string;

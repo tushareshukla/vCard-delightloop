@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { getUserFromCookie } from "@/utils/getUserFromCookie";
 
 export default function CheckMailPage() {
 

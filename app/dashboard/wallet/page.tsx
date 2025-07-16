@@ -4,16 +4,13 @@ import { useState, useEffect } from "react";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { StripePaymentForm } from "@/components/wallet/StripePaymentForm";
-import { walletService } from "@/services/walletService";
-import { Transaction } from "@/lib/types/wallet";
 import { toast } from "react-hot-toast";
 import AdminSidebar from "@/components/layouts/AdminSidebar";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import PageHeader from "@/components/layouts/PageHeader";
-import { Plus, CreditCard, Filter, MoreVertical, Eye, X, Coins, Wallet, Search } from "lucide-react";
+import { Filter, X, Coins, Wallet, Search } from "lucide-react";
 import getBackendApiBaseUrl from "@/utils/apiBaseUrl";
 import mongoose from "mongoose";
 

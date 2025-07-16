@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { ArrowRight, Zap, Share2, Clock } from "lucide-react";
-import InfinityLoader from "@/components/common/InfinityLoader";
 
 interface ReferralProfileData {
   handle: string;

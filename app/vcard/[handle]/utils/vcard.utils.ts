@@ -1,4 +1,4 @@
-import { ProfileData, ProfileLink, ThemeColors } from "../types/vcard.types";
+import { ProfileData, ThemeColors } from "../types/vcard.types";
 
 // Alert helper functions
 export const isAlertExpired = (expiryDate?: Date) => {

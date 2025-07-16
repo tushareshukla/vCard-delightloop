@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import dbConnect from "@/lib/database/dbConnect";
 import Playbook from "@/models/Playbook";
 import mongoose from "mongoose";

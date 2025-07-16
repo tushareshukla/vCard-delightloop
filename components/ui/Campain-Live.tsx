@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Campaign, HiddenBlocks } from "@/lib/types/campaign";
-import { CampaignComponentProps } from "@/lib/types/campaign";
 import { Caveat } from "next/font/google";
 
 

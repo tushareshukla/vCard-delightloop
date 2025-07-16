@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Partner from "@/models/Partner";
-import { getServerSession } from "next-auth/next";
 
 
 export async function GET(
