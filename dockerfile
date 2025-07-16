@@ -3,8 +3,9 @@ FROM node:20
 
 WORKDIR /app
 
-# Copy only package manifests
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
+# RUN npm install -g pnpm && pnpm install --no-frozen-lockfile
+
 
 # Install pnpm and dependencies (without requiring lockfile)
 RUN npm install -g pnpm && pnpm install --no-frozen-lockfile
