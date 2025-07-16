@@ -10,6 +10,7 @@ import { useAuth } from "@/app/context/AuthContext";
 export default function Sidebar() {
   const pathname = usePathname();
   const { userId, authToken, organizationId } = useAuth();
+
   const [userData, setUserData] = useState<{
     firstName?: string;
     lastName?: string;
@@ -18,15 +19,13 @@ export default function Sidebar() {
   const [userEmail, setUserEmail] = useState("");
 
   // Logout handler
-  const HandleLogout = async () => {
+  const handleLogout = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/auth/logout`,
+        { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" } }
+      );
     } catch {}
-    // Remove all possible cookies and clear storage
     [
       "auth_token", "user_email", "userId", "user_id",
       "organization_id", "authToken", "organizationId"
@@ -67,10 +66,10 @@ export default function Sidebar() {
     fetchUserData();
   }, [userId, authToken, organizationId]);
 
-  // Highlight current menu
+  // Helper for active menu
   const isMenuActive = (path: string) => pathname === path;
 
-  // Core icons array for easy rendering
+  // Navigation config
   const navLinks = [
     {
       href: "/manage-vcard",
@@ -88,60 +87,57 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Desktop: left vertical */}
-      <div className="hidden sm:flex flex-col justify-start items-center bg-primary text-white sm:h-screen sm:sticky sm:top-0 sm:w-[81px] sm:p-4 px-3 z-50 rounded-t-lg">
-        <div className="flex flex-col items-center w-full">
-          {/* Logo at the very top */}
-          <div className="pt-2 mb-8 w-full flex justify-center">
-            <Image
-              src="/svgs/Infinitylogo.svg"
-              alt="Logo"
-              width={44}
-              height={21}
-              className="h-[21px] w-[44px]"
-              priority
-            />
-          </div>
-          {/* Nav icons */}
-          <nav className="flex flex-col items-center space-y-4 w-full">
-            {navLinks.map((item) => (
-              <Link
-                key={item.title}
-                href={item.href}
-                className={`flex items-center justify-center w-full p-3 rounded-lg transition-all duration-300 ${
-                  item.active
-                    ? "bg-[#7F56D9] text-white"
-                    : "hover:bg-[#7F56D9] hover:text-white opacity-60"
-                }`}
-                title={item.title}
-              >
-                {item.icon}
-              </Link>
-            ))}
-            {/* Logout */}
-            <button
-              onClick={HandleLogout}
-              className="flex items-center justify-center w-full p-3 rounded-lg text-white/80 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200"
-              title="Logout"
-            >
-              <LogOut className="size-[24px]" />
-            </button>
-          </nav>
-          {/* User info always shown at the bottom */}
-          <div className="mt-8 flex flex-col items-center w-full">
-            <p className="text-white font-medium text-xs truncate max-w-[90px] text-center">
-              {userData
-                ? `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "User"
-                : "User"}
-            </p>
-            <p className="text-white/60 text-xs truncate max-w-[90px] text-center">
-              {userData?.email || userEmail || ""}
-            </p>
-          </div>
+      {/* Desktop Sidebar */}
+      <aside className="hidden sm:flex flex-col items-center bg-primary text-white h-screen sticky top-0 w-[81px] p-4 z-50 rounded-t-lg">
+        {/* Logo at top */}
+        <div className="mb-10 mt-1">
+          <Image
+            src="/svgs/Infinitylogo.svg"
+            alt="Logo"
+            width={44}
+            height={21}
+            className="h-[21px] w-[44px]"
+            priority
+          />
         </div>
-      </div>
-      {/* Mobile: bottom horizontal */}
-      <div className="fixed sm:hidden inset-x-0 bottom-0 z-50 bg-primary text-white flex items-center justify-between px-6 py-2 shadow-[0_-2px_10px_rgba(127,86,217,0.04)]">
+        {/* Nav Icons */}
+        <nav className="flex flex-col items-center gap-5 w-full">
+          {navLinks.map((item) => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className={`flex items-center justify-center w-full p-3 rounded-lg transition-all duration-300
+                ${item.active ? "bg-[#7F56D9] text-white" : "hover:bg-[#7F56D9] hover:text-white opacity-60"}
+              `}
+              title={item.title}
+            >
+              {item.icon}
+            </Link>
+          ))}
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center justify-center w-full p-3 rounded-lg text-white/80 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200"
+            title="Logout"
+          >
+            <LogOut className="size-[24px]" />
+          </button>
+        </nav>
+        {/* User info at bottom */}
+        <div className="mt-auto mb-2 flex flex-col items-center w-full">
+          <p className="text-white font-medium text-xs truncate max-w-[90px] text-center">
+            {userData
+              ? `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "User"
+              : "User"}
+          </p>
+          <p className="text-white/60 text-xs truncate max-w-[90px] text-center">
+            {userData?.email || userEmail || ""}
+          </p>
+        </div>
+      </aside>
+
+      {/* Mobile Bottom Nav */}
+      <nav className="fixed sm:hidden inset-x-0 bottom-0 z-50 bg-primary text-white flex items-center justify-between px-6 py-2 shadow-[0_-2px_10px_rgba(127,86,217,0.04)]">
         {/* Logo left */}
         <div className="flex items-center">
           <Image
@@ -153,39 +149,37 @@ export default function Sidebar() {
             priority
           />
         </div>
-        {/* Nav links */}
-        <nav className="flex-1 flex justify-center items-center gap-7">
+        {/* Nav links center */}
+        <div className="flex-1 flex justify-center items-center gap-8">
           {navLinks.map((item) => (
             <Link
               key={item.title}
               href={item.href}
-              className={`flex items-center justify-center p-2 rounded-lg transition-all duration-300 ${
-                item.active
-                  ? "bg-[#7F56D9] text-white"
-                  : "hover:bg-[#7F56D9] hover:text-white opacity-60"
-              }`}
+              className={`flex items-center justify-center p-2 rounded-lg transition-all duration-300
+                ${item.active ? "bg-[#7F56D9] text-white" : "hover:bg-[#7F56D9] hover:text-white opacity-60"}
+              `}
               title={item.title}
             >
               {item.icon}
             </Link>
           ))}
-        </nav>
-        {/* Logout and user info on right */}
-        <div className="flex flex-col items-center gap-1">
+        </div>
+        {/* Logout & user info right */}
+        <div className="flex flex-col items-center gap-1 min-w-[60px]">
           <button
-            onClick={HandleLogout}
+            onClick={handleLogout}
             className="flex items-center justify-center p-2 rounded-lg text-white/80 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200"
             title="Logout"
           >
             <LogOut className="size-[22px]" />
           </button>
-          <p className="text-white/80 text-[10px] font-medium text-right max-w-[68px] truncate">
+          <p className="text-white/80 text-[10px] font-medium text-right max-w-[56px] truncate">
             {userData
               ? `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "User"
               : "User"}
           </p>
         </div>
-      </div>
+      </nav>
     </>
   );
 }
