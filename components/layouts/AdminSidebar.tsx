@@ -88,7 +88,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden sm:flex flex-col items-center bg-primary text-white h-screen sticky top-0 w-[81px] p-4 z-50 rounded-t-lg">
+      <aside className="hidden sm:flex flex-col items-center bg-primary text-white h-screen sticky top-0 w-[81px] p-4 z-50">
         {/* Logo at top */}
         <div className="mb-10 mt-1">
           <Image
