@@ -13,12 +13,12 @@ declare global {
 // Get the database connection string from .env.local file
 const MONGODB_URI = process.env.MONGODB_URI!;
 
-// If no connection string is provided, stop the app and show error
-if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable inside .env.local"
-  );
-}
+// // If no connection string is provided, stop the app and show error
+// if (!MONGODB_URI) {
+//   throw new Error(
+//     "Please define the MONGODB_URI environment variable inside .env.local"
+//   );
+// }
 // Get our existing connection info from global variable
 let cached = global.mongoose || { conn: null, promise: null };
 
