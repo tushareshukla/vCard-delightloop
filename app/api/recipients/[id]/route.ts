@@ -36,7 +36,7 @@ export async function GET(
     }
 
     // If recipient has an assigned gift, fetch the gift details
-    let recipientData = recipient.toObject();
+    const recipientData = recipient.toObject();
     if (recipient.assignedGiftId) {
       console.log("Fetching assigned gift details");
       const gift = await Gift.findById(recipient.assignedGiftId);

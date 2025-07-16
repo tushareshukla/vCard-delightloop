@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     console.log(`Request came from: ${referer}`);
 
     await dbConnect();
-    let unipileRegisterlink: string = "";
+    const unipileRegisterlink: string = "";
     const {
       firstName,
       lastName,
