@@ -14,9 +14,10 @@ import VCard, { IVCard } from "@/models/VCard";
 import mongoose from "mongoose";
 
 // Initialize SendGrid with API key
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
 export async function POST(request: Request) {
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
+
   try {
     const referer =
       request.headers.get("referer") || request.headers.get("referrer");

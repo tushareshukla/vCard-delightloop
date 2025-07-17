@@ -5,10 +5,11 @@ import { NextResponse } from "next/server";
 import sgMail from "@sendgrid/mail";
 
 // Initialize SendGrid with API key
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
 
 export async function POST(request: Request) {
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
+
   try {
     const { to, subject, text, html, attachments } = await request.json();
 

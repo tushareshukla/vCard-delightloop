@@ -8,9 +8,9 @@ import Stripe from "stripe";
 import { getUserFromRequestCookie } from "@/utils/getUserFromCookie";
 import crypto from "crypto";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-01-27.acacia",
-});
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+//   apiVersion: "2025-01-27.acacia",
+// });
 
 export async function POST(req: Request) {
   try {
