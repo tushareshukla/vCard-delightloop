@@ -54,5 +54,4 @@ const InfinityLoader = ({
   );
 };
 
-// Export directly without additional dynamic wrapper
 export default InfinityLoader;
