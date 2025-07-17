@@ -1,3 +1,5 @@
+import { config } from "./config";
+
 // Enum matching the backend TouchpointType
 export enum TouchpointType {
   InviteSent = "invite_sent",
@@ -139,7 +141,7 @@ export const trackRecipientAction = async (
       data
     });
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/recipient-timeline`, {
+    const response = await fetch(`${config.BACKEND_URL}/v1/recipient-timeline`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

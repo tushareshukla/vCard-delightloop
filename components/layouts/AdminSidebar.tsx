@@ -23,7 +23,7 @@ export default function Sidebar() {
   const handleLogout = async () => {
     try {
       await fetch(
-        `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/auth/logout`,
+        `${config.BACKEND_URL}/v1/auth/logout`,
         { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" } }
       );
     } catch {}

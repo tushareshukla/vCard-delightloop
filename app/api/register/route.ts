@@ -12,6 +12,7 @@ import sgMail from "@sendgrid/mail";
 import PublicDomain from "@/models/PublicDomain";
 import VCard, { IVCard } from "@/models/VCard";
 import mongoose from "mongoose";
+import { config } from "@/utils/config";
 
 // Initialize SendGrid with API key
 
@@ -230,7 +231,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
     // Send verification email using SendGrid directly
 
-let verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email/${token}`;
+let verificationUrl = `${config.BACKEND_URL}/auth/verify-email/${token}`;
     const urlParams = new URLSearchParams();
 
     if (quicksend && user_id && gift_id) {
