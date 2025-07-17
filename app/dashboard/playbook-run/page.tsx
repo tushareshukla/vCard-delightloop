@@ -1603,7 +1603,7 @@ export default function PlaybookRun() {
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
       // Redirect to gifting activities
-      window.location.href = "/dashboard/gifting-activities";
+      window.location.href = "/manage-vcard/gifting-activities";
     } catch (error) {
       console.error("Error executing playbook:", error);
       setNotification({
@@ -1627,7 +1627,7 @@ export default function PlaybookRun() {
               <div className="max-w-7xl mx-auto pl-8">
                 <div className="flex justify-between items-center mt-8">
                   <div className="flex items-center gap-2 text-sm ">
-                    <Link href="/dashboard" className="text-[#667085]">
+                    <Link href="/manage-vcard" className="text-[#667085]">
                       <Image
                         src="/svgs/home.svg"
                         alt="Home"
@@ -1647,7 +1647,7 @@ export default function PlaybookRun() {
                       />
                     </svg>
                     <Link
-                      href="/dashboard/playbook-run"
+                      href="/manage-vcard/playbook-run"
                       className="text-[#1B1D21] font-medium"
                     >
                       Playbook Run

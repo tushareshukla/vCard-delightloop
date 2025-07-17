@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Match specific protected routes
-    "/dashboard/:path*",
+    "/manage-vcard/:path*",
     "/create-your-campaign/:path*",
     "/create-roi/:path*",
     "/campaign-detail/:path*",

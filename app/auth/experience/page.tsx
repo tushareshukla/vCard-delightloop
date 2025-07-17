@@ -110,7 +110,7 @@ export default function AuthPage() {
 
           // Close modal and redirect to dashboard
           setIsModalOpen(false);
-          router.push("/dashboard");
+          router.push("/manage-vcard");
         }
       } catch (parseError) {
         console.error("Failed to parse response:", parseError);

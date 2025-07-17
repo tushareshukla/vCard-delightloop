@@ -282,8 +282,8 @@ export default function ConnectedPage() {
 
           // Close modal and redirect to dashboard or profile based on vcard user
           setIsModalOpen(false);
-          //   router.push(isVcardUser ? "/profile?tab=vcard" : "/dashboard");
-          router.push(isVcardUser ? "/manage-vcard" : "/dashboard");
+          //   router.push(isVcardUser ? "/profile?tab=vcard" : "/manage-vcard");
+          router.push(isVcardUser ? "/manage-vcard" : "/manage-vcard");
         }
       } catch (parseError) {
         console.error("Failed to parse response:", parseError);

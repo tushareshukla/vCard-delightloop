@@ -405,7 +405,7 @@ export default function WalletPage() {
       const savedParams = localStorage.getItem("giftSelectionParams");
       if (savedParams && !source) {
         const params = new URLSearchParams(JSON.parse(savedParams));
-        router.replace(`/dashboard/wallet?${params.toString()}`);
+        router.replace(`/manage-vcard/wallet?${params.toString()}`);
         localStorage.removeItem("giftSelectionParams"); // Clean up
       }
     }

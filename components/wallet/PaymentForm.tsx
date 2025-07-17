@@ -41,7 +41,7 @@ export function PaymentForm({
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/dashboard/wallet`,
+          return_url: `${window.location.origin}/manage-vcard/wallet`,
         },
       });
 
