@@ -91,11 +91,11 @@ export default function GiftyPage() {
   const [linkedinProfile, setLinkedinProfile] = useState<LinkedInProfile | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
-  const particlesInit = useCallback(async (engine: Engine) => {
+  useCallback(async (engine: Engine) => {
     await loadSlim(engine);
   }, []);
 
-  const particlesLoaded = useCallback(async (container: Container | undefined) => {
+   useCallback(async (container: Container | undefined) => {
     if (container) {
       setTimeout(() => {
         setShowCelebration(false);
