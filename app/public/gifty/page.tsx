@@ -8,8 +8,6 @@ import { Search, User, Briefcase, Award, MessageSquare, Gift, BookOpen, Check, X
 import { tsParticles } from "tsparticles-engine";
 import { loadSlim } from "tsparticles-slim";
 import type { Container, Engine } from "tsparticles-engine";
-import { getUserFromCookie } from '@/utils/getUserFromCookie';
-import { useAuth } from '@/app/context/AuthContext';
 
 interface Gift {
   giftId: string;
@@ -93,11 +91,11 @@ export default function GiftyPage() {
   const [linkedinProfile, setLinkedinProfile] = useState<LinkedInProfile | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
-  const particlesInit = useCallback(async (engine: Engine) => {
+  useCallback(async (engine: Engine) => {
     await loadSlim(engine);
   }, []);
 
-  const particlesLoaded = useCallback(async (container: Container | undefined) => {
+   useCallback(async (container: Container | undefined) => {
     if (container) {
       setTimeout(() => {
         setShowCelebration(false);
@@ -213,27 +211,6 @@ export default function GiftyPage() {
     setAnimationController(controller);
 
     // Start the animation immediately
-    const animationPromise = (async () => {
-      try {
-        for (let i = 0; i < analysisSteps.length; i++) {
-          if (controller.signal.aborted) {
-            break;
-          }
-          setCurrentStep(i);
-          await new Promise((resolve, reject) => {
-            const timeout = setTimeout(resolve, analysisSteps[i].duration);
-            controller.signal.addEventListener('abort', () => {
-              clearTimeout(timeout);
-              reject(new Error('Animation aborted'));
-            });
-          });
-        }
-      } catch (error) {
-        if (error.message !== 'Animation aborted') {
-          throw error;
-        }
-      }
-    })();
 
     // Make API call in parallel
     try {
@@ -274,7 +251,6 @@ export default function GiftyPage() {
         setAnimationController(completionController);
 
         // Quickly complete remaining steps
-        const remainingSteps = analysisSteps.length - currentStep;
         for (let i = currentStep; i < analysisSteps.length; i++) {
           if (completionController.signal.aborted) {
             break;
@@ -534,7 +510,6 @@ export default function GiftyPage() {
                       setInputError('Hmm... 🤔 That doesn\'t quite look like a LinkedIn profile. Try something like "johndoe" or "linkedin.com/in/johndoe"');
                       return;
                     }
-                    const profile = await fetchLinkedInProfile(formattedUrl);
                     // No need to handle error here as it's handled in fetchLinkedInProfile
                   }}
                   disabled={isLoadingProfile}

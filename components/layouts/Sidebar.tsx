@@ -1,12 +1,12 @@
 import Radio from "../common/Radio";
 import Image from "next/image";
 import Logo from "../common/Logo";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import InfinityLoader from "../common/InfinityLoader";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 import { useAuth } from "@/app/context/AuthContext";
 import Link from 'next/link';
+import { config } from "@/utils/config";
 
 
 type SidebarProps = {
@@ -59,7 +59,7 @@ export default function Sidebar({
       // If we have a campaign ID, update the existing campaign
       if (campaignId) {
         response = await fetch(
-          `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/organizations/${organizationId}/campaigns/${campaignId}`,
+          `${config.BACKEND_URL}/v1/organizations/${organizationId}/campaigns/${campaignId}`,
           {
             method: "PUT",
             headers: {
@@ -75,7 +75,7 @@ export default function Sidebar({
       // Otherwise create a new campaign
       else {
         response = await fetch(
-          `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/organizations/${organizationId}/users/${userId}/campaigns`,
+          `${config.BACKEND_URL}/v1/organizations/${organizationId}/users/${userId}/campaigns`,
           {
             method: "POST",
             headers: {
@@ -199,7 +199,7 @@ export default function Sidebar({
     if (urlCampaignId) {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/organizations/${organizationId}/campaigns/${urlCampaignId}`,
+          `${config.BACKEND_URL}/v1/organizations/${organizationId}/campaigns/${urlCampaignId}`,
           {
             method: "GET",
             headers: {
@@ -227,7 +227,7 @@ export default function Sidebar({
         setCampaignName(generatedName);
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/organizations/${organizationId}/users/${userId}/campaigns`,
+          `${config.BACKEND_URL}/v1/organizations/${organizationId}/users/${userId}/campaigns`,
           {
             method: "POST",
             headers: {

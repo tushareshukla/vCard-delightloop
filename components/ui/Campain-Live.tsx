@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Campaign, HiddenBlocks } from "@/lib/types/campaign";
-import { CampaignComponentProps } from "@/lib/types/campaign";
 import { Caveat } from "next/font/google";
 
 
@@ -127,7 +126,7 @@ export default function CampainLive({
               <>
                   <div className="flex justify-center gap-3 mt-[22px] relative z-10">
               <Link
-                href="/dashboard"
+                href="/manage-vcard"
                 className="border bg-white border-[#D0D5DD] hover:bg-slate-50 text-xs font-medium text-[#344054] px-4 py-2.5 rounded-lg"
               >
                 View Campaign Status
@@ -164,7 +163,7 @@ export default function CampainLive({
                 </div>
                 <div className="flex justify-center z-20 relative hover:underline ">
                   <Link
-                    href="/dashboard"
+                    href="/manage-vcard"
                     className="text-primary font-medium  mt-2 text-center"
                   >
                     Checkout the Queue
@@ -384,7 +383,7 @@ export default function CampainLive({
             </p>
             <div className="flex justify-center gap-3 mt-[22px] relative z-10">
               <Link
-                href="/dashboard"
+                href="/manage-vcard"
                 className="border bg-white border-[#D0D5DD] hover:bg-slate-50 text-xs font-medium text-[#344054] px-4 py-2.5 rounded-lg"
               >
                 View Campaign Status

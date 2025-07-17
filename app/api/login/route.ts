@@ -4,7 +4,6 @@ import { validateLogin } from "@/utils/auth";
 import User from "@/models/User";
 import jwt, { SignOptions } from "jsonwebtoken";
 import VCard, { IVCard } from "@/models/VCard";
-import mongoose from "mongoose";
 
 export async function POST(request: Request) {
   const logs: string[] = [];

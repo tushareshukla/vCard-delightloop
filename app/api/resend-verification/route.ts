@@ -3,6 +3,8 @@ import dbConnect from "@/lib/database/dbConnect";
 import User from "@/models/User";
 import EmailVerificationToken from "@/models/EmailVerificationToken";
 import crypto from "crypto";
+import { config } from "@/utils/config";
+
 
 export async function POST(request: Request) {
   try {
@@ -37,8 +39,8 @@ export async function POST(request: Request) {
     });
 
     // Send verification email
-    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email/${token}`;
-    await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/email/send`, {
+    const verificationUrl = `${config.BACKEND_URL}/auth/verify-email/${token}`;
+    await fetch(`${config.BACKEND_URL}/api/email/send`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -1,6 +1,5 @@
 "use client";
 import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { useEffect } from 'react';
 
 // Force dynamic rendering

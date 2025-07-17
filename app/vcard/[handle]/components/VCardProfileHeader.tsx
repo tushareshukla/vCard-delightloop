@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { X } from "lucide-react";
-import { VCardAlert, ProfileData } from "../types/vcard.types";
+import { ProfileData } from "../types/vcard.types";
 import AlertIcon from "./AlertIcon";
 
 interface VCardProfileHeaderProps {

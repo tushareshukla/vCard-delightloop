@@ -2,7 +2,6 @@
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { getUserFromCookie } from "@/utils/getUserFromCookie";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 

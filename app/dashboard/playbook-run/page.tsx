@@ -1,12 +1,11 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Button from "@/components/common/Button";
 import Image from "next/image";
 import AdminSidebar from "@/components/layouts/AdminSidebar";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import router from "next/router";
 import { useAuth } from "@/app/context/AuthContext";
+import { config } from "@/utils/config";
 interface Playbook {
   _id: string;
   name: string;
@@ -173,7 +172,7 @@ export default function PlaybookRun() {
         }
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/playbooks?user_id=${userId}`,
+          `${config.BACKEND_URL}/v1/organizations/${organizationId}/playbooks?user_id=${userId}`,
           {
             headers: {
               accept: "application/json",
@@ -390,7 +389,7 @@ export default function PlaybookRun() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/recipients/linkedin-profile?profile=${username}`,
+        `${config.BACKEND_URL}/v1/recipients/linkedin-profile?profile=${username}`,
         {
           headers: {
             accept: "*/*",
@@ -587,7 +586,7 @@ export default function PlaybookRun() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/playbooks/${selectedPlaybook._id}/gifts?user_id=${userId}`,
+        `${config.BACKEND_URL}/v1/organizations/${organizationId}/playbooks/${selectedPlaybook._id}/gifts?user_id=${userId}`,
         {
           headers: {
             accept: "application/json",
@@ -1577,7 +1576,7 @@ export default function PlaybookRun() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/playbooks/${selectedPlaybook?._id}/run`,
+        `${config.BACKEND_URL}/v1/organizations/${organizationId}/playbooks/${selectedPlaybook?._id}/run`,
         {
           method: "POST",
           headers: {
@@ -1604,7 +1603,7 @@ export default function PlaybookRun() {
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
       // Redirect to gifting activities
-      window.location.href = "/dashboard/gifting-activities";
+      window.location.href = "/manage-vcard/gifting-activities";
     } catch (error) {
       console.error("Error executing playbook:", error);
       setNotification({
@@ -1628,7 +1627,7 @@ export default function PlaybookRun() {
               <div className="max-w-7xl mx-auto pl-8">
                 <div className="flex justify-between items-center mt-8">
                   <div className="flex items-center gap-2 text-sm ">
-                    <Link href="/dashboard" className="text-[#667085]">
+                    <Link href="/manage-vcard" className="text-[#667085]">
                       <Image
                         src="/svgs/home.svg"
                         alt="Home"
@@ -1648,7 +1647,7 @@ export default function PlaybookRun() {
                       />
                     </svg>
                     <Link
-                      href="/dashboard/playbook-run"
+                      href="/manage-vcard/playbook-run"
                       className="text-[#1B1D21] font-medium"
                     >
                       Playbook Run

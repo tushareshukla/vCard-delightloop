@@ -8,12 +8,8 @@ import Link from "next/link";
 import InfinityLoader from "@/components/common/InfinityLoader";
 import {
   MessageCircle,
-  Mail,
   ExternalLink,
   MapPin,
-  ArrowLeft,
-  Download,
-  Share2,
 } from "lucide-react";
 
 // Import brand icons from react-icons
@@ -29,6 +25,7 @@ import {
   FaTwitter
 } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import { config } from "@/utils/config";
 
 interface ProfileData {
   handle: string;
@@ -87,7 +84,7 @@ export default function NFCProfilePage({
           return;
         }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/handle/${handle.toLowerCase()}`);
+        const response = await fetch(`${config.BACKEND_URL}/v1/vcard/handle/${handle.toLowerCase()}`);
         const data = await response.json();
 
         if (response.ok) {

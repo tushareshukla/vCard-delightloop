@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/database/dbConnect";
 import User from "@/models/User";
@@ -10,18 +12,19 @@ import sgMail from "@sendgrid/mail";
 import PublicDomain from "@/models/PublicDomain";
 import VCard, { IVCard } from "@/models/VCard";
 import mongoose from "mongoose";
+import { config } from "@/utils/config";
 
 // Initialize SendGrid with API key
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
 export async function POST(request: Request) {
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
+
   try {
     const referer =
       request.headers.get("referer") || request.headers.get("referrer");
     console.log(`Request came from: ${referer}`);
 
     await dbConnect();
-    let unipileRegisterlink: string = "";
     const {
       firstName,
       lastName,
@@ -148,7 +151,6 @@ export async function POST(request: Request) {
     });
 
     if (user) {
-      const userToUpdate = await User.findById(user._id); //startfor unipile email register link get
       // try {
       //   const date = new Date();
       //   date.setDate(date.getDate() + 1);
@@ -229,7 +231,7 @@ export async function POST(request: Request) {
 
     // Send verification email using SendGrid directly
 
-let verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email/${token}`;
+let verificationUrl = `${config.BACKEND_URL}/auth/verify-email/${token}`;
     const urlParams = new URLSearchParams();
 
     if (quicksend && user_id && gift_id) {

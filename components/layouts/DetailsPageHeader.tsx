@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 
@@ -59,7 +57,7 @@ export default function DetailsPageHeader({
     <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 shadow-sm mb-4 sm:mb-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-[#667085] mb-3 sm:mb-4">
-        <Link href="/dashboard">
+        <Link href="/manage-vcard">
           <span className="flex items-center">
             {homeIcon || (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -190,7 +190,7 @@ const CampaignLaunchSuccessModal: React.FC<CampaignLaunchSuccessModalProps> = ({
 
               {/* Return to Dashboard Button */}
               <Link
-                href="/dashboard"
+                href="/manage-vcard"
                 className="w-full px-4 py-3 border border-primary text-primary rounded-md hover:bg-purple-50 transition-all flex items-center justify-center group relative overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 duration-300"
                 aria-label="Return to dashboard"
               >

@@ -5,11 +5,10 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import InfinityLoader from "../components/common/InfinityLoader";
-import { useAuth } from "./context/AuthContext";
 import { HelpCircle, ExternalLink, Calendar } from "lucide-react";
+import { config } from "@/utils/config";
 
 export default function Page() {
-  const { userId, userEmail, organizationId } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -102,7 +101,7 @@ export default function Page() {
     setIsValidatingVCardKey(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/key/${key}`
+        `${config.BACKEND_URL}/v1/vcard/key/${key}`
       );
       const data = await res.json();
       if (data.success && !data.data.userId) {
@@ -135,7 +134,7 @@ export default function Page() {
   const fetchVcardDataWithoutSecret = async (key: string) => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/authenticate`,
+        `${config.BACKEND_URL}/v1/vcard/authenticate`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -193,7 +192,7 @@ export default function Page() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/authenticate`,
+        `${config.BACKEND_URL}/v1/vcard/authenticate`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -346,12 +345,12 @@ export default function Page() {
           {!isInitialLoading && showLoginSection && (
             <div className="bg-white mx-auto p-6 rounded-lg shadow-sm w-full max-w-md">
               <a
-                href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/auth/linkedin?${searchParams.toString()}`}
+                href={`${config.BACKEND_URL}/v1/auth/linkedin?${searchParams.toString()}`}
                 className="w-full font-medium bg-primary/95 hover:bg-primary text-white py-3 rounded-md flex items-center justify-center"
                 onClick={(e) => {
                   e.preventDefault();
                   setIsLoading(true);
-                  window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/auth/linkedin?${searchParams.toString()}`;
+                  window.location.href = `${config.BACKEND_URL}/v1/auth/linkedin?${searchParams.toString()}`;
                 }}
               >
                 {isLoading ? (

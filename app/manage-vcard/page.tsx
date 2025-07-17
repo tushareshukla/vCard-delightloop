@@ -1,13 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Cookies from "js-cookie";
 import AdminSidebar from "@/components/layouts/AdminSidebar";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import {
-  UserCircle,
   Megaphone,
   AlertTriangle,
   Info,
@@ -16,12 +14,11 @@ import {
   Zap,
   MessageCircle,
   Star,
-  Trash2,
   Link as LinkIcon,
   Copy,
 } from "lucide-react";
 import PageHeader from "@/components/layouts/PageHeader";
-import { Button } from "@/components/ui/button";
+import { config } from "@/utils/config";
 
 // User interface (without publicProfileCard)
 interface UserProfile {
@@ -988,7 +985,7 @@ export default function ManageVCard() {
       setIsSaveDisabled(true);
 
       const validateResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/validate-handle`,
+        `${config.BACKEND_URL}/v1/vcard/validate-handle`,
         {
           method: "POST",
           headers: {
@@ -1441,7 +1438,7 @@ export default function ManageVCard() {
 
         try {
           const checkResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
+            `${config.BACKEND_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
             {
               method: "GET",
               headers: {
@@ -1453,7 +1450,7 @@ export default function ManageVCard() {
 
           if (checkResponse.ok) {
             vCardResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
+              `${config.BACKEND_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
               {
                 method: "PUT",
                 headers: {
@@ -1465,7 +1462,7 @@ export default function ManageVCard() {
             );
           } else if (checkResponse.status === 404) {
             vCardResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard`,
+              `${config.BACKEND_URL}/v1/vcard`,
               {
                 method: "POST",
                 headers: {
@@ -1533,7 +1530,7 @@ export default function ManageVCard() {
 
           // Fetch user data
           const userResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/users/${userId}`,
+            `${config.BACKEND_URL}/v1/organizations/${organizationId}/users/${userId}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -1549,7 +1546,7 @@ export default function ManageVCard() {
 
           // Fetch organization data
           const orgResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}`,
+            `${config.BACKEND_URL}/v1/organizations/${organizationId}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -1571,7 +1568,7 @@ export default function ManageVCard() {
           // Fetch VCard data separately
           try {
             const vCardResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/users/${userId}/vcard`,
+              `${config.BACKEND_URL}/v1/organizations/${organizationId}/users/${userId}/vcard`,
               {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
@@ -1829,7 +1826,7 @@ export default function ManageVCard() {
                           className="text-xs underline ml-3 text-gray-500 hover:text-gray-700"
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              `${process.env.NEXT_PUBLIC_APP_URL}/vcard/${vCard?.handle}`
+                              `${config.BACKEND_URL}/vcard/${vCard?.handle}`
                             );
                             showNotification(
                               "Link copied to clipboard!",
@@ -3609,7 +3606,7 @@ export default function ManageVCard() {
                         href={`/vcard/${vCard?.handle}`}
                         className="px-4 py-2 bg-gray-50 border truncate max-w-[260px] sm:max-w-full   border-gray-200 rounded-lg text-sm text-blue-600 hover:text-blue-700 hover:underline"
                       >
-                        {`${process.env.NEXT_PUBLIC_APP_URL}/vcard/${vCard?.handle}`}
+                        {`${config.BACKEND_URL}/vcard/${vCard?.handle}`}
                       </Link>
 
                       <div className="relative group ml-2">
@@ -3617,7 +3614,7 @@ export default function ManageVCard() {
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              `${process.env.NEXT_PUBLIC_APP_URL}/vcard/${vCard?.handle}`
+                              `${config.BACKEND_URL}/vcard/${vCard?.handle}`
                             );
                             showNotification(
                               "Link copied to clipboard!",

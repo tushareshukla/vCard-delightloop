@@ -5,8 +5,8 @@ import PageHeader from "@/components/layouts/PageHeader";
 import { Gift, X } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { config } from "@/utils/config";
 
 interface GiftItem {
   _id: string;
@@ -362,7 +362,7 @@ export default function Inventory() {
 
       const pagePromises = Array.from({ length: totalPages }, (_, i) =>
         fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/gifts?page=${
+          `${config.BACKEND_URL}/v1/gifts?page=${
             i + 1
           }&limit=${limit}`,
           {
@@ -422,7 +422,7 @@ export default function Inventory() {
   const fetchOrganizationGifts = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/gifts/organization/${organizationId}`,
+        `${config.BACKEND_URL}/v1/gifts/organization/${organizationId}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -455,7 +455,7 @@ export default function Inventory() {
   const fetchBundles = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/organizations/${organizationId}/bundles`,
+        `${config.BACKEND_URL}/v1/organizations/${organizationId}/bundles`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -798,7 +798,7 @@ export default function Inventory() {
       console.log("[BUNDLE-CREATE] Selected gifts:", selectedGiftsList);
       console.log("[BUNDLE-CREATE] Preparing bundle data for API:", bundleData);
 
-      const apiUrl = `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/organizations/${organizationId}/bundles`;
+      const apiUrl = `${config.BACKEND_URL}/v1/organizations/${organizationId}/bundles`;
       console.log("[BUNDLE-CREATE] API URL:", apiUrl);
 
       console.log("[BUNDLE-CREATE] Sending request to create bundle...");
@@ -839,7 +839,7 @@ export default function Inventory() {
         uploadFormData.append("bundleId", responseData.data._id);
 
         const uploadResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/public/upload/bundle`,
+          `${config.BACKEND_URL}/v1/public/upload/bundle`,
           {
             method: "POST",
             headers: {

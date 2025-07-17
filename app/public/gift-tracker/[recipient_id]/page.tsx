@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { GiftTrackerClientComponent } from "@/app/public/gift-tracker/components/gift-tracker-client";
 import InfinityLoader from "@/components/common/InfinityLoader"; // Import the loader
+import { config } from "@/utils/config";
 
 // This is a Server Component
 export default async function Page({
@@ -14,7 +15,7 @@ export default async function Page({
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/public/track/${recipient_id}`,
+      `${config.BACKEND_URL}/v1/public/track/${recipient_id}`,
       {
         cache: "no-store",
         headers: {

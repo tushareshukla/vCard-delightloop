@@ -8,7 +8,6 @@ import {
   Copy,
   ExternalLink,
   Check,
-  ArrowRight,
   ArrowLeft,
   Sparkles,
   Clock,

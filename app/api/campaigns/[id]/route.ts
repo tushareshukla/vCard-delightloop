@@ -3,8 +3,6 @@ import Campaign from "@/models/Campaign";
 import Recipient from "@/models/Recipients";
 import Gift from "@/models/Gifts";
 import dbConnect from "@/lib/database/dbConnect";
-import mongoose from "mongoose";
-import { validateUser } from "@/middleware/authMiddleware";
 import { connectToDatabase } from "@/lib/database/connectToDatabase";
 import { MongoClient } from "mongodb";
 import { ObjectId } from "mongodb";

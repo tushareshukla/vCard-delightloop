@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   PaymentElement,
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
-import { walletService } from "@/services/walletService";
 
 interface PaymentFormProps {
   organizationId: string;
@@ -42,7 +41,7 @@ export function PaymentForm({
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/dashboard/wallet`,
+          return_url: `${window.location.origin}/manage-vcard/wallet`,
         },
       });
 

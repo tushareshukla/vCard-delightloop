@@ -16,6 +16,7 @@ import {
   Check,
   CreditCard,
 } from "lucide-react";
+import { config } from "@/utils/config";
 
 interface TrackingData {
   draftVCardId: string;
@@ -136,7 +137,7 @@ export default function VCardTrackingPage({
 
       // Fetch the draft VCard data using the draft_vcardId
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/draft/${draft_vcardId}`
+        `${config.BACKEND_URL}/v1/vcard/draft/${draft_vcardId}`
       );
 
       if (!response.ok) {

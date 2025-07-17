@@ -1,9 +1,9 @@
 "use client";
+import { config } from "@/utils/config";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { getUserFromCookie } from "@/utils/getUserFromCookie";
 
 export default function CheckMailPage() {
 
@@ -25,7 +25,7 @@ export default function CheckMailPage() {
 
     try {
       console.log('[Resend Email] Starting resend process for:', email);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/password-reset/request`, {
+      const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/request`, {
         //const response = await fetch(`http://localhost:5500/v1/password-reset/request`, {
         method: 'POST',
         headers: {

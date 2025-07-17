@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { config } from "@/utils/config";
 
 export default function AuthPage() {
   const [showEmailForm, setShowEmailForm] = useState(false);
@@ -55,7 +56,7 @@ export default function AuthPage() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/auth/validate/${userId}`,
+        `${config.BACKEND_URL}/v1/auth/validate/${userId}`,
         {
           method: "POST",
           headers: {
@@ -109,7 +110,7 @@ export default function AuthPage() {
 
           // Close modal and redirect to dashboard
           setIsModalOpen(false);
-          router.push("/dashboard");
+          router.push("/manage-vcard");
         }
       } catch (parseError) {
         console.error("Failed to parse response:", parseError);
@@ -142,13 +143,13 @@ export default function AuthPage() {
         {!showEmailForm ? (
           <>
             <a
-              href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/auth/linkedin`}
+              href={`${config.BACKEND_URL}/v1/auth/linkedin`}
               className="w-full font-medium bg-primary hover:bg-opacity-95 text-white py-3 rounded-md flex items-center justify-center"
               onClick={(e) => {
                 e.preventDefault();
                 setIsLoading(true);
                 window.location.href =
-                  `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/auth/linkedin`;
+                  `${config.BACKEND_URL}/v1/auth/linkedin`;
               }}
             >
               {isLoading ? (

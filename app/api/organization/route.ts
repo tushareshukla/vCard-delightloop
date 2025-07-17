@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/database/dbConnect";
 import Organization from "@/models/Organization";
-import mongoose from "mongoose";
 
 export async function GET() {
   try {

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import Cookies from "js-cookie";
+import { config } from "@/utils/config";
 
 interface UserData {
   _id?: string;
@@ -53,7 +53,7 @@ export default function ConnectedPage() {
         ) {
           try {
             const vcardResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/authenticate`,
+              `${config.BACKEND_URL}/v1/vcard/authenticate`,
               {
                 method: "POST",
                 headers: {
@@ -223,7 +223,7 @@ export default function ConnectedPage() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/auth/validate/${userId}`,
+        `${config.BACKEND_URL}/v1/auth/validate/${userId}`,
         {
           method: "POST",
           headers: {
@@ -282,8 +282,8 @@ export default function ConnectedPage() {
 
           // Close modal and redirect to dashboard or profile based on vcard user
           setIsModalOpen(false);
-          //   router.push(isVcardUser ? "/profile?tab=vcard" : "/dashboard");
-          router.push(isVcardUser ? "/manage-vcard" : "/dashboard");
+          //   router.push(isVcardUser ? "/profile?tab=vcard" : "/manage-vcard");
+          router.push(isVcardUser ? "/manage-vcard" : "/manage-vcard");
         }
       } catch (parseError) {
         console.error("Failed to parse response:", parseError);

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Campaign from "@/models/Campaign";
 import dbConnect from "@/lib/database/dbConnect";
-import mongoose from "mongoose";
 import { validateUser } from "@/middleware/authMiddleware";
 
 export async function GET(request: NextRequest) {

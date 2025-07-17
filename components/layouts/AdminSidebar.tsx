@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import Cookies from "js-cookie";
 import { LogOut, CircleUserRound, IdCard } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
+import { config } from "@/utils/config";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -22,7 +23,7 @@ export default function Sidebar() {
   const handleLogout = async () => {
     try {
       await fetch(
-        `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/auth/logout`,
+        `${config.BACKEND_URL}/v1/auth/logout`,
         { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" } }
       );
     } catch {}
@@ -50,7 +51,7 @@ export default function Sidebar() {
       if (!userId || !authToken || !organizationId) return;
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/users/${userId}`,
+          `${config.BACKEND_URL}/v1/organizations/${organizationId}/users/${userId}`,
           { headers: { Authorization: `Bearer ${authToken}` } }
         );
         if (response.ok) {
