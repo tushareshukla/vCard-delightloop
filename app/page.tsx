@@ -5,11 +5,9 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import InfinityLoader from "../components/common/InfinityLoader";
-import { useAuth } from "./context/AuthContext";
 import { HelpCircle, ExternalLink, Calendar } from "lucide-react";
 
 export default function Page() {
-  const { userId, userEmail, organizationId } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
