@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/layouts/PageHeader";
 import { Button } from "@/components/ui/button";
+import { config } from "@/utils/config";
 // User interface (without publicProfileCard)
 interface UserProfile {
   _id: string;
@@ -845,7 +846,7 @@ export default function ProfilePage() {
           // Fetch user data
 
           const userResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/users/${userId}`,
+            `${config.BACKEND_URL}/v1/organizations/${organizationId}/users/${userId}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -861,7 +862,7 @@ export default function ProfilePage() {
 
           // Fetch organization data
           const orgResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}`,
+            `${config.BACKEND_URL}/v1/organizations/${organizationId}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -884,7 +885,7 @@ export default function ProfilePage() {
           // Fetch VCard data separately
           try {
             const vCardResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/users/${userId}/vcard`,
+              `${config.BACKEND_URL}/v1/organizations/${organizationId}/users/${userId}/vcard`,
               {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
@@ -1029,7 +1030,7 @@ export default function ProfilePage() {
 
       // First check in recipients
       //   const recipientResponse = await fetch(
-      //     `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/recipients/check-handle/${encodeURIComponent(handle)}`,
+      //     `${config.BACKEND_URL}/v1/recipients/check-handle/${encodeURIComponent(handle)}`,
       //     {
       //       headers: {
       //         Authorization: `Bearer ${authToken}`,
@@ -1050,7 +1051,7 @@ export default function ProfilePage() {
 
       // Check handle availability using VCard API
       const validateResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/validate-handle`,
+        `${config.BACKEND_URL}/v1/vcard/validate-handle`,
         {
           method: "POST",
           headers: {
@@ -1568,7 +1569,7 @@ export default function ProfilePage() {
 
       // Update user info first (without VCard data)
       const userUpdateResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${orgId}/users/${userId}/update-user`,
+        `${config.BACKEND_URL}/v1/organizations/${orgId}/users/${userId}/update-user`,
         {
           method: "PATCH",
           headers: {
@@ -1599,7 +1600,7 @@ export default function ProfilePage() {
         try {
           // First, check if VCard exists by calling the GET API
           const checkResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
+            `${config.BACKEND_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
             {
               method: "GET",
               headers: {
@@ -1616,7 +1617,7 @@ export default function ProfilePage() {
             console.log("✅ VCard exists - will UPDATE");
 
             vCardResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
+              `${config.BACKEND_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
               {
                 method: "PUT",
                 headers: {
@@ -1632,7 +1633,7 @@ export default function ProfilePage() {
             console.log("🆕 VCard not found - will CREATE");
 
             vCardResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard`,
+              `${config.BACKEND_URL}/v1/vcard`,
               {
                 method: "POST",
                 headers: {
@@ -1699,7 +1700,7 @@ export default function ProfilePage() {
         );
 
         const orgUpdateResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${orgId}/users/${userId}/update-org`,
+          `${config.BACKEND_URL}/v1/organizations/${orgId}/users/${userId}/update-org`,
           {
             method: "PATCH",
             headers: {
@@ -1775,7 +1776,7 @@ export default function ProfilePage() {
       // In a real implementation, you'd verify the current password on the server
       // and handle password updates through a dedicated endpoint
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${orgId}/users/${userId}/update-user`,
+        `${config.BACKEND_URL}/v1/organizations/${orgId}/users/${userId}/update-user`,
         {
           method: "PATCH",
           headers: {
@@ -1839,7 +1840,7 @@ export default function ProfilePage() {
       setIsLoadingKeys(true);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/apikeys`,
+        `${config.BACKEND_URL}/v1/apikeys`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -1877,7 +1878,7 @@ export default function ProfilePage() {
       setIsCreatingKey(true);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/apikeys`,
+        `${config.BACKEND_URL}/v1/apikeys`,
         {
           method: "POST",
           headers: {
@@ -1949,7 +1950,7 @@ export default function ProfilePage() {
       setIsRevoking(true);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/apikeys/${deletingKey._id}`,
+        `${config.BACKEND_URL}/v1/apikeys/${deletingKey._id}`,
         {
           method: "PUT",
           headers: {
@@ -2028,7 +2029,7 @@ export default function ProfilePage() {
       setIsUpdatingKey(true);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/apikeys/${editingKey._id}`,
+        `${config.BACKEND_URL}/v1/apikeys/${editingKey._id}`,
         {
           method: "PUT",
           headers: {

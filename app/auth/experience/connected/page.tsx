@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import { config } from "@/utils/config";
 
 interface UserData {
   _id?: string;
@@ -52,7 +53,7 @@ export default function ConnectedPage() {
         ) {
           try {
             const vcardResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/authenticate`,
+              `${config.BACKEND_URL}/v1/vcard/authenticate`,
               {
                 method: "POST",
                 headers: {
@@ -222,7 +223,7 @@ export default function ConnectedPage() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/auth/validate/${userId}`,
+        `${config.BACKEND_URL}/v1/auth/validate/${userId}`,
         {
           method: "POST",
           headers: {

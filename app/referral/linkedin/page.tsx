@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   ArrowRight,
 } from "lucide-react";
+import { config } from "@/utils/config";
 
 export default function LinkedInInputPage() {
   const router = useRouter();
@@ -70,7 +71,7 @@ export default function LinkedInInputPage() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/fetchLinkedin`,
+        `${config.BACKEND_URL}/v1/vcard/fetchLinkedin`,
         {
           method: "POST",
           headers: {

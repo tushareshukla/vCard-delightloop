@@ -6,6 +6,7 @@ import Link from "next/link";
 import Script from "next/script";
 import GiftTrackingProgress from "@/components/ui/GiftTrackingProgress";
 import { useRouter, useSearchParams } from "next/navigation";
+import { config } from "@/utils/config";
 
 // Add CSS keyframes and styles at the top of the file
 const styles = `
@@ -199,7 +200,7 @@ export default function GiftSentPage() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/auth/validate/${userId}`,
+        `${config.BACKEND_URL}/v1/auth/validate/${userId}`,
         {
           method: "POST",
           headers: {

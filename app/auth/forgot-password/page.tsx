@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import InfinityLoader from "@/components/common/InfinityLoader";
+import { config } from "@/utils/config";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -22,7 +23,7 @@ export default function ForgotPassword() {
 
     try {
       console.log('[Forgot Password] Sending request to API');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/password-reset/request`, {
+      const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/request`, {
        // const response = await fetch(`http://localhost:5500/v1/password-reset/request`, {
         method: 'POST',
         headers: {
