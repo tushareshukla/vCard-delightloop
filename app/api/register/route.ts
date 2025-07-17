@@ -23,7 +23,6 @@ export async function POST(request: Request) {
     console.log(`Request came from: ${referer}`);
 
     await dbConnect();
-    const unipileRegisterlink: string = "";
     const {
       firstName,
       lastName,
@@ -150,7 +149,6 @@ export async function POST(request: Request) {
     });
 
     if (user) {
-      const userToUpdate = await User.findById(user._id); //startfor unipile email register link get
       // try {
       //   const date = new Date();
       //   date.setDate(date.getDate() + 1);
