@@ -58,11 +58,11 @@ const DefaultAvatar = () => (
 const getApiBaseUrl = () => {
   const env = process.env.NEXT_PUBLIC_ENV;
   if (env === 'sandbox') {
-    return 'https://sandbox-api.delightloop.ai';
+    return 'https://backend-delight.patchup.health';
   } else if (env === 'production') {
     return 'https://api.delightloop.ai';
   }
-  return 'https://sandbox-api.delightloop.ai'; // default to development
+  return 'https://backend-delight.patchup.health'; // default to development
  //return 'http://localhost:5500';
 };
 
