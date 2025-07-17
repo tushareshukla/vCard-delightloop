@@ -6,6 +6,7 @@ import { Gift, X } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { config } from "@/utils/config";
 
 interface GiftItem {
   _id: string;
@@ -361,7 +362,7 @@ export default function Inventory() {
 
       const pagePromises = Array.from({ length: totalPages }, (_, i) =>
         fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/gifts?page=${
+          `${config.BACKEND_URL}/v1/gifts?page=${
             i + 1
           }&limit=${limit}`,
           {

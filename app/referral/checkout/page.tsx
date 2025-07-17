@@ -12,6 +12,7 @@ import {
   CheckCircle,
   Smartphone,
 } from "lucide-react";
+import { config } from "@/utils/config";
 
 interface DraftVCardData {
   draft_vcardId: string;
@@ -188,7 +189,7 @@ export default function CheckoutPage() {
   const fetchDraftVCard = async (id: string) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/draft/${id}`
+        `${config.BACKEND_URL}/v1/vcard/draft/${id}`
       );
 
       if (response.ok) {
@@ -255,7 +256,7 @@ export default function CheckoutPage() {
       };
 
       const shippingResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/draft/shipping`,
+        `${config.BACKEND_URL}/v1/vcard/draft/shipping`,
         {
           method: "POST",
           headers: {
@@ -282,7 +283,7 @@ export default function CheckoutPage() {
       if (selectedCardType === "digital") {
         // Create digital card using the new API endpoint
         const digitalCardResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/draft/${draftData.draft_vcardId}/create`,
+          `${config.BACKEND_URL}/v1/vcard/draft/${draftData.draft_vcardId}/create`,
           {
             method: "POST",
             headers: {
@@ -320,7 +321,7 @@ export default function CheckoutPage() {
         };
 
         const paymentResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/draft/payment`,
+          `${config.BACKEND_URL}/v1/vcard/draft/payment`,
           {
             method: "POST",
             headers: {

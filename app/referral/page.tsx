@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { ArrowRight, Zap, Share2, Clock } from "lucide-react";
+import { config } from "@/utils/config";
 
 interface ReferralProfileData {
   handle: string;
@@ -37,7 +38,7 @@ export default function ReferralLandingPage() {
   const fetchReferralProfile = async (vcr: string) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/key/${vcr}`
+        `${config.BACKEND_URL}/v1/vcard/key/${vcr}`
       );
 
       if (response.ok) {

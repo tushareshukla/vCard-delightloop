@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import InfinityLoader from "@/components/common/InfinityLoader";
+import { config } from "@/utils/config";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -28,7 +29,7 @@ export default function ResetPassword() {
 
       try {
         setIsValidating(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/password-reset/validate-token`, {  
+        const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/validate-token`, {  
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -84,7 +85,7 @@ export default function ResetPassword() {
 
     try {
       console.log('[Reset Password] Sending reset request to API');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/password-reset/reset`, {
+      const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/reset`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/database/dbConnect";
 import mongoose from "mongoose";
 import { Recipient } from "@/models/Recipients";
+import { config } from "@/utils/config";
 
 export async function POST(
   request: Request,
@@ -43,7 +44,7 @@ export async function POST(
     
     //for sending acknowledgement to mail
     try{
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/recipients/${id}/mail/acknowledge`, {
+      const response = await fetch(`${config.BACKEND_URL}/v1/recipients/${id}/mail/acknowledge`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -10,6 +10,7 @@ import Image from "next/image";
 // Import brand icons from react-icons
 import { FaPhone, FaLinkedinIn } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import { config } from "@/utils/config";
 
 interface DraftVCardData {
   draft_vcardId: string;
@@ -100,7 +101,7 @@ export default function PreviewPage() {
   const fetchDraftVCard = async (id: string) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/draft/${id}`
+        `${config.BACKEND_URL}/v1/vcard/draft/${id}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -262,7 +263,7 @@ export default function PreviewPage() {
       updateLink("linkedin", linkedinUrl);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/draft/${draftData.draft_vcardId}`,
+        `${config.BACKEND_URL}/v1/vcard/draft/${draftData.draft_vcardId}`,
         {
           method: "PUT",
           headers: {

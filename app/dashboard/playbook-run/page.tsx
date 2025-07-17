@@ -5,6 +5,7 @@ import AdminSidebar from "@/components/layouts/AdminSidebar";
 import Link from "next/link";
 import router from "next/router";
 import { useAuth } from "@/app/context/AuthContext";
+import { config } from "@/utils/config";
 interface Playbook {
   _id: string;
   name: string;
@@ -171,7 +172,7 @@ export default function PlaybookRun() {
         }
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/playbooks?user_id=${userId}`,
+          `${config.BACKEND_URL}/v1/organizations/${organizationId}/playbooks?user_id=${userId}`,
           {
             headers: {
               accept: "application/json",
@@ -388,7 +389,7 @@ export default function PlaybookRun() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/recipients/linkedin-profile?profile=${username}`,
+        `${config.BACKEND_URL}/v1/recipients/linkedin-profile?profile=${username}`,
         {
           headers: {
             accept: "*/*",
@@ -585,7 +586,7 @@ export default function PlaybookRun() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/playbooks/${selectedPlaybook._id}/gifts?user_id=${userId}`,
+        `${config.BACKEND_URL}/v1/organizations/${organizationId}/playbooks/${selectedPlaybook._id}/gifts?user_id=${userId}`,
         {
           headers: {
             accept: "application/json",
@@ -1575,7 +1576,7 @@ export default function PlaybookRun() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/playbooks/${selectedPlaybook?._id}/run`,
+        `${config.BACKEND_URL}/v1/organizations/${organizationId}/playbooks/${selectedPlaybook?._id}/run`,
         {
           method: "POST",
           headers: {

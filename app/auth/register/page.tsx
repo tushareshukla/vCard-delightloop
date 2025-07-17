@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import InfinityLoader from "@/components/common/InfinityLoader";
+import { config } from "@/utils/config";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -41,7 +42,7 @@ export default function Register() {
   const fetchVCardData = async (key: string, secret: string) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/authenticate`,
+        `${config.BACKEND_URL}/v1/vcard/authenticate`,
         {
           method: "POST",
           headers: {

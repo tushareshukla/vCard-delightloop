@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import PageHeader from "@/components/layouts/PageHeader";
 import { Search, Filter } from "lucide-react";
+import { config } from "@/utils/config";
 
 interface PlaybookRun {
   _id: string;
@@ -306,7 +307,7 @@ export default function GiftingActivities() {
       }));
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/update-notification-prefs/recipients/${recipientId}`,
+        `${config.BACKEND_URL}/v1/update-notification-prefs/recipients/${recipientId}`,
         {
           method: "PATCH",
           headers: {
@@ -399,7 +400,7 @@ export default function GiftingActivities() {
       // Example API call:
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/notification-prefs/recipients/${recipientId}`,
+          `${config.BACKEND_URL}/v1/notification-prefs/recipients/${recipientId}`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,

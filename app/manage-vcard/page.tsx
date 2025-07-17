@@ -18,6 +18,7 @@ import {
   Copy,
 } from "lucide-react";
 import PageHeader from "@/components/layouts/PageHeader";
+import { config } from "@/utils/config";
 
 // User interface (without publicProfileCard)
 interface UserProfile {
@@ -984,7 +985,7 @@ export default function ManageVCard() {
       setIsSaveDisabled(true);
 
       const validateResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard/validate-handle`,
+        `${config.BACKEND_URL}/v1/vcard/validate-handle`,
         {
           method: "POST",
           headers: {
@@ -1437,7 +1438,7 @@ export default function ManageVCard() {
 
         try {
           const checkResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
+            `${config.BACKEND_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
             {
               method: "GET",
               headers: {
@@ -1449,7 +1450,7 @@ export default function ManageVCard() {
 
           if (checkResponse.ok) {
             vCardResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
+              `${config.BACKEND_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
               {
                 method: "PUT",
                 headers: {
@@ -1461,7 +1462,7 @@ export default function ManageVCard() {
             );
           } else if (checkResponse.status === 404) {
             vCardResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/vcard`,
+              `${config.BACKEND_URL}/v1/vcard`,
               {
                 method: "POST",
                 headers: {
@@ -1529,7 +1530,7 @@ export default function ManageVCard() {
 
           // Fetch user data
           const userResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/users/${userId}`,
+            `${config.BACKEND_URL}/v1/organizations/${organizationId}/users/${userId}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -1545,7 +1546,7 @@ export default function ManageVCard() {
 
           // Fetch organization data
           const orgResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}`,
+            `${config.BACKEND_URL}/v1/organizations/${organizationId}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -1567,7 +1568,7 @@ export default function ManageVCard() {
           // Fetch VCard data separately
           try {
             const vCardResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/organizations/${organizationId}/users/${userId}/vcard`,
+              `${config.BACKEND_URL}/v1/organizations/${organizationId}/users/${userId}/vcard`,
               {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
