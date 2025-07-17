@@ -1,26 +1,26 @@
-# Use Node.js 20 LTS
+# Use official Node.js 20 LTS image
 FROM node:20
 
+# Set working directory
 WORKDIR /app
 
-COPY package.json ./
-# RUN npm install -g pnpm && pnpm install --no-frozen-lockfile
+# Only copy dependency manifests first (for better layer caching)
+COPY package.json pnpm-lock.yaml* ./
 
+# Install pnpm and dependencies
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
-# Install pnpm and dependencies (without requiring lockfile)
-RUN npm install -g pnpm && pnpm install --no-frozen-lockfile
-
-# Copy the rest of your source code—but exclude .env.local if present
+# Copy rest of the code (after installing deps, so cache works)
 COPY . .
 
 # Set production environment
 ENV NODE_ENV=production
 
-# Build your Next.js app
+# Build Next.js app
 RUN pnpm build
 
-# Expose port
+# Expose Next.js default port
 EXPOSE 3000
 
-# Run your production server
+# Start the production server
 CMD ["pnpm", "start"]
