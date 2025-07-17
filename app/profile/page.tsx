@@ -2079,7 +2079,7 @@ export default function ProfilePage() {
     setAdminVCardLoading(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/vcard/admin/all`,
+        `${config.BACKEND_URL}/v1/vcard/admin/all`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -2107,7 +2107,7 @@ export default function ProfilePage() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/vcard`,
+        `${config.BACKEND_URL}/v1/vcard`,
         {
           method: "POST",
           headers: {
@@ -2144,7 +2144,7 @@ export default function ProfilePage() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/vcard/${editingAdminVCard._id}`,
+        `${config.BACKEND_URL}/v1/vcard/${editingAdminVCard._id}`,
         {
           method: "PUT",
           headers: {
@@ -2184,7 +2184,7 @@ export default function ProfilePage() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DELIGHTLOOP_API_URL}/v1/vcard/${vCardId}`,
+        `${config.BACKEND_URL}/v1/vcard/${vCardId}`,
         {
           method: "DELETE",
           headers: {

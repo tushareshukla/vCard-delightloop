@@ -1826,7 +1826,7 @@ export default function ManageVCard() {
                           className="text-xs underline ml-3 text-gray-500 hover:text-gray-700"
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              `${process.env.NEXT_PUBLIC_APP_URL}/vcard/${vCard?.handle}`
+                              `${config.BACKEND_URL}/vcard/${vCard?.handle}`
                             );
                             showNotification(
                               "Link copied to clipboard!",
@@ -3606,7 +3606,7 @@ export default function ManageVCard() {
                         href={`/vcard/${vCard?.handle}`}
                         className="px-4 py-2 bg-gray-50 border truncate max-w-[260px] sm:max-w-full   border-gray-200 rounded-lg text-sm text-blue-600 hover:text-blue-700 hover:underline"
                       >
-                        {`${process.env.NEXT_PUBLIC_APP_URL}/vcard/${vCard?.handle}`}
+                        {`${config.BACKEND_URL}/vcard/${vCard?.handle}`}
                       </Link>
 
                       <div className="relative group ml-2">
@@ -3614,7 +3614,7 @@ export default function ManageVCard() {
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              `${process.env.NEXT_PUBLIC_APP_URL}/vcard/${vCard?.handle}`
+                              `${config.BACKEND_URL}/vcard/${vCard?.handle}`
                             );
                             showNotification(
                               "Link copied to clipboard!",
