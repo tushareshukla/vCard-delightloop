@@ -2418,10 +2418,6 @@ export default function ProfilePage() {
         ) : (
           <div className="p-3 sm:p-4 md:p-6 bg-white sm:rounded-tl-3xl h-full overflow-y-auto pb-20 sm:pb-0">
             <PageHeader
-              backLink={{
-                href: "/dashboard",
-                text: "Dashboard",
-              }}
               title="Profile"
               description="Manage your personal and organization settings"
               primaryButton={{
