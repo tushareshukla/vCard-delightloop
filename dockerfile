@@ -13,10 +13,6 @@ RUN npm install -g pnpm && pnpm install --frozen-lockfile
 # Copy rest of the code (after installing deps, so cache works)
 COPY . .
 
-
-# Build Next.js app
-RUN echo "STRIPE: $STRIPE_SECRET_KEY, SENDGRID: $SENDGRID_API_KEY"
-
 RUN pnpm build
 
 # Expose Next.js default port
