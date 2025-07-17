@@ -17,6 +17,8 @@ COPY . .
 ENV NODE_ENV=production
 
 # Build Next.js app
+RUN echo "STRIPE: $STRIPE_SECRET_KEY, SENDGRID: $SENDGRID_API_KEY"
+
 RUN pnpm build
 
 # Expose Next.js default port
