@@ -231,7 +231,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
     // Send verification email using SendGrid directly
 
-let verificationUrl = `${config.BACKEND_URL}/auth/verify-email/${token}`;
+let verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email/${token}`;
     const urlParams = new URLSearchParams();
 
     if (quicksend && user_id && gift_id) {
@@ -252,12 +252,12 @@ let verificationUrl = `${config.BACKEND_URL}/auth/verify-email/${token}`;
     }
 
     try {
-      let msg;
 
-      if (vcr) {
-        msg = {
+
+
+       const msg = {
           to: email,
-          from: "Sixmap <sixmap@mail.delightloop.ai>",
+          from: "VCard Success <vcard@mail.delightloop.ai>",
           subject: "Action Required: Verify Your Email to Manage Your Card",
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -269,38 +269,11 @@ let verificationUrl = `${config.BACKEND_URL}/auth/verify-email/${token}`;
               <p>This link will expire in 24 hours for security reasons.
                 Once verified, you'll be able to effortlessly manage and update your digital card's information.
                 If you didn't create an account, please ignore this email.</p>
-              <p>Best regards,<br>The Sixmap Team</p>
+              <p>Best regards,<br>DelightLoop VCard Team</p>
             </div>
           `,
         };
-      } else {
-        msg = {
-          to: email,
-          from: "DelightLoop <gifty@mail.delightloop.ai>",
-          subject: "Welcome to Delightloop – Let's Start Creating Meaningful Connections!",
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2>Hi ${firstName},</h2>
-              <p>Welcome aboard! 🎉 We're excited to have you on DelightLoop.</p>
-              <p>With Delightloop, you can:</p>
-              <ul style="list-style: none; padding-left: 0;">
-                <li>✅ Send thoughtful gifts effortlessly to build strong relationships.</li>
-                <li>✅ Boost engagement and customer retention.</li>
-                <li>✅ Track campaign impact with real-time insights.</li>
-              </ul>
-              <p>To get started, please verify your email by clicking the button below:</p>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${verificationUrl}" style="background-color: #7F56D9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Verify Email</a>
-              </div>
-              <p>After verification, you can start exploring Delightloop. If you need any help, our team is here for you!</p>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="https://app.delightloop.ai/" style="background-color: #7F56D9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Start Gifting Now</a>
-              </div>
-              <p>Cheers,<br>The Delightloop Team</p>
-            </div>
-          `,
-        };
-      }
+
 
       const response = await sgMail.send(msg);
       console.log(

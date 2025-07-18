@@ -16,6 +16,9 @@ import {
   Star,
   Link as LinkIcon,
   Copy,
+  HelpCircle,
+  ExternalLink,
+  Calendar,
 } from "lucide-react";
 import PageHeader from "@/components/layouts/PageHeader";
 import { config } from "@/utils/config";
@@ -2757,7 +2760,7 @@ export default function ManageVCard() {
                       </svg>
                       Mobile Preview
                     </div>
-                    <div className="  gap-5 justify-end text-sm  hidden sm:flex  ">
+                    <div className="  gap-5 justify-end text-sm  flex  ">
                       {editMode && (
                         <button
                           className={`bg-white text-gray-500 font-medium     `}
@@ -3633,6 +3636,41 @@ export default function ManageVCard() {
                 </div>
               </div>
             </div>
+            {/* Footer */}
+            <div className="flex flex-col sm:flex-row sm:justify-end mt-4 sm:mb-0 mb-9 items-center justify-between gap-3  text-primary  px-4">
+
+
+        <div className="flex items-center gap-6 order-1 sm:order-2 ">
+          <a
+            href="mailto:success@delightloop.com"
+            className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
+            title="Support"
+          >
+            {/* <HelpCircle className="w-4 h-4 sm:hidden" /> */}
+            <span className="">Support</span>
+          </a>
+          <Link
+            href="https://delightloop.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
+            title="About us"
+          >
+            {/* <ExternalLink className="w-4 h-4 sm:hidden" /> */}
+            <span className="">About us</span>
+          </Link>
+          <Link
+            href="https://www.delightloop.com/bookademo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
+            title="Book a meeting"
+          >
+            {/* <Calendar className="w-4 h-4 sm:hidden" /> */}
+            <span className="">Book a meeting</span>
+          </Link>
+        </div>
+      </div>
           </div>
         )}
       </div>
