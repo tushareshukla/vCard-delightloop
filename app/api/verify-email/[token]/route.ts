@@ -5,31 +5,39 @@ import User from "@/models/User";
 
 export async function GET(
   request: Request,
-  context: { params: { token: string } }
+  context: { params: Promise<{ token: string }> }
 ) {
   try {
     await dbConnect();
-    const { token } = context.params;
+    const { token } = await context.params;
 
     const verificationTokenExists = await EmailVerificationToken.findOne({
-      token
+      token,
     });
 
     if (!verificationTokenExists) {
       return NextResponse.json(
-        { success: false, error: "You have already verified your email or the link is invalid" },
+        {
+          success: false,
+          error: "You have already verified your email or the link is invalid",
+        },
         { status: 400 }
       );
     }
 
     const verificationToken = await EmailVerificationToken.findOne({
       token,
-      expiresAt: { $gt: new Date() }
+      expiresAt: { $gt: new Date() },
     });
 
     if (!verificationToken) {
       return NextResponse.json(
-        { success: false, error: "Invalid or expired verification link", resend: true, userId: verificationTokenExists.userId },
+        {
+          success: false,
+          error: "Invalid or expired verification link",
+          resend: true,
+          userId: verificationTokenExists.userId,
+        },
         { status: 400 }
       );
     }
@@ -37,7 +45,7 @@ export async function GET(
     // Update user
     await User.findByIdAndUpdate(verificationToken.userId, {
       emailVerified: true,
-      isActive: true
+      isActive: true,
     });
 
     // Delete the token
@@ -46,14 +54,13 @@ export async function GET(
     return NextResponse.json({
       success: true,
       message: "Email verified successfully",
-      userId: verificationToken.userId
+      userId: verificationToken.userId,
     });
-
   } catch (error) {
-    console.error('Verification error:', error);
+    console.error("Verification error:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to verify email' },
+      { success: false, error: "Failed to verify email" },
       { status: 500 }
     );
   }
-} 
+}
