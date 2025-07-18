@@ -322,7 +322,7 @@ export default function Page() {
           </Link>
         )}
 
-        <div className="w-full grif place-items-center mt-10">
+        <div className="w-full grid place-items-center mt-10">
           {/* --- INITIAL LOADING --- */}
           {isInitialLoading ? (
             <div className="text-center">
@@ -629,7 +629,7 @@ export default function Page() {
                                 handleCodeInputKeyDown(index, e)
                               }
                               onPaste={handleCodeInputPaste}
-                              className="w-12 h-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7F56D9] focus:border-transparent text-lg font-medium"
+                              className="size-10 sm:size-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7F56D9] focus:border-transparent text-lg font-medium"
                               maxLength={1}
                               pattern="\d"
                               inputMode="numeric"
@@ -712,20 +712,20 @@ export default function Page() {
           )}
         </div>
         {showLoginSection && (
-        <div className=" text-sm text-[#667085] mt-6 font-[400] flex items-center gap-1 justify-center">
-          Powered By {/* Delightloop */}
-          <Image
-            src="/svgs/Logo.svg"
-            alt="Logo"
-            className="w-24 sm:w-32 lg:w-36 h-auto"
-            width={189}
-            height={48}
-          />
-        </div>
-      )}
+          <div className=" text-sm text-[#667085] mt-6 font-[400] flex items-center gap-1 justify-center">
+            Powered By {/* Delightloop */}
+            <Image
+              src="/svgs/Logo.svg"
+              alt="Logo"
+              className="w-24 sm:w-32 lg:w-36 h-auto"
+              width={189}
+              height={48}
+            />
+          </div>
+        )}
       </div>
- {/* Footer */}
- <div className="flex flex-col sm:flex-row items-center justify-between gap-3  text-primary place-self-end w-screen px-4">
+      {/* Footer */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3  text-primary place-self-end w-screen px-4">
         <p className="font-[400] text-[14px] text-[#667085] order-2 sm:order-1">
           © 2025 Delightloop
         </p>
@@ -767,8 +767,6 @@ export default function Page() {
           <InfinityLoader width={56} height={56} />
         </div>
       )}
-
-
     </div>
   );
 }

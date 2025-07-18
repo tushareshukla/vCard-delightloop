@@ -1464,21 +1464,18 @@ export default function ManageVCard() {
               }
             );
           } else if (checkResponse.status === 404) {
-            vCardResponse = await fetch(
-              `${config.BACKEND_URL}/v1/vcard`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${authToken}`,
-                },
-                body: JSON.stringify({
-                  ...vCard,
-                  userId: userId,
-                  organizationId: orgId,
-                }),
-              }
-            );
+            vCardResponse = await fetch(`${config.BACKEND_URL}/v1/vcard`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`,
+              },
+              body: JSON.stringify({
+                ...vCard,
+                userId: userId,
+                organizationId: orgId,
+              }),
+            });
           } else {
             throw new Error(
               `Error checking VCard existence: ${checkResponse.status}`
@@ -3609,7 +3606,7 @@ export default function ManageVCard() {
                         href={`/vcard/${vCard?.handle}`}
                         className="px-4 py-2 bg-gray-50 border truncate max-w-[260px] sm:max-w-full   border-gray-200 rounded-lg text-sm text-blue-600 hover:text-blue-700 hover:underline"
                       >
-                        {`${config.BACKEND_URL}/vcard/${vCard?.handle}`}
+                        {`${process.env.NEXT_PUBLIC_APP_URL}/vcard/${vCard?.handle}`}
                       </Link>
 
                       <div className="relative group ml-2">
@@ -3638,39 +3635,37 @@ export default function ManageVCard() {
             </div>
             {/* Footer */}
             <div className="flex flex-col sm:flex-row sm:justify-end mt-4 sm:mb-0 mb-9 items-center justify-between gap-3  text-primary  px-4">
-
-
-        <div className="flex items-center gap-6 order-1 sm:order-2 ">
-          <a
-            href="mailto:success@delightloop.com"
-            className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
-            title="Support"
-          >
-            {/* <HelpCircle className="w-4 h-4 sm:hidden" /> */}
-            <span className="">Support</span>
-          </a>
-          <Link
-            href="https://delightloop.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
-            title="About us"
-          >
-            {/* <ExternalLink className="w-4 h-4 sm:hidden" /> */}
-            <span className="">About us</span>
-          </Link>
-          <Link
-            href="https://www.delightloop.com/bookademo"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
-            title="Book a meeting"
-          >
-            {/* <Calendar className="w-4 h-4 sm:hidden" /> */}
-            <span className="">Book a meeting</span>
-          </Link>
-        </div>
-      </div>
+              <div className="flex items-center gap-6 order-1 sm:order-2 ">
+                <a
+                  href="mailto:success@delightloop.com"
+                  className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
+                  title="Support"
+                >
+                  {/* <HelpCircle className="w-4 h-4 sm:hidden" /> */}
+                  <span className="">Support</span>
+                </a>
+                <Link
+                  href="https://delightloop.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
+                  title="About us"
+                >
+                  {/* <ExternalLink className="w-4 h-4 sm:hidden" /> */}
+                  <span className="">About us</span>
+                </Link>
+                <Link
+                  href="https://www.delightloop.com/bookademo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
+                  title="Book a meeting"
+                >
+                  {/* <Calendar className="w-4 h-4 sm:hidden" /> */}
+                  <span className="">Book a meeting</span>
+                </Link>
+              </div>
+            </div>
           </div>
         )}
       </div>
