@@ -9,17 +9,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-module.exports = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
-  },
-  // compiler:{
-  //   removeConsole: process.env.NODE_ENV === "production"
-  // }
-  // compiler:{
-  //   removeConsole: true
-  // }
-};
