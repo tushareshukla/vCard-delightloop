@@ -8,9 +8,9 @@ import Stripe from "stripe";
 import { getUserFromRequestCookie } from "@/utils/getUserFromCookie";
 import crypto from "crypto";
 
-// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-//   apiVersion: "2025-01-27.acacia",
-// });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2025-02-24.acacia",
+});
 
 export async function POST(req: Request) {
   try {
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     const orgObjectId = new mongoose.Types.ObjectId(organization_id);
 
     // Generate a unique transaction ID
-    const transactionId = crypto.randomBytes(16).toString('hex');
+    const transactionId = crypto.randomBytes(16).toString("hex");
 
     // Find existing wallet or create new one
     let wallet = await Wallet.findOne({

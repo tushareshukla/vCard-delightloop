@@ -4,17 +4,18 @@ import User from "@/models/User";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log("Fetching user details for ID:", params.id);
+    const { id } = await params;
+    console.log("Fetching user details for ID:", id);
     await dbConnect();
 
     // Find user by ID
-    const user = await User.findById(params.id).select("-password"); // Exclude password field
+    const user = await User.findById(id).select("-password"); // Exclude password field
 
     if (!user) {
-      console.log("User not found:", params.id);
+      console.log("User not found:", id);
       return NextResponse.json(
         { success: false, error: "User not found" },
         { status: 404 }
@@ -61,20 +62,21 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log("Updating user details for ID:", params.id);
+    const { id } = await params;
+    console.log("Updating user details for ID:", id);
     await dbConnect();
 
     const body = await request.json();
     const { organization_id } = body;
 
     // Find user by ID
-    const user = await User.findById(params.id);
+    const user = await User.findById(id);
 
     if (!user) {
-      console.log("User not found:", params.id);
+      console.log("User not found:", id);
       return NextResponse.json(
         { success: false, error: "User not found" },
         { status: 404 }

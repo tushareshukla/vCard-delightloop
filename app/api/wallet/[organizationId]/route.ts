@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 
 export async function GET(
   req: Request,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
     await dbConnect();
@@ -22,7 +22,7 @@ export async function GET(
     }
 
     // Await the params before using
-    const organizationId = await params.organizationId;
+    const { organizationId } = await params;
 
     // Find wallet for specific organization AND user
     const wallet = await Wallet.findOne({

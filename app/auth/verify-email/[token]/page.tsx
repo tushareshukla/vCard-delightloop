@@ -3,13 +3,15 @@ import VerifyEmailClient from './VerifyEmailClient';
 import Loading from './loading';
 
 interface PageProps {
-  params: { token: string }
+  params: Promise<{ token: string }>
 }
 
-export default function VerifyEmail({ params }: PageProps) {
+export default async function VerifyEmail({ params }: PageProps) {
+  const { token } = await params;
+
   return (
     <Suspense fallback={<Loading />}>
-      <VerifyEmailClient token={params.token} />
+      <VerifyEmailClient token={token} />
     </Suspense>
   );
-} 
+}
