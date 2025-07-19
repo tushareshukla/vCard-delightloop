@@ -391,14 +391,14 @@ export default function Page() {
               <a
                 href={`${
                   config.BACKEND_URL
-                }/v1/auth/linkedin?${searchParams.toString()}`}
+                }/v1/auth/linkedin?vcardflow=true&${searchParams.toString()}`}
                 className="w-full font-medium bg-primary/95 hover:bg-primary text-white py-3 rounded-md flex items-center justify-center"
                 onClick={(e) => {
                   e.preventDefault();
                   setIsLoading(true);
                   window.location.href = `${
-                    config.BACKEND_URL
-                  }/v1/auth/linkedin?${searchParams.toString()}`;
+                  config.BACKEND_URL
+                }/v1/auth/linkedin?vcardflow=true&${searchParams.toString()}`;
                 }}
               >
                 {isLoading ? (
