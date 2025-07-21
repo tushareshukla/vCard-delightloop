@@ -3584,7 +3584,7 @@ export default function ManageVCard() {
                         href={`/vcard/${vCard?.handle}`}
                         className="px-4 py-2 bg-gray-50 border truncate max-w-[260px] sm:max-w-full   border-gray-200 rounded-lg text-sm text-blue-600 hover:text-blue-700 hover:underline"
                       >
-                        {`${config.FRONTEND_URL}/vcard/${vCard?.handle}`}
+                        {`${config.FRONTEND_URL}vcard/${vCard?.handle}`}
                       </Link>
 
                       <div className="relative group ml-2">

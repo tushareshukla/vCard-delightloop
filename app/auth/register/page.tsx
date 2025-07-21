@@ -31,7 +31,7 @@ export default function Register() {
   const verify_email = searchParams.get("verify_email");
   const vcr = searchParams.get("vcr");
 
-//   const hasSentEmailRef = useRef(false);
+  //   const hasSentEmailRef = useRef(false);
 
   // Function to fetch VCard data using key and secret
   const fetchVCardData = async (key: string, secret: string) => {
@@ -69,16 +69,16 @@ export default function Register() {
     }
   };
 
-//   useEffect(() => {
-//     const need_mail_verification_login = searchParams.get(
-//       "need_mail_verification_login"
-//     );
-//     if (need_mail_verification_login && !hasSentEmailRef.current) {
-//       console.log("need_mail_verification_login", verify_email);
-//       hasSentEmailRef.current = true;
-//       handleResendVerification();
-//     }
-//   }, [router, searchParams]);
+  //   useEffect(() => {
+  //     const need_mail_verification_login = searchParams.get(
+  //       "need_mail_verification_login"
+  //     );
+  //     if (need_mail_verification_login && !hasSentEmailRef.current) {
+  //       console.log("need_mail_verification_login", verify_email);
+  //       hasSentEmailRef.current = true;
+  //       handleResendVerification();
+  //     }
+  //   }, [router, searchParams]);
 
   // Fetch VCard data if both vcr and vid parameters are present
   useEffect(() => {
@@ -273,14 +273,14 @@ export default function Register() {
       });
     } catch (err) {
       console.error("Registration error:", err);
-    //   if (err instanceof Error && err.message === "Email already registered") {
-    //     setEmailTitle("Email already registered. Please verify to continue.");
-    //     setRegisteredEmail(formData.email);
-    //     setIsRegistered(true);
-    //     handleResendVerification();
-    //   } else {
-        setError(err instanceof Error ? err.message : "Registration failed");
-    //   }
+      //   if (err instanceof Error && err.message === "Email already registered") {
+      //     setEmailTitle("Email already registered. Please verify to continue.");
+      //     setRegisteredEmail(formData.email);
+      //     setIsRegistered(true);
+      //     handleResendVerification();
+      //   } else {
+      setError(err instanceof Error ? err.message : "Registration failed");
+      //   }
     } finally {
       setIsLoading(false);
     }
@@ -334,7 +334,11 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-4  ">
             <div className="grid gap-4">
               <div>
-                <label aria-label="First Name" htmlFor="firstName" className="block text-[#344054] text-sm font-medium mb-1">
+                <label
+                  aria-label="First Name"
+                  htmlFor="firstName"
+                  className="block text-[#344054] text-sm font-medium mb-1"
+                >
                   First Name*
                 </label>
                 <input
@@ -349,7 +353,11 @@ export default function Register() {
                 />
               </div>
               <div>
-                <label aria-label="Last Name" htmlFor="lastName" className="block text-[#344054] text-sm font-medium mb-1">
+                <label
+                  aria-label="Last Name"
+                  htmlFor="lastName"
+                  className="block text-[#344054] text-sm font-medium mb-1"
+                >
                   Last Name*
                 </label>
                 <input
@@ -366,7 +374,11 @@ export default function Register() {
             </div>
 
             <div>
-              <label aria-label="Email" htmlFor="email" className="block text-[#344054] text-sm font-medium mb-1">
+              <label
+                aria-label="Email"
+                htmlFor="email"
+                className="block text-[#344054] text-sm font-medium mb-1"
+              >
                 Email*
               </label>
               <input
@@ -402,7 +414,11 @@ export default function Register() {
             </div>
 
             <div>
-              <label aria-label="Password" htmlFor="password" className="block text-[#344054] text-sm font-medium mb-1">
+              <label
+                aria-label="Password"
+                htmlFor="password"
+                className="block text-[#344054] text-sm font-medium mb-1"
+              >
                 Password*
               </label>
               <div className="relative">
