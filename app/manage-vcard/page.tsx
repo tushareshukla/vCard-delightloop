@@ -16,12 +16,11 @@ import {
   Star,
   Link as LinkIcon,
   Copy,
-  HelpCircle,
-  ExternalLink,
-  Calendar,
+
 } from "lucide-react";
 import PageHeader from "@/components/layouts/PageHeader";
 import { config } from "@/utils/config";
+
 
 // User interface (without publicProfileCard)
 interface UserProfile {
@@ -447,8 +446,15 @@ const SOCIAL_MEDIA_OPTIONS = [
 
 export default function ManageVCard() {
   const router = useRouter();
-  const { authToken, userId, userEmail, organizationId, isLoadingCookies } =
-    useAuth();
+  const {
+    authToken,
+    userId,
+    userEmail,
+    organizationId: orgId,
+    isLoadingCookies,
+  } = useAuth();
+  const organizationId =
+    orgId === "000000000000000000000000" ? "000000000000000000000001" : orgId;
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [vCard, setVCard] = useState<VCard | null>(null);
@@ -773,7 +779,7 @@ export default function ManageVCard() {
 
       const response = await fetch(
         `${
-          process.env.NEXT_PUBLIC_API_BASE_URL
+          config.BACKEND_URL
         }/v1/public/upload/image?folder=${encodeURIComponent(folder)}${
           entityId ? `&entityId=${entityId}` : ""
         }`,
@@ -1464,18 +1470,21 @@ export default function ManageVCard() {
               }
             );
           } else if (checkResponse.status === 404) {
-            vCardResponse = await fetch(`${config.BACKEND_URL}/v1/vcard`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`,
-              },
-              body: JSON.stringify({
-                ...vCard,
-                userId: userId,
-                organizationId: orgId,
-              }),
-            });
+            vCardResponse = await fetch(
+              `${config.BACKEND_URL}/v1/vcard`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${authToken}`,
+                },
+                body: JSON.stringify({
+                  ...vCard,
+                  userId: userId,
+                  organizationId: orgId,
+                }),
+              }
+            );
           } else {
             throw new Error(
               `Error checking VCard existence: ${checkResponse.status}`
@@ -1484,6 +1493,16 @@ export default function ManageVCard() {
 
           if (!vCardResponse.ok) {
             const errorData = await vCardResponse.json();
+
+            // Handle duplicate handle error specifically
+            if (errorData.error_code === "ERR_DUPLICATE_HANDLE") {
+              showNotification(
+                "This handle is already taken. Please choose a different handle.",
+                "error"
+              );
+              return;
+            }
+
             throw new Error(
               `Error saving VCard: ${
                 errorData.error_message || vCardResponse.status
@@ -1609,7 +1628,7 @@ export default function ManageVCard() {
   }, [isLoadingCookies]);
 
   return (
-    <div className="flex h-screen flex-col sm:flex-row pb-12 sm:pb-0">
+    <div className="flex h-screen flex-col sm:flex-row pb-6 sm:pb-0">
       <AdminSidebar />
       <div className="flex-1 sm:pt-3 bg-primary w-full overflow-x-hidden">
         {isLoading ? (
@@ -1744,48 +1763,7 @@ export default function ManageVCard() {
               showDivider={true}
               className="pt-2  "
             />
-            {/* //! --- save button for mobile screen only ----- */}
-            <div className="flex z-30 bg-white gap-2 justify-end border-t border-gray-200 px-4 py-2 sm:hidden fixed bottom-0 left-0 right-0">
-              {editMode && (
-                <button
-                  className={`bg-white text-gray-500 font-medium px-4 py-2 rounded-md border border-gray-200  `}
-                  onClick={cancelEdit}
-                >
-                  Cancel
-                </button>
-              )}
-              <button
-                className={`bg-primary text-white px-4 py-2 rounded-md   ${
-                  isSaving ||
-                  isSaveDisabled ||
-                  isCheckingHandle ||
-                  hideSaveButton ||
-                  Object.values(imageUploads).some((upload) => upload.uploading)
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
-                onClick={editMode ? handleSave : enterEditMode}
-                disabled={
-                  isSaving ||
-                  isSaveDisabled ||
-                  isCheckingHandle ||
-                  hideSaveButton ||
-                  Object.values(imageUploads).some((upload) => upload.uploading)
-                }
-              >
-                {isSaving
-                  ? "Saving..."
-                  : isCheckingHandle
-                  ? "Checking..."
-                  : Object.values(imageUploads).some(
-                      (upload) => upload.uploading
-                    )
-                  ? "Uploading..."
-                  : editMode
-                  ? "Save Changes"
-                  : "Edit"}
-              </button>
-            </div>
+
             {/* //! ----- Content -------  */}
             <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300">
               <div className="flex flex-col lg:flex-row gap-4">
@@ -1826,7 +1804,7 @@ export default function ManageVCard() {
                           className="text-xs underline ml-3 text-gray-500 hover:text-gray-700"
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              `${config.BACKEND_URL}/vcard/${vCard?.handle}`
+                              `${process.env.NEXT_PUBLIC_APP_URL}/vcard/${vCard?.handle}`
                             );
                             showNotification(
                               "Link copied to clipboard!",
@@ -3614,7 +3592,7 @@ export default function ManageVCard() {
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              `${config.BACKEND_URL}/vcard/${vCard?.handle}`
+                              `${process.env.NEXT_PUBLIC_APP_URL}/vcard/${vCard?.handle}`
                             );
                             showNotification(
                               "Link copied to clipboard!",
@@ -3633,7 +3611,7 @@ export default function ManageVCard() {
                 </div>
               </div>
             </div>
-            {/* Footer */}
+              {/* Footer */}
             <div className="flex flex-col sm:flex-row sm:justify-end mt-4 sm:mb-0 mb-9 items-center justify-between gap-3  text-primary  px-4">
               <div className="flex items-center gap-6 order-1 sm:order-2 ">
                 <a
