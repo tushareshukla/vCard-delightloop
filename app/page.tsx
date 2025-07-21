@@ -181,7 +181,7 @@ export default function Page() {
       if (data.success) {
         setVCardData(data.data.fullName);
         const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set("vid", secret);
+        currentUrl.searchParams.set("vid", secret.toUpperCase());
         window.history.replaceState({}, "", currentUrl.toString());
         setShowVCardSection(false);
         setShowLoginSection(true);
