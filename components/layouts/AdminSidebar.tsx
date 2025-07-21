@@ -96,7 +96,7 @@ export default function Sidebar() {
           />
         </div>
         {/* Nav Icons */}
-        <nav className="flex flex-col items-center gap-5 w-full">
+        <nav className="flex flex-col justify-between h-full items-center gap-5 w-full">
           {navLinks.map((item) => (
             <Link
               key={item.title}
