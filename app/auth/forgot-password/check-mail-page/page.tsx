@@ -18,14 +18,14 @@ export default function CheckMailPage() {
 
   const handleResendEmail = async () => {
     if (!email) return;
-    
+
     setIsResending(true);
     setResendError(null);
     setResendSuccess(false);
 
     try {
       console.log('[Resend Email] Starting resend process for:', email);
-      const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/request`, {
+      const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/request?vcardflow=true`, {
         //const response = await fetch(`http://localhost:5500/v1/password-reset/request`, {
         method: 'POST',
         headers: {
@@ -55,7 +55,7 @@ export default function CheckMailPage() {
   return (
     <div className="flex h-screen w-full relative">
       {/* Logo Section */}
-      <div className="absolute top-5 left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10">
+      <div className="absolute top-5 left-1/2 transform opacity-0 -translate-x-1/2 lg:left-5 lg:transform-none z-10">
         {partner === "get-replies" ? (
           <Link href="https://www.delightloop.com/" target="_blank" rel="noopener noreferrer">
             <Image
@@ -111,7 +111,7 @@ export default function CheckMailPage() {
             {/* Didn't receive email section */}
             <p className="text-sm text-[#667085]">
               Didn't receive the email?{" "}
-              <button 
+              <button
                 onClick={handleResendEmail}
                 disabled={isResending}
                 className={`text-[#6941C6] hover:text-[#5a35b1] hover:underline font-medium ${isResending ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -195,4 +195,4 @@ export default function CheckMailPage() {
       )}
     </div>
   );
-} 
+}
