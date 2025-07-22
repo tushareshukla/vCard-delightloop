@@ -39,18 +39,18 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     // Convert email to lowercase
     const normalizedEmail = email.toLowerCase();
 
-    const emailDomain = getDomainFromEmail(email);
-    const searchedDomain = await PublicDomain.findOne({ name: emailDomain });
-    if (vcr === null && searchedDomain) {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "Please use your work email to sign up. This helps us connect you to your company's workspace",
-        },
-        { status: 400 }
-      );
-    }
+    // const emailDomain = getDomainFromEmail(email);
+    // const searchedDomain = await PublicDomain.findOne({ name: emailDomain });
+    // if (vcr === null && searchedDomain) {
+    //   return NextResponse.json(
+    //     {
+    //       success: false,
+    //       error:
+    //         "Please use your work email to sign up. This helps us connect you to your company's workspace",
+    //     },
+    //     { status: 400 }
+    //   );
+    // }
     // Check if user exists with normalized email
     const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {

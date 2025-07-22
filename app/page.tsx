@@ -46,6 +46,7 @@ export default function Page() {
   const vcr = searchParams.get("vcr");
   const vid = searchParams.get("vid");
   const vcardsignupuser = searchParams.get("vcardsignupuser");
+  const errorMessage = searchParams.get("error");
   useEffect(() => {
     if (vcardsignupuser) {
       setShowVCardSection(false);
@@ -69,6 +70,9 @@ export default function Page() {
       setShowVCardSection(false);
       setShowLoginSection(true);
       setVCardExists(false);
+    }
+    if (errorMessage) {
+      console.log("errorMessage", errorMessage);
     }
     // eslint-disable-next-line
   }, [searchParams]);
@@ -435,6 +439,7 @@ export default function Page() {
                   </>
                 )}
               </a>
+
               <div className="flex items-center my-4">
                 <div className="flex-1 h-px bg-gray-200"></div>
                 <div className="px-4 text-gray-500 text-sm">OR</div>
@@ -499,7 +504,7 @@ export default function Page() {
 
                 <div className="flex items-center justify-center font-[450]">
                   <Link
-                    href="/auth/forgot-password"
+                    href={`/auth/forgot-password${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
                     className="text-sm text-primary hover:text-primary-dark hover:underline"
                   >
                     Forgot password?
@@ -600,13 +605,20 @@ export default function Page() {
                       </p>
                       <button
                         onClick={() => {
-                          setShowVCardSection(false);
-                          setShowLoginSection(true);
+                            // Remove error param from URL if it exists
+                            const url = new URL(window.location.href);
+                            url.searchParams.delete('error');
+                            window.history.replaceState({}, '', url.toString());
+                            setShowVCardSection(false);
+                            setShowLoginSection(true);
                         }}
                         className="w-full px-4 py-2 bg-[#7F56D9] text-white rounded-md hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-[#7F56D9]"
                       >
                         Sign In
                       </button>
+                      {errorMessage && (
+                <div className="text-red-500 mt-2 text-sm ">{errorMessage ? "Email already registered. Log in with email and password instead of LinkedIn." : ""} </div>
+              )}
                     </>
                   ) : (
                     <>
@@ -638,7 +650,13 @@ export default function Page() {
                         </div>
                       </div>
                       <button
-                        onClick={handleClaimCard}
+                        onClick={() => {
+                          handleClaimCard();
+                          // Remove error param from URL if it exists
+                          const url = new URL(window.location.href);
+                          url.searchParams.delete('error');
+                          window.history.replaceState({}, '', url.toString());
+                        }}
                         disabled={
                           codeInputs.join("").length !== 6 || isLoadingVCard
                         }
@@ -673,6 +691,9 @@ export default function Page() {
                           {vCardError}
                         </p>
                       )}
+                       {errorMessage && (
+                <div className="text-red-500 mt-2 text-sm ">{errorMessage ? "Email already registered. Log in with email and password instead of LinkedIn." : ""} </div>
+              )}
                       {vCardData && (
                         <>
                           <p className="mt-2 text-sm text-green-600">

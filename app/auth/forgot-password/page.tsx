@@ -23,7 +23,7 @@ export default function ForgotPassword() {
 
     try {
       console.log('[Forgot Password] Sending request to API');
-      const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/request`, {
+      const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/request?vcardflow=true`, {
        // const response = await fetch(`http://localhost:5500/v1/password-reset/request`, {
         method: 'POST',
         headers: {
@@ -179,7 +179,7 @@ export default function ForgotPassword() {
 
             <div className="mt-8 text-center">
               <Link
-                href="/"
+                href={`/${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
                 className="text-[#6941C6] hover:text-[#5a35b1] font-medium inline-flex items-center"
               >
                 <svg

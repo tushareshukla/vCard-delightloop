@@ -92,6 +92,27 @@ export async function POST(request: Request) {
       addLog("9. Updated last login time and incremented login count");
     }
 
+    // Check if user already has a VCard
+    const existingUserVCard = await VCard.findOne({
+      userId: result.user.id,
+      isDeleted: false,
+      isActive: true,
+    });
+
+    // If user doesn't have a VCard, create one
+    if (!existingUserVCard) {
+      const newVCard = new VCard({
+        handle: `${result.user.firstName}${Math.random().toString(36).substring(2, 7)}`,
+        userId: result.user.id,
+        fullName: `${result.user.firstName} ${result.user.lastName}`,
+        nfcEnabled: true,
+        isActive: true,
+        isDeleted: false
+      });
+
+      await newVCard.save();
+      addLog(`Created new VCard for user ${result.user.id}`);
+    }
 
     // Check for VCard referral parameters for new users only (vcr + vid)
     let referredVCard: IVCard | null = null;
