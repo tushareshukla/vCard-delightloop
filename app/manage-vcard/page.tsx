@@ -2820,31 +2820,26 @@ export default function ManageVCard() {
                             }}
                           >
                             {/* Alert Display in Mobile Preview */}
-                            {((vCard?.alert &&
+                            {(editMode || (vCard?.alert &&
                               vCard.alert.text &&
-                              !isAlertExpired(vCard.alert.expiryDate)) ||
-                              (editMode &&
-                                (!vCard?.alert || !vCard.alert.text))) && (
+                              !isAlertExpired(vCard.alert.expiryDate))) && (
                               <div
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  if (
-                                    editMode &&
-                                    (!vCard?.alert || !vCard.alert.text)
-                                  ) {
+                                  if (editMode) {
                                     openAlertModal();
                                   }
                                 }}
                                 className={`mx-auto mb-3 p-2 z-10 relative backdrop-blur-md rounded-xl w-fit ${
                                   editMode &&
-                                  (!vCard?.alert || !vCard.alert.text)
+                                  (!vCard?.alert || !vCard.alert.text || isAlertExpired(vCard?.alert?.expiryDate))
                                     ? "bg-white/30 border-2 border-dashed border-white/50 cursor-pointer hover:bg-white/40"
                                     : "bg-white/50"
                                 }`}
                               >
                                 <div className="flex items-start gap-3">
                                   {editMode &&
-                                  (!vCard?.alert || !vCard.alert.text) ? (
+                                  (!vCard?.alert || !vCard.alert.text || isAlertExpired(vCard?.alert?.expiryDate)) ? (
                                     <>
                                       <div className="flex-shrink-0 text-white">
                                         <div className="w-3 h-3">
@@ -4417,7 +4412,8 @@ export default function ManageVCard() {
                       !alertData.linkName?.trim()) ||
                     !!alertValidationErrors.text ||
                     !!alertValidationErrors.linkName ||
-                    !!alertValidationErrors.expiryDate
+                    !!alertValidationErrors.expiryDate ||
+                    (alertData.expiryDate && new Date(alertData.expiryDate).setHours(0,0,0,0) < new Date().setHours(0,0,0,0))
                   }
                   className="px-4 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
