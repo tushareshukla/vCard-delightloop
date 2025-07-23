@@ -204,6 +204,14 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
           userId: new mongoose.Types.ObjectId(user._id),
           fullName: `${user.firstName} ${user.lastName}`,
           referredByVcardId: new mongoose.Types.ObjectId(referringVCard._id),
+          links: [{
+            type: "Email",
+            value: user.email,
+            icon: "Email",
+            removedIcon: false,
+            isVisible: true,
+            lastUpdated: new Date()
+          }],
           nfcEnabled: true,
         });
         console.log(
