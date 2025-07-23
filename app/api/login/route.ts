@@ -107,6 +107,14 @@ export async function POST(request: Request) {
         fullName: `${result.user.firstName} ${result.user.lastName}`,
         nfcEnabled: true,
         isActive: true,
+        links: [{
+            type: "Email",
+            value: result.user.email,
+            icon: "Email",
+            removedIcon: false,
+            isVisible: true,
+            lastUpdated: new Date()
+          }],
         isDeleted: false
       });
 
@@ -160,7 +168,8 @@ export async function POST(request: Request) {
             // If user has a VCard and it doesn't have a referredByVcardId
             if (existingUser &&
                 !existingUser.referredByVcardId &&
-                (existingVCardUserAssignment._id.toString() !== existingUser._id.toString())) {
+                (existingVCardUserAssignment._id.toString() !== existingUser._id.toString()) &&
+                (existingVCardUserAssignment.referredByVcardId?.toString() !== existingUser._id.toString())) {
               // Optionally, you can add the assignment logic here
               await VCard.findByIdAndUpdate(
                 existingUser._id,
@@ -178,7 +187,15 @@ export async function POST(request: Request) {
                 referredByVcardId: existingVCardUserAssignment._id,
                 nfcEnabled: true,
                 isActive: true,
-                isDeleted: false
+                isDeleted: false,
+                links: [{
+                  type: "Email",
+                  value: result.user.email,
+                  icon: "Email",
+                  removedIcon: false,
+                  isVisible: true,
+                  lastUpdated: new Date()
+                }]
               });
 
               await newVCard.save();
