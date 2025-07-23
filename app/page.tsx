@@ -260,6 +260,10 @@ export default function Page() {
     }
   };
   const handleSubmit = async (e: React.FormEvent) => {
+     // Remove error param from URL if it exists
+     const url = new URL(window.location.href);
+     url.searchParams.delete('error');
+     window.history.replaceState({}, '', url.toString());
     e.preventDefault();
     setError("");
     setIsLoading(true);
@@ -398,6 +402,11 @@ export default function Page() {
                 }/v1/auth/linkedin?vcardflow=true&${searchParams.toString()}`}
                 className="w-full font-medium bg-primary/95 hover:bg-primary text-white py-3 rounded-md flex items-center justify-center"
                 onClick={(e) => {
+                     // Remove error param from URL if it exists
+                     const url = new URL(window.location.href);
+                     url.searchParams.delete('error');
+                     window.history.replaceState({}, '', url.toString());
+
                   e.preventDefault();
                   setIsLoading(true);
                   window.location.href = `${
@@ -504,6 +513,12 @@ export default function Page() {
 
                 <div className="flex items-center justify-center font-[450]">
                   <Link
+                    onClick={() => {
+                      // Remove error param from URL if it exists
+                      const url = new URL(window.location.href);
+                      url.searchParams.delete('error');
+                      window.history.replaceState({}, '', url.toString());
+                    }}
                     href={`/auth/forgot-password${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
                     className="text-sm text-primary hover:text-primary-dark hover:underline"
                   >
@@ -517,6 +532,9 @@ export default function Page() {
                   Sign in
                 </button>
               </form>
+              {errorMessage && (
+                <div className="text-red-500 mt-2 text-sm ">{errorMessage ? "Email already registered. Log in with email and password instead of LinkedIn." : ""} </div>
+              )}
               {bothVCRandVidCorrectButUserHaventRegistered && (
                 <Link
                   href={`/auth/register${
@@ -534,30 +552,19 @@ export default function Page() {
               >
                 <p className="text-sm text-[#667085] font-[500]">
                   Don&apos;t have an account?{" "}
-                  {searchParams.get("vcr") && searchParams.get("vid") ? (
-                    <Link
-                      href={`/auth/register?vcr=${searchParams.get(
-                        "vcr"
-                      )}&vid=${searchParams.get("vid")}`}
-                      className="text-[#6941C6] hover:text-[#5a35b1] hover:underline font-medium"
-                    >
-                      Sign up
-                    </Link>
-                  ) : searchParams.get("vcr") ? (
-                    <Link
-                      href={`/auth/register?vcr=${searchParams.get("vcr")}`}
-                      className="text-[#6941C6] hover:text-[#5a35b1] hover:underline font-medium"
-                    >
-                      Sign up
-                    </Link>
-                  ) : (
-                    <Link
-                      href="/auth/register"
-                      className="text-[#6941C6] hover:text-[#5a35b1] hover:underline font-medium"
-                    >
-                      Sign up
-                    </Link>
-                  )}
+                  <Link
+                    onClick={() => {
+                      // Remove error param from URL if it exists
+                      const url = new URL(window.location.href);
+                      url.searchParams.delete('error');
+                      window.history.replaceState({}, '', url.toString());
+                      
+                    }}
+                    href={`/auth/register${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
+                    className="text-[#6941C6] hover:text-[#5a35b1] hover:underline font-medium"
+                  >
+                    Sign up
+                  </Link>
                 </p>
               </div>
             </div>
