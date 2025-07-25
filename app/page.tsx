@@ -8,6 +8,7 @@ import InfinityLoader from "../components/common/InfinityLoader";
 import { HelpCircle, ExternalLink, Calendar } from "lucide-react";
 import { config } from "@/utils/config";
 
+
 export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -341,7 +342,8 @@ export default function Page() {
                 Verifying VCard details...
               </p>
               <div className="flex items-center justify-center">
-                <svg
+              <InfinityLoader width={64} height={64} />
+                {/* <svg
                   className="animate-spin h-8 w-8 text-[#7F56D9]"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -360,7 +362,7 @@ export default function Page() {
                     fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
-                </svg>
+                </svg> */}
               </div>
             </div>
           ) : dataWithoutSecret || vCardData ? (
@@ -558,7 +560,7 @@ export default function Page() {
                       const url = new URL(window.location.href);
                       url.searchParams.delete('error');
                       window.history.replaceState({}, '', url.toString());
-                      
+
                     }}
                     href={`/auth/register${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
                     className="text-[#6941C6] hover:text-[#5a35b1] hover:underline font-medium"

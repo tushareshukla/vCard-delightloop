@@ -1,9 +1,9 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-
+import { config } from "./config";
 
 const axiosClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  baseURL: config.BACKEND_URL,
   timeout: 10000,
 });
 

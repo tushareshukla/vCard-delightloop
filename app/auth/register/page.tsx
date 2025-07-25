@@ -228,7 +228,7 @@ export default function Register() {
 
         // fetch vcard data by vcr key - direct API call
         try {
-          const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+          const backendUrl = config.BACKEND_URL;
           const vCardResponse = await fetch(
             `${backendUrl}/v1/vcard/key/${vcr}`,
             {

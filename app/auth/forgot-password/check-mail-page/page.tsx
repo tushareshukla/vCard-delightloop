@@ -101,12 +101,12 @@ export default function CheckMailPage() {
             </p>
 
             {/* Open Email App Button */}
-            <button
+            {/* <button
               onClick={() => window.location.href = "mailto:"}
               className="h-11 w-full bg-[#7F56D9] text-white font-[500] rounded-[8px] hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-[#7F56D9] flex items-center justify-center mb-6"
             >
               Open email app
-            </button>
+            </button> */}
 
             {/* Didn't receive email section */}
             <p className="text-sm text-[#667085]">
