@@ -346,8 +346,8 @@ export default function Register() {
         <Link
           href="https://www.delightloop.com/"
           className={`${
-            vcardFlow ? "opacity-0 w-fit" : ""
-          } inline-block  my-4 mx-auto lg:mx-0  `}
+            vcardFlow ? " w-fit" : ""
+          } inline-block opacity-0  my-4 mx-auto lg:mx-0  `}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -367,7 +367,7 @@ export default function Register() {
             <h1 className=" text-3xl font-semibold   ">
               {vcardData ? `Welcome ${vcardData}!` : "Sign up"}
             </h1>
-            <p className={`  text-gray-600  ${vcardFlow ? "hidden" : ""}`}>
+            <p className={`  text-gray-600  hidden`}>
               Start your 30-day free trial with Delightloop
             </p>
           </div>
