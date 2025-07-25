@@ -5,6 +5,7 @@ import AdminSidebar from "@/components/layouts/AdminSidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
+import CustomCalendar from "@/components/ui/calendar";
 import {
   Megaphone,
   AlertTriangle,
@@ -27,7 +28,6 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/layouts/PageHeader";
 import { config } from "@/utils/config";
-
 
 // User interface (without publicProfileCard)
 interface UserProfile {
@@ -536,6 +536,7 @@ export default function ManageVCard() {
     expiryDate: undefined,
   });
   const [showAlert, setShowAlert] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [alertValidationErrors, setAlertValidationErrors] = useState<{
     text?: string;
     linkName?: string;
@@ -1477,21 +1478,18 @@ export default function ManageVCard() {
               }
             );
           } else if (checkResponse.status === 404) {
-            vCardResponse = await fetch(
-              `${config.BACKEND_URL}/v1/vcard`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${authToken}`,
-                },
-                body: JSON.stringify({
-                  ...vCard,
-                  userId: userId,
-                  organizationId: orgId,
-                }),
-              }
-            );
+            vCardResponse = await fetch(`${config.BACKEND_URL}/v1/vcard`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`,
+              },
+              body: JSON.stringify({
+                ...vCard,
+                userId: userId,
+                organizationId: orgId,
+              }),
+            });
           } else {
             throw new Error(
               `Error checking VCard existence: ${checkResponse.status}`
@@ -2740,7 +2738,7 @@ export default function ManageVCard() {
                           d="M12 18h.01M8 21h8a3 3 0 003-3V6a3 3 0 00-3-3H8a3 3 0 00-3 3v12a3 3 0 003 3z"
                         />
                       </svg>
-                        Preview
+                      Preview
                     </div>
                     <div className="  gap-3 justify-end  text-sm  flex  ">
                       {editMode && (
@@ -2789,9 +2787,7 @@ export default function ManageVCard() {
                           </div>
                         ) : (
                           <div className="flex items-center gap-2  ">
-                            Edit{" "}
-                            <Pencil className="size-3" />
-
+                            Edit <Pencil className="size-3" />
                           </div>
                         )}
                       </button>
@@ -2817,9 +2813,10 @@ export default function ManageVCard() {
                             }}
                           >
                             {/* Alert Display in Mobile Preview */}
-                            {(editMode || (vCard?.alert &&
-                              vCard.alert.text &&
-                              !isAlertExpired(vCard.alert.expiryDate))) && (
+                            {(editMode ||
+                              (vCard?.alert &&
+                                vCard.alert.text &&
+                                !isAlertExpired(vCard.alert.expiryDate))) && (
                               <div
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -2829,14 +2826,20 @@ export default function ManageVCard() {
                                 }}
                                 className={`mx-auto mb-3 p-2 z-10 relative backdrop-blur-md rounded-xl w-fit ${
                                   editMode &&
-                                  (!vCard?.alert || !vCard.alert.text || isAlertExpired(vCard?.alert?.expiryDate))
+                                  (!vCard?.alert ||
+                                    !vCard.alert.text ||
+                                    isAlertExpired(vCard?.alert?.expiryDate))
                                     ? "bg-white/30 border-2 border-dashed border-white/50 cursor-pointer hover:bg-white/40"
                                     : "bg-white/50"
                                 }`}
                               >
                                 <div className="flex items-start gap-3">
                                   {editMode &&
-                                  (!vCard?.alert || !vCard.alert.text || isAlertExpired(vCard?.alert?.expiryDate)) ? (
+                                  (!vCard?.alert ||
+                                    !vCard.alert.text ||
+                                    isAlertExpired(
+                                      vCard?.alert?.expiryDate
+                                    )) ? (
                                     <>
                                       <div className="flex-shrink-0 text-white">
                                         <div className="w-3 h-3">
@@ -3175,7 +3178,6 @@ export default function ManageVCard() {
                                   />
                                   <div className="absolute inset-y-0 left-0 flex items-center pl-2">
                                     <User className="size-3 text-gray-400" />
-
                                   </div>
                                 </div>
                                 {validationErrors.fullName && (
@@ -3567,7 +3569,7 @@ export default function ManageVCard() {
                 </div>
               </div>
             </div>
-              {/* Footer */}
+            {/* Footer */}
             <div className="flex flex-col sm:flex-row sm:justify-end mt-4 sm:mb-0 mb-9 items-center justify-between gap-3  text-primary  px-4">
               <div className="flex items-center gap-6 order-1 sm:order-2 flex-wrap justify-center ">
                 <a
@@ -3578,7 +3580,8 @@ export default function ManageVCard() {
                   {/* <HelpCircle className="w-4 h-4 sm:hidden" /> */}
                   <span className="flex items-center gap-1">
                     <HelpCircle className="size-4" />
-                    Support</span>
+                    Support
+                  </span>
                 </a>
                 <Link
                   href="https://delightloop.com/"
@@ -3589,8 +3592,9 @@ export default function ManageVCard() {
                 >
                   {/* <ExternalLink className="w-4 h-4 sm:hidden" /> */}
                   <span className="flex items-center gap-1">
-                  <ExternalLink className="size-4" />
-                    About us</span>
+                    <ExternalLink className="size-4" />
+                    About us
+                  </span>
                 </Link>
                 <Link
                   href="https://www.delightloop.com/bookademo"
@@ -3601,8 +3605,9 @@ export default function ManageVCard() {
                 >
                   {/* <Calendar className="w-4 h-4 sm:hidden" /> */}
                   <span className="flex items-center gap-1">
-                  <Calendar className="size-4" />
-                    Book a meeting</span>
+                    <Calendar className="size-4" />
+                    Book a meeting
+                  </span>
                 </Link>
               </div>
             </div>
@@ -3918,147 +3923,141 @@ export default function ManageVCard() {
                 </div>
               )}
 
+              {newLink.type && (
+                <>
+                  <div>
+                    {newLink.icon === "WhatsApp" ||
+                    newLink.icon === "Phone" ||
+                    newLink.icon === "SMS" ? (
+                      <>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          value={newLink.value}
+                          onChange={(e) => {
+                            let value = e.target.value;
+                            // Allow only valid phone characters
+                            value = value.replace(/[^+\d\s\-\(\)\.]/g, "");
 
-{
-    newLink.type && (
-        <>
+                            setNewLink({ ...newLink, value: value });
+                            // Clear validation errors when user starts typing
+                            if (validationErrors.linkValue) {
+                              setValidationErrors({
+                                ...validationErrors,
+                                linkValue: undefined,
+                              });
+                            }
+                          }}
+                          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                            validationErrors.linkValue
+                              ? "border-red-300 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-primary"
+                          }`}
+                          placeholder={
+                            newLink.icon === "WhatsApp"
+                              ? "+1 (555) 123-4567 or 5551234567"
+                              : newLink.icon === "SMS"
+                              ? "+1 (555) 123-4567 for SMS"
+                              : "+1 (555) 123-4567"
+                          }
+                          maxLength={20}
+                        />
+                        <p className="mt-1 text-xs text-gray-500">
+                          Enter 10-15 digits. Include country code for
+                          international numbers (e.g., +1 for US/Canada)
+                        </p>
+                      </>
+                    ) : newLink.icon === "Email" ? (
+                      <>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Email Address
+                        </label>
+                        <input
+                          type="email"
+                          value={newLink.value}
+                          onChange={(e) => {
+                            setNewLink({ ...newLink, value: e.target.value });
+                            // Clear validation errors when user starts typing
+                            if (validationErrors.linkValue) {
+                              setValidationErrors({
+                                ...validationErrors,
+                                linkValue: undefined,
+                              });
+                            }
+                          }}
+                          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                            validationErrors.linkValue
+                              ? "border-red-300 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-primary"
+                          }`}
+                          placeholder="example@email.com"
+                        />
+                        <p className="mt-1 text-xs text-gray-500">
+                          Enter a valid email address
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Link URL
+                        </label>
+                        <input
+                          type="url"
+                          value={newLink.value}
+                          onChange={(e) => {
+                            setNewLink({ ...newLink, value: e.target.value });
+                            // Clear validation errors when user starts typing
+                            if (validationErrors.linkValue) {
+                              setValidationErrors({
+                                ...validationErrors,
+                                linkValue: undefined,
+                              });
+                            }
+                          }}
+                          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                            validationErrors.linkValue
+                              ? "border-red-300 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-primary"
+                          }`}
+                          placeholder="https://example.com"
+                        />
+                      </>
+                    )}
+                    {validationErrors.linkValue && (
+                      <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                        <svg
+                          className="w-4 h-4"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        {validationErrors.linkValue}
+                      </p>
+                    )}
+                  </div>
 
-
-
-              <div>
-                {newLink.icon === "WhatsApp" ||
-                newLink.icon === "Phone" ||
-                newLink.icon === "SMS" ? (
-                  <>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
-                    </label>
+                  <div className="flex items-center mt-4">
                     <input
-                      type="tel"
-                      value={newLink.value}
-                      onChange={(e) => {
-                        let value = e.target.value;
-                        // Allow only valid phone characters
-                        value = value.replace(/[^+\d\s\-\(\)\.]/g, "");
-
-                        setNewLink({ ...newLink, value: value });
-                        // Clear validation errors when user starts typing
-                        if (validationErrors.linkValue) {
-                          setValidationErrors({
-                            ...validationErrors,
-                            linkValue: undefined,
-                          });
-                        }
-                      }}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                        validationErrors.linkValue
-                          ? "border-red-300 focus:ring-red-500"
-                          : "border-gray-300 focus:ring-primary"
-                      }`}
-                      placeholder={
-                        newLink.icon === "WhatsApp"
-                          ? "+1 (555) 123-4567 or 5551234567"
-                          : newLink.icon === "SMS"
-                          ? "+1 (555) 123-4567 for SMS"
-                          : "+1 (555) 123-4567"
+                      type="checkbox"
+                      checked={newLink.isVisible}
+                      onChange={(e) =>
+                        setNewLink({ ...newLink, isVisible: e.target.checked })
                       }
-                      maxLength={20}
+                      className="h-4 w-4  focus:ring-primary border-gray-300 rounded accent-primary"
                     />
-                    <p className="mt-1 text-xs text-gray-500">
-                      Enter 10-15 digits. Include country code for international
-                      numbers (e.g., +1 for US/Canada)
-                    </p>
-                  </>
-                ) : newLink.icon === "Email" ? (
-                  <>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email Address
+                    <label className="ml-2 block text-sm text-gray-700">
+                      Make this link visible on profile
                     </label>
-                    <input
-                      type="email"
-                      value={newLink.value}
-                      onChange={(e) => {
-                        setNewLink({ ...newLink, value: e.target.value });
-                        // Clear validation errors when user starts typing
-                        if (validationErrors.linkValue) {
-                          setValidationErrors({
-                            ...validationErrors,
-                            linkValue: undefined,
-                          });
-                        }
-                      }}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                        validationErrors.linkValue
-                          ? "border-red-300 focus:ring-red-500"
-                          : "border-gray-300 focus:ring-primary"
-                      }`}
-                      placeholder="example@email.com"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      Enter a valid email address
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Link URL
-                    </label>
-                    <input
-                      type="url"
-                      value={newLink.value}
-                      onChange={(e) => {
-                        setNewLink({ ...newLink, value: e.target.value });
-                        // Clear validation errors when user starts typing
-                        if (validationErrors.linkValue) {
-                          setValidationErrors({
-                            ...validationErrors,
-                            linkValue: undefined,
-                          });
-                        }
-                      }}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                        validationErrors.linkValue
-                          ? "border-red-300 focus:ring-red-500"
-                          : "border-gray-300 focus:ring-primary"
-                      }`}
-                      placeholder="https://example.com"
-                    />
-                  </>
-                )}
-                {validationErrors.linkValue && (
-                  <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    {validationErrors.linkValue}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center mt-4">
-                <input
-                  type="checkbox"
-                  checked={newLink.isVisible}
-                  onChange={(e) =>
-                    setNewLink({ ...newLink, isVisible: e.target.checked })
-                  }
-                  className="h-4 w-4  focus:ring-primary border-gray-300 rounded accent-primary"
-                />
-                <label className="ml-2 block text-sm text-gray-700">
-                  Make this link visible on profile
-                </label>
-              </div>
-              </>
-    )
-}
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="bg-gray-50 px-6 py-3 flex justify-end gap-3 border-t border-gray-200 rounded-b-lg">
@@ -4331,27 +4330,52 @@ export default function ManageVCard() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Expiry Date (Optional)
                 </label>
-                <input
-                  type="date"
-                  value={
-                    alertData.expiryDate
-                      ? new Date(alertData.expiryDate)
-                          .toISOString()
-                          .split("T")[0]
-                      : ""
-                  }
-                  onChange={(e) => {
-                    const date = e.target.value
-                      ? new Date(e.target.value + "T00:00:00")
-                      : null;
-                    handleAlertDateChange(date);
-                  }}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                    alertValidationErrors.expiryDate
-                      ? "border-red-300 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-primary"
-                  }`}
-                />
+                                  <div className="relative inline-block w-full">
+                    <div className="relative">
+                      <input
+                      type="text"
+                      readOnly
+                      value={
+                        alertData.expiryDate
+                          ? new Date(alertData.expiryDate).toLocaleDateString()
+                          : ""
+                      }
+                      placeholder="Select expiry date"
+                      onClick={() => setShowCalendar(!showCalendar)}
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 cursor-pointer ${
+                        alertValidationErrors.expiryDate
+                          ? "border-red-300 focus:ring-red-500"
+                          : "border-gray-300 focus:ring-primary"
+                      }`}
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg
+                        className="w-5 h-5 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                  {showCalendar && (
+                    <CustomCalendar
+                      selectedDate={
+                        alertData.expiryDate
+                          ? new Date(alertData.expiryDate)
+                          : null
+                      }
+                      onChange={handleAlertDateChange}
+                      onClose={() => setShowCalendar(false)}
+                    />
+                  )}
+                </div>
                 <p className="mt-1 text-xs text-gray-500">
                   Alert will be hidden after this date
                 </p>
@@ -4390,7 +4414,9 @@ export default function ManageVCard() {
                     !!alertValidationErrors.text ||
                     !!alertValidationErrors.linkName ||
                     !!alertValidationErrors.expiryDate ||
-                    (alertData.expiryDate && new Date(alertData.expiryDate).setHours(0,0,0,0) < new Date().setHours(0,0,0,0))
+                    (alertData.expiryDate &&
+                      new Date(alertData.expiryDate).setHours(0, 0, 0, 0) <
+                        new Date().setHours(0, 0, 0, 0))
                   }
                   className="px-4 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
@@ -4437,7 +4463,6 @@ export default function ManageVCard() {
             <div className="px-6 py-4 space-y-4">
               {/* Current Photo Display */}
               <div className="text-center">
-
                 <div className="inline-block relative ">
                   {currentPhotoType === "profilePhoto" && vCard?.avatarUrl ? (
                     <Image
@@ -4478,13 +4503,12 @@ export default function ManageVCard() {
                            ? "rounded-lg"
                            : "rounded-lg"
                        }
-                       bg-primary-xlight border-2 border-primary-light border-dashed flex items-center justify-center
+                       bg-primary-xlight border border-primary-light  flex items-center justify-center
                      `}
                     >
-                      <div className="text-center">
-
+                      <div className="text-center text-primary-light">
                         <svg
-                          className="w-8 h-8 text-gray-400 mx-auto mb-2"
+                          className="w-8 h-8 text-primary-light mx-auto mb-2"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -4502,7 +4526,7 @@ export default function ManageVCard() {
                             d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
                           />
                         </svg>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm ">
                           No{" "}
                           {currentPhotoType === "profilePhoto"
                             ? "profile photo"
@@ -4510,12 +4534,13 @@ export default function ManageVCard() {
                             ? "company logo"
                             : "cover image"}
                         </p>
-  {/* Upload Guidelines */}
-  <div className="text-xs text-gray-500 mt-2">
-                <p className="">
-                  Supported formats: PNG, JPG, GIF, WebP • Max size: 10MB
-                </p>
-              </div>
+                        {/* Upload Guidelines */}
+                        <div className="text-xs  mt-2">
+                          <p className="">
+                            Supported formats: PNG, JPG, GIF, WebP • Max size:
+                            10MB
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -4560,7 +4585,6 @@ export default function ManageVCard() {
               <div className="flex justify-center gap-3">
                 {/* Upload Button */}
                 <div className="relative">
-
                   <input
                     type="file"
                     accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
@@ -4593,12 +4617,14 @@ export default function ManageVCard() {
                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                       />
                     </svg>
-                    {imageUploads[currentPhotoType].uploading ? "Uploading..." : (
-                        currentPhotoType === "profilePhoto" &&
-                      vCard?.avatarUrl) ||
-                    (currentPhotoType === "companyLogo" &&
-                      vCard?.companyLogoUrl) ||
-                    (currentPhotoType === "coverImage" && vCard?.coverImageUrl)
+                    {imageUploads[currentPhotoType].uploading
+                      ? "Uploading..."
+                      : (currentPhotoType === "profilePhoto" &&
+                          vCard?.avatarUrl) ||
+                        (currentPhotoType === "companyLogo" &&
+                          vCard?.companyLogoUrl) ||
+                        (currentPhotoType === "coverImage" &&
+                          vCard?.coverImageUrl)
                       ? "Change Photo"
                       : "Upload Photo"}
                   </button>
@@ -4639,8 +4665,6 @@ export default function ManageVCard() {
                   </button>
                 )}
               </div>
-
-
             </div>
           </div>
         </div>
