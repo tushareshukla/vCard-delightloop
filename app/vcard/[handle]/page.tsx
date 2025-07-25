@@ -1366,7 +1366,7 @@ export default function VCardProfilePage({
         <div className="bg-white min-h-screen md:min-h-fit shadow-lg overflow-hidden  pb-10">
           {/* Cover Image */}
           <div
-            className={`h-40 pt-3 bg-gradient-to-r ${themeColors.gradient} relative`}
+            className={`h-40 pt-3 px-4 bg-gradient-to-r ${themeColors.gradient} relative`}
           >
             {validCoverImageUrl && (
               <Image
@@ -1386,7 +1386,7 @@ export default function VCardProfilePage({
                 <div
                   className={`mx-auto ${
                     showPulseAnimation ? "animate-pulse" : ""
-                  } p-2 bg-[#FCFAFF] z-10 relative backdrop-blur-md rounded-xl w-fit`}
+                  } p-2 bg-[#FCFAFF] z-10  relative backdrop-blur-md rounded-xl w-fit`}
                 >
                   <div className="flex items-center justify-center gap-1.5">
                     {profile.alert.icon && (

@@ -2805,7 +2805,7 @@ export default function ManageVCard() {
                         <div className="bg-white h-full shadow-lg overflow-y-scroll scrollbar-hide">
                           {/* Cover Image */}
                           <div
-                            className={`h-28 pt-2  bg-gradient-to-r ${
+                            className={`h-28 pt-2 px-4 bg-gradient-to-r ${
                               getThemeColors(vCard?.theme || "classic-purple")
                                 .gradient
                             } relative group cursor-pointer`}
@@ -2827,7 +2827,7 @@ export default function ManageVCard() {
                                     openAlertModal();
                                   }
                                 }}
-                                className={`mx-auto mb-3 p-2 z-10 relative backdrop-blur-md  rounded-xl w-fit ${
+                                className={`mx-auto  mb-3 p-2 z-10 relative backdrop-blur-md  rounded-xl w-fit ${
                                   editMode &&
                                   (!vCard?.alert ||
                                     !vCard.alert.text ||
