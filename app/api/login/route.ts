@@ -102,7 +102,7 @@ export async function POST(request: Request) {
     // If user doesn't have a VCard, create one
     if (!existingUserVCard) {
       const newVCard = new VCard({
-        handle: `${result.user.firstName}${Math.random().toString(36).substring(2, 7)}`,
+        handle: `${result.user.firstName.replace(/\s+/g, '')}${Math.random().toString(36).substring(2, 7)}`,
         userId: result.user.id,
         fullName: `${result.user.firstName} ${result.user.lastName}`,
         nfcEnabled: true,

@@ -62,11 +62,11 @@ export default function ResetSuccess() {
               href="/"
               className="h-11 w-full bg-[#7F56D9] text-white font-[500] rounded-[8px] hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-[#7F56D9] flex items-center justify-center mb-6"
             >
-              Continue
+              Continue to Login
             </Link>
 
             {/* Back to login */}
-            <div className="mt-4">
+            {/* <div className="mt-4">
               <Link
                 href="/"
                 className="text-[#6941C6] hover:text-[#5a35b1] font-medium inline-flex items-center"
@@ -87,7 +87,7 @@ export default function ResetSuccess() {
                 </svg>
                 Back to log in
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

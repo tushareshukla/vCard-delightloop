@@ -1089,6 +1089,9 @@ export default function ManageVCard() {
     const { name, value } = e.target;
     if (!userProfile) return;
 
+    // Convert value to lowercase
+    const processedValue = value.toLowerCase();
+
     const currentVCard = vCard || {
       userId: userProfile._id,
       handle: "",
@@ -1115,7 +1118,7 @@ export default function ManageVCard() {
 
     setVCard({
       ...currentVCard,
-      [name]: value,
+      [name]: processedValue,
       lastUpdatedAt: new Date(),
     });
 
@@ -1127,13 +1130,13 @@ export default function ManageVCard() {
       delete errors.handle;
 
       // Frontend validation for handle
-      if (!value.trim()) {
+      if (!processedValue.trim()) {
         errors.handle = "Handle is required";
-      } else if (value.length < 3) {
+      } else if (processedValue.length < 3) {
         errors.handle = "Handle must be at least 3 characters long";
-      } else if (value.length > 30) {
+      } else if (processedValue.length > 30) {
         errors.handle = "Handle cannot be longer than 30 characters";
-      } else if (!isValidHandle(value)) {
+      } else if (!isValidHandle(processedValue)) {
         errors.handle =
           "Handle can only contain letters, numbers, dots, underscores, and hyphens";
       }
@@ -1141,13 +1144,13 @@ export default function ManageVCard() {
       setValidationErrors(errors);
 
       // Only check uniqueness if frontend validation passes AND handle is longer than 3 characters
-      if (!errors.handle && value.trim().length > 3) {
+      if (!errors.handle && processedValue.trim().length > 3) {
         if (handleCheckTimeout) {
           clearTimeout(handleCheckTimeout);
         }
 
         const newTimeout = setTimeout(() => {
-          checkHandleUniqueness(value);
+          checkHandleUniqueness(processedValue);
         }, 800);
 
         setHandleCheckTimeout(newTimeout);
@@ -1156,9 +1159,9 @@ export default function ManageVCard() {
       const errors = { ...validationErrors };
       delete errors.fullName;
 
-      if (!value.trim()) {
+      if (!processedValue.trim()) {
         errors.fullName = "Full name is required";
-      } else if (!isValidName(value)) {
+      } else if (!isValidName(processedValue)) {
         errors.fullName =
           "Full name must contain only letters and be 2-50 characters";
       }
@@ -3093,7 +3096,7 @@ export default function ManageVCard() {
                                       value={vCard?.handle || ""}
                                       onChange={handleVCardChange}
                                       placeholder="username"
-                                      className={`w-full text-xs text-gray-700  bg-white pl-6 border rounded-md  pr-5 py-1 focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
+                                      className={`w-full text-xs text-gray-700  bg-white pl-6 border rounded-md  pr-5 py-1 focus:outline-none focus:ring-2  focus:border-transparent transition-all ${
                                         validationErrors.handle
                                           ? "border-red-300 focus:ring-red-500"
                                           : isCheckingHandle
@@ -3492,11 +3495,11 @@ export default function ManageVCard() {
                                 )}
 
                                 {/* Create Your Own Card - Only in View Mode */}
-                                {!editMode && (
-                                  <div className="text-gray-500 px-4 py-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-2xl font-medium bg-white flex justify-center w-fit mx-auto text-xs">
+                                {/* {!editMode && (
+                                  <div className="text-gray-500 px-4 py-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-2xl font-medium hidden bg-white  justify-center w-fit mx-auto text-xs">
                                     Create Your Own Card
                                   </div>
-                                )}
+                                )} */}
                               </div>
                             )}
 

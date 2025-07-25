@@ -200,7 +200,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     if (referringVCard) {
       try {
         const newVCard = await VCard.create({
-          handle: user.firstName + Math.random().toString(36).substring(2, 7),
+          handle: user.firstName.replace(/\s+/g, '') + Math.random().toString(36).substring(2, 7),
           userId: new mongoose.Types.ObjectId(user._id),
           fullName: `${user.firstName} ${user.lastName}`,
           referredByVcardId: new mongoose.Types.ObjectId(referringVCard._id),
