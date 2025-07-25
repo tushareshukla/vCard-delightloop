@@ -2824,16 +2824,16 @@ export default function ManageVCard() {
                                     openAlertModal();
                                   }
                                 }}
-                                className={`mx-auto mb-3 p-2 z-10 relative backdrop-blur-md rounded-xl w-fit ${
+                                className={`mx-auto mb-3 p-2 z-10 relative backdrop-blur-md  rounded-xl w-fit ${
                                   editMode &&
                                   (!vCard?.alert ||
                                     !vCard.alert.text ||
                                     isAlertExpired(vCard?.alert?.expiryDate))
-                                    ? "bg-white/30 border-2 border-dashed border-white/50 cursor-pointer hover:bg-white/40"
-                                    : "bg-white/50"
+                                    ? "bg-[#FCFAFF] border-2 border-dashed border-white/50 cursor-pointer hover:bg-[#FCFAFF]/80 "
+                                    : "bg-[#FCFAFF] "
                                 }`}
                               >
-                                <div className="flex items-start gap-3">
+                                <div className="flex items-start gap-2">
                                   {editMode &&
                                   (!vCard?.alert ||
                                     !vCard.alert.text ||
@@ -2841,8 +2841,8 @@ export default function ManageVCard() {
                                       vCard?.alert?.expiryDate
                                     )) ? (
                                     <>
-                                      <div className="flex-shrink-0 text-white">
-                                        <div className="w-3 h-3">
+                                      <div className="flex-shrink-0 text-[#6941C6]">
+                                        <div className="size-4">
                                           <svg
                                             className="w-full h-full"
                                             fill="currentColor"
@@ -2857,7 +2857,7 @@ export default function ManageVCard() {
                                         </div>
                                       </div>
                                       <div className="flex-1 min-w-0">
-                                        <p className="text-xs text-white/70 italic">
+                                        <p className="text-xs text-[#6941C6] italic">
                                           Click to add alert
                                         </p>
                                       </div>
@@ -2865,7 +2865,7 @@ export default function ManageVCard() {
                                   ) : (
                                     <>
                                       {vCard?.alert?.icon && (
-                                        <div className="flex-shrink-0 text-white ">
+                                        <div className="flex-shrink-0 text-[#6941C6] ">
                                           <div className="w-3 h-3">
                                             {getAlertIcon(vCard.alert.icon)}
                                           </div>
@@ -2883,28 +2883,28 @@ export default function ManageVCard() {
                                             }
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-xs text-white hover:text-gray-500 underline break-words block break-all"
+                                            className="text-xs pt-[1px] text-[#6941C6] hover:text-[#6941C6]/80 underline break-words block break-all"
                                           >
                                             {vCard.alert?.text}
                                           </a>
                                         ) : (
-                                          <p className="text-xs text-white break-words">
+                                          <p className="text-xs pt-[1px] text-[#6941C6] hover:text-[#6941C6]/80 break-words">
                                             {vCard?.alert?.text}
                                           </p>
                                         )}
                                       </div>
                                       {/* Edit Alert Icon */}
                                       {editMode && (
-                                        <div className="flex-shrink-0">
+                                        <div className="flex-shrink-0 ">
                                           <button
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               openAlertModal();
                                             }}
-                                            className="w-5 h-5 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
+                                            className="w-5 h-5 bg-[#6941C6]/20  hover:bg-[#6941C6]/10 rounded-full flex items-center justify-center transition-colors"
                                           >
                                             <svg
-                                              className="size-3 text-white"
+                                              className="size-3 text-[#6941C6]"
                                               fill="none"
                                               stroke="currentColor"
                                               viewBox="0 0 24 24"
@@ -3016,7 +3016,7 @@ export default function ManageVCard() {
                                   className={`absolute -bottom-1 -right-1 size-8  bg-white rounded-full border-2 border-white flex items-center justify-center overflow-hidden group cursor-pointer`}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (editMode) {
+                                    if (editMode ) {
                                       openPhotoModal("companyLogo");
                                     }
                                   }}
@@ -3060,10 +3060,6 @@ export default function ManageVCard() {
                               {!vCard?.companyLogoUrl && (
                                 <div
                                   className="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-100 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    openPhotoModal("companyLogo");
-                                  }}
                                 >
                                   <svg
                                     className="w-2 h-2 text-gray-600"
@@ -3202,7 +3198,7 @@ export default function ManageVCard() {
                                     value={vCard?.title || ""}
                                     onChange={handleVCardChange}
                                     placeholder="Enter job title"
-                                    className={`w-full text-xs font-medium  bg-white border border-gray-200 rounded-md px-2 py-1 pl-6 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent `}
+                                    className={`w-full text-xs   bg-white border border-gray-200 rounded-md px-2 py-1 pl-6 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent `}
                                   />
                                   <div className="absolute inset-y-0 left-0 flex items-center pl-2">
                                     <Briefcase className="size-3 text-gray-400" />
@@ -3321,7 +3317,11 @@ export default function ManageVCard() {
                                           : "shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] duration-300 hover:shadow-[0_2px_8px_rgb(0,0,0,0.15)] cursor-pointer"
                                       }`}
                                     >
-                                      <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm">
+                                      <div
+                                        className={` ${
+                                          editMode ? "size-4" : "size-5"
+                                        } bg-white rounded-full flex items-center justify-center shadow-sm`}
+                                      >
                                         {getSocialIcon(link)}
                                       </div>
                                       <div className="flex-1 text-left">

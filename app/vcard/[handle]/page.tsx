@@ -1386,11 +1386,11 @@ export default function VCardProfilePage({
                 <div
                   className={`mx-auto ${
                     showPulseAnimation ? "animate-pulse" : ""
-                  } p-2 bg-white/50 z-10 relative backdrop-blur-md rounded-xl w-fit`}
+                  } p-2 bg-[#FCFAFF] z-10 relative backdrop-blur-md rounded-xl w-fit`}
                 >
                   <div className="flex items-center justify-center gap-1.5">
                     {profile.alert.icon && (
-                      <div className={`flex-shrink-0  text-white`}>
+                      <div className={`flex-shrink-0  text-[#6941C6]`}>
                         <div className="">
                           {getAlertIcon(profile.alert.icon)}
                         </div>
@@ -1406,12 +1406,12 @@ export default function VCardProfilePage({
                           }
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm text-white inline-block pb-1  underline"
+                          className="text-sm text-[#6941C6] inline-block pb-1  underline"
                         >
                           {profile.alert.text}
                         </a>
                       ) : (
-                        <p className="text-sm text-white break-words">
+                        <p className="text-sm text-[#6941C6] break-words">
                           {profile.alert.text}
                         </p>
                       )}
@@ -1420,7 +1420,7 @@ export default function VCardProfilePage({
                       height={20}
                       width={20}
                       onClick={() => setHideAlert(true)}
-                      className="bg-red-50/10 cursor-pointer hover:bg-red-50/20  rounded-full p-1"
+                      className="bg-[#6941C6]/10 cursor-pointer hover:bg-[#6941C6]/20  rounded-full p-1"
                     />
                   </div>
                 </div>
@@ -1476,7 +1476,7 @@ export default function VCardProfilePage({
 
             {/* Note */}
             {profile.note && profile.note.value.length > 0 && (
-              <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+              <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left break-words">
                 <p className="text-gray-700">{profile.note.value}</p>
               </div>
             )}
