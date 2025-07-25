@@ -20,6 +20,7 @@ export default function Register() {
 
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [nameError, setNameError] = useState({ firstName: "", lastName: "" });
 
   const [isRegistered, setIsRegistered] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
@@ -187,13 +188,51 @@ export default function Register() {
 
     setError("");
     setEmailError("");
+    setNameError({ firstName: "", lastName: "" });
     setIsLoading(true);
 
     try {
+      // Name validation
+      const nameRegex = /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
+      let hasNameError = false;
+
+      const trimmedFirstName = formData.firstName.trim().replace(/\s+/g, " ");
+      const trimmedLastName = formData.lastName.trim().replace(/\s+/g, " ");
+
+      if (!nameRegex.test(trimmedFirstName)) {
+        setNameError((prev) => ({
+          ...prev,
+          firstName:
+            "First name should only contain letters with single spaces between words",
+        }));
+        hasNameError = true;
+      }
+
+      if (!nameRegex.test(trimmedLastName)) {
+        setNameError((prev) => ({
+          ...prev,
+          lastName:
+            "Last name should only contain letters with single spaces between words",
+        }));
+        hasNameError = true;
+      }
+
+      if (hasNameError) {
+        setIsLoading(false);
+        return;
+      }
+
+      // Update formData with trimmed values
+      const updatedFormData = {
+        ...formData,
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
+      };
+
       // Password validation
       const passwordRegex =
         /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=])[A-Za-z\d!@#$%^&*()_+\-=]{8,}$/;
-      if (!passwordRegex.test(formData.password)) {
+      if (!passwordRegex.test(updatedFormData.password)) {
         setError(
           "Password must be at least 8 characters long, contain at least one letter, one number, and one special character (!@#$%^&*()_+-=) with no other symbols allowed."
         );
@@ -202,7 +241,9 @@ export default function Register() {
       }
 
       // Validate email first
-      const isEmailValid = await validateEmail(formData.email.toUpperCase());
+      const isEmailValid = await validateEmail(
+        updatedFormData.email.toUpperCase()
+      );
       if (!isEmailValid) {
         setIsLoading(false);
         return;
@@ -214,7 +255,7 @@ export default function Register() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...formData, vcr }),
+        body: JSON.stringify({ ...updatedFormData, vcr }),
       });
       const data = await response.json();
       console.log("Registration response:---------", data);
@@ -346,11 +387,25 @@ export default function Register() {
                   id="firstName"
                   value={formData.firstName}
                   onChange={(e) =>
-                    setFormData({ ...formData, firstName: e.target.value })
+                    setFormData({
+                      ...formData,
+                      firstName: e.target.value.replace(/\s+/g, " "),
+                    })
+                  }
+                  onBlur={(e) =>
+                    setFormData({
+                      ...formData,
+                      firstName: e.target.value.trim().replace(/\s+/g, " "),
+                    })
                   }
                   className="h-11 w-full p-3 border border-gray-300 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#7F56D9]"
                   required
                 />
+                {nameError.firstName && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {nameError.firstName}
+                  </p>
+                )}
               </div>
               <div>
                 <label
@@ -365,11 +420,25 @@ export default function Register() {
                   id="lastName"
                   value={formData.lastName}
                   onChange={(e) =>
-                    setFormData({ ...formData, lastName: e.target.value })
+                    setFormData({
+                      ...formData,
+                      lastName: e.target.value.replace(/\s+/g, " "),
+                    })
+                  }
+                  onBlur={(e) =>
+                    setFormData({
+                      ...formData,
+                      lastName: e.target.value.trim().replace(/\s+/g, " "),
+                    })
                   }
                   className="h-11 w-full p-3 border border-gray-300 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#7F56D9]"
                   required
                 />
+                {nameError.lastName && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {nameError.lastName}
+                  </p>
+                )}
               </div>
             </div>
 
