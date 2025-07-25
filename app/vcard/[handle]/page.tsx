@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { UAParser } from "ua-parser-js";
 import InfinityLoader from "@/components/common/InfinityLoader";
+import { config } from "@/utils/config";
 import {
   MessageCircle,
   Mail,
@@ -164,9 +165,7 @@ export default function VCardProfilePage({
         }
 
         const response = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_BASE_URL
-          }/v1/vcard/handle/${handle.toLowerCase()}`
+          `${config.BACKEND_URL}/v1/vcard/handle/${handle.toLowerCase()}`
         );
         const data = await response.json();
 
