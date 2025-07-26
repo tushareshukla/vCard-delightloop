@@ -3553,7 +3553,7 @@ export default function ManageVCard() {
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              `${config.FRONTEND_URL}/vcard/${vCard?.handle}`
+                              `${config.FRONTEND_URL}vcard/${vCard?.handle}`
                             );
                             showNotification(
                               "Link copied to clipboard!",
