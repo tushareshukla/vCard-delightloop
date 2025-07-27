@@ -1,3 +1,4 @@
 export const config = {
-    BACKEND_URL: "https://backend-delight.patchup.health"
+    BACKEND_URL: "https://api.delightloop.ai",
+    FRONTEND_URL: "https://vcard.delightloop.ai/"
 }

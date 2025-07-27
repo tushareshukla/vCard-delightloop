@@ -13,6 +13,7 @@ import PageHeader from "@/components/layouts/PageHeader";
 import { Filter, X, Coins, Wallet, Search } from "lucide-react";
 import getBackendApiBaseUrl from "@/utils/apiBaseUrl";
 import mongoose from "mongoose";
+import { config } from "@/utils/config";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -443,7 +444,7 @@ export default function WalletPage() {
 
           try {
             // Get base URL from environment
-            const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+            const baseUrl = config.BACKEND_URL;
             console.log("Using API base URL:", baseUrl);
 
             // Make the OAuth completion request
@@ -1014,7 +1015,7 @@ export default function WalletPage() {
                         className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
                       />
                     </div>
-                    
+
                     {/* Filter Button */}
                     <button
                       onClick={() => setShowFilters((v) => !v)}
@@ -1043,7 +1044,7 @@ export default function WalletPage() {
                       className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                   </div>
-                  
+
                   <button
                     onClick={() => setShowFilters((v) => !v)}
                     className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors whitespace-nowrap"

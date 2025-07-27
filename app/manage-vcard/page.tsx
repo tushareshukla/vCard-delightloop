@@ -5,6 +5,7 @@ import AdminSidebar from "@/components/layouts/AdminSidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
+import CustomCalendar from "@/components/ui/calendar";
 import {
   Megaphone,
   AlertTriangle,
@@ -16,9 +17,18 @@ import {
   Star,
   Link as LinkIcon,
   Copy,
+  ExternalLink,
+  Calendar,
+  HelpCircle,
+  Pencil,
+  User,
+  AtSign,
+  Briefcase,
+  Building2,
 } from "lucide-react";
 import PageHeader from "@/components/layouts/PageHeader";
 import { config } from "@/utils/config";
+import Cookies from "js-cookie";
 
 // User interface (without publicProfileCard)
 interface UserProfile {
@@ -133,6 +143,20 @@ const getThemeColors = (theme: string) => {
       };
   }
 };
+const RESERVED_HANDLES = [
+  "wallet",
+  "vcard",
+  "referral",
+  "profile",
+  "manage-vcard",
+  "auth",
+  "api",
+  "context",
+  "components",
+  "clientinterceptor",
+  "login",
+  "logout",
+];
 
 const getSocialIcon = (link: {
   type: string;
@@ -444,8 +468,15 @@ const SOCIAL_MEDIA_OPTIONS = [
 
 export default function ManageVCard() {
   const router = useRouter();
-  const { authToken, userId, userEmail, organizationId, isLoadingCookies } =
-    useAuth();
+  const {
+    authToken,
+    userId,
+    userEmail,
+    organizationId: orgId,
+    isLoadingCookies,
+  } = useAuth();
+  const organizationId =
+    orgId === "000000000000000000000000" ? "000000000000000000000001" : orgId;
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [vCard, setVCard] = useState<VCard | null>(null);
@@ -520,6 +551,7 @@ export default function ManageVCard() {
     expiryDate: undefined,
   });
   const [showAlert, setShowAlert] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [alertValidationErrors, setAlertValidationErrors] = useState<{
     text?: string;
     linkName?: string;
@@ -770,7 +802,7 @@ export default function ManageVCard() {
 
       const response = await fetch(
         `${
-          process.env.NEXT_PUBLIC_API_BASE_URL
+          config.BACKEND_URL
         }/v1/public/upload/image?folder=${encodeURIComponent(folder)}${
           entityId ? `&entityId=${entityId}` : ""
         }`,
@@ -972,6 +1004,10 @@ export default function ManageVCard() {
   };
 
   const checkHandleUniqueness = async (handle: string) => {
+    if (RESERVED_HANDLES.includes(handle.toLowerCase())) {
+      return;
+    }
+
     if (!handle.trim() || !isValidHandle(handle)) {
       return;
     }
@@ -1072,6 +1108,9 @@ export default function ManageVCard() {
     const { name, value } = e.target;
     if (!userProfile) return;
 
+    // Convert value to lowercase
+    const processedValue = value.toLowerCase();
+
     const currentVCard = vCard || {
       userId: userProfile._id,
       handle: "",
@@ -1098,7 +1137,7 @@ export default function ManageVCard() {
 
     setVCard({
       ...currentVCard,
-      [name]: value,
+      [name]: processedValue,
       lastUpdatedAt: new Date(),
     });
 
@@ -1110,27 +1149,29 @@ export default function ManageVCard() {
       delete errors.handle;
 
       // Frontend validation for handle
-      if (!value.trim()) {
+      if (!processedValue.trim()) {
         errors.handle = "Handle is required";
-      } else if (value.length < 3) {
+      } else if (processedValue.length < 3) {
         errors.handle = "Handle must be at least 3 characters long";
-      } else if (value.length > 30) {
+      } else if (RESERVED_HANDLES.includes(processedValue)) {
+        errors.handle = "This handle name is reserved and cannot be used";
+      } else if (processedValue.length > 30) {
         errors.handle = "Handle cannot be longer than 30 characters";
-      } else if (!isValidHandle(value)) {
+      } else if (!isValidHandle(processedValue)) {
         errors.handle =
           "Handle can only contain letters, numbers, dots, underscores, and hyphens";
       }
 
       setValidationErrors(errors);
 
-      // Only check uniqueness if frontend validation passes AND handle is longer than 3 characters
-      if (!errors.handle && value.trim().length > 3) {
+      // Only check uniqueness if frontend validation passes AND handle is at least 3 characters
+      if (!errors.handle && processedValue.trim().length >= 3) {
         if (handleCheckTimeout) {
           clearTimeout(handleCheckTimeout);
         }
 
         const newTimeout = setTimeout(() => {
-          checkHandleUniqueness(value);
+          checkHandleUniqueness(processedValue);
         }, 800);
 
         setHandleCheckTimeout(newTimeout);
@@ -1139,9 +1180,9 @@ export default function ManageVCard() {
       const errors = { ...validationErrors };
       delete errors.fullName;
 
-      if (!value.trim()) {
+      if (!processedValue.trim()) {
         errors.fullName = "Full name is required";
-      } else if (!isValidName(value)) {
+      } else if (!isValidName(processedValue)) {
         errors.fullName =
           "Full name must contain only letters and be 2-50 characters";
       }
@@ -1409,7 +1450,14 @@ export default function ManageVCard() {
     if (isSaveDisabled || isCheckingHandle || validationErrors.handle) {
       return;
     }
-
+    if (vCard?.handle && RESERVED_HANDLES.includes(vCard?.handle.toLowerCase())) {
+      showNotification("This handle is reserved and cannot be used", "error");
+      setValidationErrors((prev) => ({
+        ...prev,
+        handle: "This handle is reserved and cannot be used",
+      }));
+      return;
+    }
     // Check if any image is uploading
     const isAnyImageUploading = Object.values(imageUploads).some(
       (upload) => upload.uploading
@@ -1448,6 +1496,19 @@ export default function ManageVCard() {
             }
           );
 
+          // Handle unauthorized/token expired
+          if (checkResponse.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
+
           if (checkResponse.ok) {
             vCardResponse = await fetch(
               `${config.BACKEND_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
@@ -1461,21 +1522,18 @@ export default function ManageVCard() {
               }
             );
           } else if (checkResponse.status === 404) {
-            vCardResponse = await fetch(
-              `${config.BACKEND_URL}/v1/vcard`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${authToken}`,
-                },
-                body: JSON.stringify({
-                  ...vCard,
-                  userId: userId,
-                  organizationId: orgId,
-                }),
-              }
-            );
+            vCardResponse = await fetch(`${config.BACKEND_URL}/v1/vcard`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`,
+              },
+              body: JSON.stringify({
+                ...vCard,
+                userId: userId,
+                organizationId: orgId,
+              }),
+            });
           } else {
             throw new Error(
               `Error checking VCard existence: ${checkResponse.status}`
@@ -1484,11 +1542,34 @@ export default function ManageVCard() {
 
           if (!vCardResponse.ok) {
             const errorData = await vCardResponse.json();
+
+            // Handle duplicate handle error specifically
+            if (errorData.error_code === "ERR_DUPLICATE_HANDLE") {
+              showNotification(
+                "This handle is already taken. Please choose a different handle.",
+                "error"
+              );
+              return;
+            }
+
             throw new Error(
               `Error saving VCard: ${
                 errorData.error_message || vCardResponse.status
               }`
             );
+          }
+
+          // Handle unauthorized/token expired
+          if (vCardResponse.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
           }
 
           const vCardResult = await vCardResponse.json();
@@ -1538,6 +1619,19 @@ export default function ManageVCard() {
             }
           );
 
+          // Handle unauthorized/token expired
+          if (userResponse.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
+
           if (!userResponse.ok) {
             throw new Error(`Error fetching user data: ${userResponse.status}`);
           }
@@ -1553,6 +1647,19 @@ export default function ManageVCard() {
               },
             }
           );
+
+          // Handle unauthorized for org fetch
+          if (orgResponse.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
 
           if (!orgResponse.ok) {
             throw new Error(
@@ -1576,6 +1683,19 @@ export default function ManageVCard() {
               }
             );
 
+            // Handle unauthorized for vCard fetch
+            if (vCardResponse.status === 401) {
+              // Clear cookies
+              Cookies.remove("auth_token");
+              Cookies.remove("user_id");
+              Cookies.remove("organization_id");
+              Cookies.remove("user_email");
+
+              // Redirect to login with session expired flag
+              router.push("/");
+              return;
+            }
+
             if (vCardResponse.ok) {
               const vCardData = await vCardResponse.json();
               if (vCardData.success) {
@@ -1591,9 +1711,33 @@ export default function ManageVCard() {
             }
           } catch (vCardError) {
             console.warn("Error fetching VCard:", vCardError);
+            // Check if vCard error is due to unauthorized
+            if (vCardError.response?.status === 401) {
+              // Clear cookies
+              Cookies.remove("auth_token");
+              Cookies.remove("user_id");
+              Cookies.remove("organization_id");
+              Cookies.remove("user_email");
+
+              // Redirect to login with session expired flag
+              router.push("/");
+              return;
+            }
           }
         } catch (err) {
           console.error("Error fetching data:", err);
+          // Check if error is due to unauthorized
+          if (err.response?.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
           setError(
             err instanceof Error
               ? err.message
@@ -1609,11 +1753,11 @@ export default function ManageVCard() {
   }, [isLoadingCookies]);
 
   return (
-    <div className="flex h-screen flex-col sm:flex-row pb-12 sm:pb-0">
+    <div className="flex h-screen flex-col sm:flex-row ">
       <AdminSidebar />
-      <div className="flex-1 sm:pt-3 bg-primary w-full overflow-x-hidden">
+      <div className="sm:pt-3 bg-primary w-full overflow-x-hidden pb-6 sm:pb-0 ">
         {isLoading ? (
-          <div className="min-h-[100vh] sm:rounded-tl-3xl bg-white p-4 sm:p-6 lg:p-8">
+          <div className="min-h-[100vh]  sm:rounded-tl-3xl bg-white p-4 sm:p-6 lg:p-8">
             {/* PageHeader Skeleton */}
             <div className="flex flex-col gap-6  w-full pt-2">
               <div className="flex flex-col md:flex-row justify-between items-start w-full gap-4">
@@ -1685,7 +1829,7 @@ export default function ManageVCard() {
             </button>
           </div>
         ) : (
-          <div className="min-h-[100vh] sm:rounded-tl-3xl bg-white p-4 sm:p-6 lg:p-8 animate-in fade-in duration-500">
+          <div className="overflow-y-auto h-full sm:rounded-tl-3xl bg-white p-4 sm:p-6 lg:p-8 animate-in fade-in duration-500">
             {/* //! ----- Header -------  */}
             <PageHeader
               title="Manage VCard"
@@ -1744,48 +1888,7 @@ export default function ManageVCard() {
               showDivider={true}
               className="pt-2  "
             />
-            {/* //! --- save button for mobile screen only ----- */}
-            <div className="flex z-30 bg-white gap-2 justify-end border-t border-gray-200 px-4 py-2 sm:hidden fixed bottom-0 left-0 right-0">
-              {editMode && (
-                <button
-                  className={`bg-white text-gray-500 font-medium px-4 py-2 rounded-md border border-gray-200  `}
-                  onClick={cancelEdit}
-                >
-                  Cancel
-                </button>
-              )}
-              <button
-                className={`bg-primary text-white px-4 py-2 rounded-md   ${
-                  isSaving ||
-                  isSaveDisabled ||
-                  isCheckingHandle ||
-                  hideSaveButton ||
-                  Object.values(imageUploads).some((upload) => upload.uploading)
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
-                onClick={editMode ? handleSave : enterEditMode}
-                disabled={
-                  isSaving ||
-                  isSaveDisabled ||
-                  isCheckingHandle ||
-                  hideSaveButton ||
-                  Object.values(imageUploads).some((upload) => upload.uploading)
-                }
-              >
-                {isSaving
-                  ? "Saving..."
-                  : isCheckingHandle
-                  ? "Checking..."
-                  : Object.values(imageUploads).some(
-                      (upload) => upload.uploading
-                    )
-                  ? "Uploading..."
-                  : editMode
-                  ? "Save Changes"
-                  : "Edit"}
-              </button>
-            </div>
+
             {/* //! ----- Content -------  */}
             <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300">
               <div className="flex flex-col lg:flex-row gap-4">
@@ -1826,7 +1929,7 @@ export default function ManageVCard() {
                           className="text-xs underline ml-3 text-gray-500 hover:text-gray-700"
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              `${config.BACKEND_URL}/vcard/${vCard?.handle}`
+                              `${process.env.NEXT_PUBLIC_APP_URL}/vcard/${vCard?.handle}`
                             );
                             showNotification(
                               "Link copied to clipboard!",
@@ -1858,7 +1961,7 @@ export default function ManageVCard() {
                                   ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                                   : isCheckingHandle
                                   ? "border-yellow-300 focus:ring-yellow-500 focus:border-yellow-500"
-                                  : "border-gray-300 focus:ring-indigo-500 focus:border-transparent"
+                                  : "border-gray-300 focus:ring-primary focus:border-transparent"
                               }`}
                               placeholder="username"
                             />
@@ -1924,7 +2027,7 @@ export default function ManageVCard() {
                             className={`w-full px-3 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                               validationErrors.fullName
                                 ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                : "border-gray-300 focus:ring-indigo-500 focus:border-transparent"
+                                : "border-gray-300 focus:ring-primary focus:border-transparent"
                             }`}
                             placeholder="Full Name"
                           />
@@ -1979,7 +2082,7 @@ export default function ManageVCard() {
                             className={`w-full px-3 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all text-sm sm:text-base ${
                               validationErrors.title
                                 ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                : "border-gray-300 focus:ring-indigo-500 focus:border-transparent"
+                                : "border-gray-300 focus:ring-primary focus:border-transparent"
                             }`}
                             placeholder="Job Title"
                           />
@@ -2031,7 +2134,7 @@ export default function ManageVCard() {
                             className={`w-full px-3 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                               validationErrors.company
                                 ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                : "border-gray-300 focus:ring-indigo-500 focus:border-transparent"
+                                : "border-gray-300 focus:ring-primary focus:border-transparent"
                             }`}
                             placeholder="Company Name"
                           />
@@ -2434,7 +2537,7 @@ export default function ManageVCard() {
                         name="theme"
                         value={vCard?.theme || "classic-purple"}
                         onChange={handleThemeChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                       >
                         <option value="classic-purple">Classic Purple</option>
                         <option value="modern-blue">Modern Blue</option>
@@ -2711,7 +2814,7 @@ export default function ManageVCard() {
                         name="note"
                         value={vCard?.note?.value || ""}
                         onChange={handleNoteChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                         rows={3}
                         placeholder="Write something about yourself..."
                       />
@@ -2733,14 +2836,14 @@ export default function ManageVCard() {
                             lastUpdatedAt: new Date(),
                           });
                         }}
-                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-indigo-600 focus:ring-primary border-gray-300 rounded"
                       />
                     </div>
                   </div>
                 </div> */}
                 <div className=" w-full">
-                  <h2 className="text-base w-full sm:w-fit mx-auto md:gap-10  font-medium justify-between  text-gray-800 mb-4 md:mb-6 flex  items-center gap-2">
-                    <div className="flex items-center gap-1">
+                  <h2 className="text-base w-full sm:w-fit mx-auto md:w-[310px]  font-medium justify-between  text-gray-800 mb-4 md:mb-6 flex  items-center gap-2  ">
+                    <div className="flex items-center gap-1 text-sm">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-5 w-5 text-indigo-600"
@@ -2755,19 +2858,19 @@ export default function ManageVCard() {
                           d="M12 18h.01M8 21h8a3 3 0 003-3V6a3 3 0 00-3-3H8a3 3 0 00-3 3v12a3 3 0 003 3z"
                         />
                       </svg>
-                      Mobile Preview
+                      Preview
                     </div>
-                    <div className="  gap-5 justify-end text-sm  hidden sm:flex  ">
+                    <div className="  gap-3 justify-end  text-sm  flex  ">
                       {editMode && (
                         <button
-                          className={`bg-white text-gray-500 font-medium     `}
+                          className={`bg-white text-gray-500 font-medium border border-gray-300 px-2 py-1.5 rounded-md hover:bg-gray-100  `}
                           onClick={cancelEdit}
                         >
                           Cancel
                         </button>
                       )}
                       <button
-                        className={`text-gray-500 font-medium    ${
+                        className={` font-medium  bg-primary text-white px-3 py-1.5 rounded-md hover:bg-primary/95   ${
                           isSaving ||
                           isSaveDisabled ||
                           isCheckingHandle ||
@@ -2790,33 +2893,21 @@ export default function ManageVCard() {
                         }
                       >
                         {isSaving ? (
-                          "Saving..."
+                          "Saving"
                         ) : isCheckingHandle ? (
-                          "Checking..."
+                          "Checking"
                         ) : Object.values(imageUploads).some(
                             (upload) => upload.uploading
                           ) ? (
-                          "Uploading..."
+                          "Uploading"
                         ) : editMode ? (
-                          <div className="flex items-center gap-2  underline hover:text-primary transition-colors duration-200 animate-pulse underline-offset-2">
+                          <div className="flex items-center gap-2  ">
+                            {/* <Save className="size-3" /> */}
                             Save
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2  underline">
-                            Edit{" "}
-                            <svg
-                              className="size-3 text-gray-500"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                              />
-                            </svg>
+                          <div className="flex items-center gap-2  ">
+                            Edit <Pencil className="size-3" />
                           </div>
                         )}
                       </button>
@@ -2831,7 +2922,7 @@ export default function ManageVCard() {
                         <div className="bg-white h-full shadow-lg overflow-y-scroll scrollbar-hide">
                           {/* Cover Image */}
                           <div
-                            className={`h-28 pt-2  bg-gradient-to-r ${
+                            className={`h-28 pt-2 px-4 bg-gradient-to-r ${
                               getThemeColors(vCard?.theme || "classic-purple")
                                 .gradient
                             } relative group cursor-pointer`}
@@ -2842,34 +2933,36 @@ export default function ManageVCard() {
                             }}
                           >
                             {/* Alert Display in Mobile Preview */}
-                            {((vCard?.alert &&
-                              vCard.alert.text &&
-                              !isAlertExpired(vCard.alert.expiryDate)) ||
-                              (editMode &&
-                                (!vCard?.alert || !vCard.alert.text))) && (
+                            {(editMode ||
+                              (vCard?.alert &&
+                                vCard.alert.text &&
+                                !isAlertExpired(vCard.alert.expiryDate))) && (
                               <div
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  if (
-                                    editMode &&
-                                    (!vCard?.alert || !vCard.alert.text)
-                                  ) {
+                                  if (editMode) {
                                     openAlertModal();
                                   }
                                 }}
-                                className={`mx-auto mb-3 p-2 z-10 relative backdrop-blur-md rounded-xl w-fit ${
+                                className={`mx-auto  mb-3 p-2 z-10 relative backdrop-blur-md  rounded-xl w-fit ${
                                   editMode &&
-                                  (!vCard?.alert || !vCard.alert.text)
-                                    ? "bg-white/30 border-2 border-dashed border-white/50 cursor-pointer hover:bg-white/40"
-                                    : "bg-white/50"
+                                  (!vCard?.alert ||
+                                    !vCard.alert.text ||
+                                    isAlertExpired(vCard?.alert?.expiryDate))
+                                    ? "bg-[#FCFAFF] border-2 border-dashed border-white/50 cursor-pointer hover:bg-[#FCFAFF]/80 "
+                                    : "bg-[#FCFAFF] "
                                 }`}
                               >
-                                <div className="flex items-start gap-3">
+                                <div className="flex items-start gap-2">
                                   {editMode &&
-                                  (!vCard?.alert || !vCard.alert.text) ? (
+                                  (!vCard?.alert ||
+                                    !vCard.alert.text ||
+                                    isAlertExpired(
+                                      vCard?.alert?.expiryDate
+                                    )) ? (
                                     <>
-                                      <div className="flex-shrink-0 text-white">
-                                        <div className="w-3 h-3">
+                                      <div className="flex-shrink-0 text-[#6941C6]">
+                                        <div className="size-4">
                                           <svg
                                             className="w-full h-full"
                                             fill="currentColor"
@@ -2884,7 +2977,7 @@ export default function ManageVCard() {
                                         </div>
                                       </div>
                                       <div className="flex-1 min-w-0">
-                                        <p className="text-xs text-white/70 italic">
+                                        <p className="text-xs text-[#6941C6] italic">
                                           Click to add alert
                                         </p>
                                       </div>
@@ -2892,7 +2985,7 @@ export default function ManageVCard() {
                                   ) : (
                                     <>
                                       {vCard?.alert?.icon && (
-                                        <div className="flex-shrink-0 text-white ">
+                                        <div className="flex-shrink-0 text-[#6941C6] ">
                                           <div className="w-3 h-3">
                                             {getAlertIcon(vCard.alert.icon)}
                                           </div>
@@ -2910,28 +3003,28 @@ export default function ManageVCard() {
                                             }
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-xs text-white hover:text-gray-500 underline break-words block break-all"
+                                            className="text-xs pt-[1px] text-[#6941C6] hover:text-[#6941C6]/80 underline break-words block break-all"
                                           >
                                             {vCard.alert?.text}
                                           </a>
                                         ) : (
-                                          <p className="text-xs text-white break-words">
+                                          <p className="text-xs pt-[1px] text-[#6941C6] hover:text-[#6941C6]/80 break-words">
                                             {vCard?.alert?.text}
                                           </p>
                                         )}
                                       </div>
                                       {/* Edit Alert Icon */}
                                       {editMode && (
-                                        <div className="flex-shrink-0">
+                                        <div className="flex-shrink-0 ">
                                           <button
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               openAlertModal();
                                             }}
-                                            className="w-5 h-5 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
+                                            className="w-5 h-5 bg-[#6941C6]/20  hover:bg-[#6941C6]/10 rounded-full flex items-center justify-center transition-colors"
                                           >
                                             <svg
-                                              className="size-3 text-white"
+                                              className="size-3 text-[#6941C6]"
                                               fill="none"
                                               stroke="currentColor"
                                               viewBox="0 0 24 24"
@@ -2962,9 +3055,9 @@ export default function ManageVCard() {
                             {/* Cover Image Edit Overlay */}
                             {editMode && (
                               <div
-                                className={`absolute inset-0 bg-black bg-opacity-30 transition-all duration-200 flex items-center justify-center`}
+                                className={`absolute inset-0 bg-black bg-opacity-30 transition-all duration-200 grid place-content-end p-1`}
                               >
-                                <div className="opacity-100 transition-opacity duration-200">
+                                <div className="opacity-100 transition-opacity duration-200 ">
                                   <svg
                                     className="size-5 text-white"
                                     fill="none"
@@ -3085,13 +3178,7 @@ export default function ManageVCard() {
                               )}
                               {/* Add Company Logo button when no logo exists */}
                               {!vCard?.companyLogoUrl && (
-                                <div
-                                  className="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-100 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    openPhotoModal("companyLogo");
-                                  }}
-                                >
+                                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-100 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
                                   <svg
                                     className="w-2 h-2 text-gray-600"
                                     fill="none"
@@ -3116,7 +3203,7 @@ export default function ManageVCard() {
                             {editMode && (
                               <div className="grid grid-cols-3 gap-2 mb-3">
                                 {/* Handle */}
-                                <div className="col-span-2">
+                                <div className="col-span-2 text-start">
                                   <div className="relative">
                                     <input
                                       type="text"
@@ -3124,14 +3211,17 @@ export default function ManageVCard() {
                                       value={vCard?.handle || ""}
                                       onChange={handleVCardChange}
                                       placeholder="username"
-                                      className={`w-full text-xs text-gray-700 text-center bg-white border rounded-md pl-2 pr-5 py-1 focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
+                                      className={`w-full text-xs text-gray-700  bg-white pl-6 border rounded-md  pr-5 py-1 focus:outline-none focus:ring-2  focus:border-transparent transition-all ${
                                         validationErrors.handle
                                           ? "border-red-300 focus:ring-red-500"
                                           : isCheckingHandle
                                           ? "border-yellow-300 focus:ring-yellow-500"
-                                          : "border-gray-200 focus:ring-indigo-500"
+                                          : "border-gray-200 focus:ring-primary"
                                       }`}
                                     />
+                                    <div className="absolute inset-y-0 left-0 flex items-center pl-2">
+                                      <AtSign className="size-3 text-gray-400" />
+                                    </div>
                                     {isCheckingHandle && (
                                       <div className="absolute inset-y-0 right-0 flex items-center pr-2">
                                         <div className="w-3 h-3 border-t-2 border-b-2 border-yellow-500 rounded-full animate-spin"></div>
@@ -3175,7 +3265,7 @@ export default function ManageVCard() {
                                     name="theme"
                                     value={vCard?.theme || "classic-purple"}
                                     onChange={handleThemeChange}
-                                    className="w-full text-xs text-gray-700 text-center bg-white border border-gray-200 rounded-md px-1 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                    className="w-full text-xs text-gray-700 text-center bg-white border border-gray-200 rounded-md px-1 py-1 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                                   >
                                     <option value="classic-purple">
                                       Purple
@@ -3198,26 +3288,14 @@ export default function ManageVCard() {
                                     value={vCard?.fullName || ""}
                                     onChange={handleVCardChange}
                                     placeholder="Enter full name"
-                                    className="w-full text-sm font-semibold text-gray-900 text-center bg-white border border-gray-200 rounded-md px-2 py-1 pr-6 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                    className="w-full text-sm  text-gray-900 pl-6 bg-white border border-gray-200 rounded-md px-2 py-1  focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                                   />
-                                  <div className="absolute inset-y-0 right-0 flex items-center pr-2">
-                                    <svg
-                                      className="size-3 text-gray-400"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                                      />
-                                    </svg>
+                                  <div className="absolute inset-y-0 left-0 flex items-center pl-2">
+                                    <User className="size-3 text-gray-400" />
                                   </div>
                                 </div>
                                 {validationErrors.fullName && (
-                                  <p className="text-xs text-red-600 mt-1">
+                                  <p className="text-xs text-red-600 text-start mt-1">
                                     {validationErrors.fullName}
                                   </p>
                                 )}
@@ -3238,30 +3316,14 @@ export default function ManageVCard() {
                                     value={vCard?.title || ""}
                                     onChange={handleVCardChange}
                                     placeholder="Enter job title"
-                                    className={`w-full text-xs font-medium text-center bg-white border border-gray-200 rounded-md px-2 py-1 pr-6 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                                      getThemeColors(
-                                        vCard?.theme || "classic-purple"
-                                      ).text
-                                    }`}
+                                    className={`w-full text-xs   bg-white border border-gray-200 rounded-md px-2 py-1 pl-6 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent `}
                                   />
-                                  <div className="absolute inset-y-0 right-0 flex items-center pr-2">
-                                    <svg
-                                      className="size-3 text-gray-400"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                                      />
-                                    </svg>
+                                  <div className="absolute inset-y-0 left-0 flex items-center pl-2">
+                                    <Briefcase className="size-3 text-gray-400" />
                                   </div>
                                 </div>
                                 {validationErrors.title && (
-                                  <p className="text-xs text-red-600 mt-1">
+                                  <p className="text-xs text-red-600 text-start mt-1">
                                     {validationErrors.title}
                                   </p>
                                 )}
@@ -3290,26 +3352,14 @@ export default function ManageVCard() {
                                     value={vCard?.company || ""}
                                     onChange={handleVCardChange}
                                     placeholder="Enter company name"
-                                    className="w-full text-xs text-gray-600 text-center bg-white border border-gray-200 rounded-md px-2 py-1 pr-6 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                    className="w-full text-xs text-gray-600  bg-white border border-gray-200 rounded-md px-2 py-1 pl-6 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                                   />
-                                  <div className="absolute inset-y-0 right-0 flex items-center pr-2">
-                                    <svg
-                                      className="size-3 text-gray-400"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                                      />
-                                    </svg>
+                                  <div className="absolute inset-y-0 left-0 flex items-center pl-2">
+                                    <Building2 className="size-3 text-gray-400" />
                                   </div>
                                 </div>
                                 {validationErrors.company && (
-                                  <p className="text-xs text-red-600 mt-1">
+                                  <p className="text-xs text-red-600 text-start mt-1">
                                     {validationErrors.company}
                                   </p>
                                 )}
@@ -3324,18 +3374,18 @@ export default function ManageVCard() {
 
                             {/* Note */}
                             {editMode ? (
-                              <div className="mb-3">
+                              <div className="mb-3 pb-1.5 focus-within:border-primary relative border-2 border-gray-200 rounded-lg bg-gray-50">
                                 <textarea
                                   name="note"
                                   value={vCard?.note?.value || ""}
                                   onChange={handleNoteChange}
                                   placeholder="Write something about yourself..."
-                                  rows={2}
+                                  rows={3}
                                   maxLength={200}
-                                  className="w-full text-xs text-gray-700 text-left bg-gray-50 border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                  className="w-full text-xs text-gray-700 text-left bg-gray-50  rounded-lg p-2 focus:outline-none   resize-none scrollbar-hide"
                                 />
-                                <div className="text-right mt-1">
-                                  <span className="text-xs text-gray-500">
+                                <div className="absolute  -bottom-1 right-1  ">
+                                  <span className="text-[10px] text-gray-500">
                                     {vCard?.note?.value?.length || 0}/200
                                   </span>
                                 </div>
@@ -3385,13 +3435,17 @@ export default function ManageVCard() {
                                           : "shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] duration-300 hover:shadow-[0_2px_8px_rgb(0,0,0,0.15)] cursor-pointer"
                                       }`}
                                     >
-                                      <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm">
+                                      <div
+                                        className={` ${
+                                          editMode ? "size-4" : "size-5"
+                                        } bg-white rounded-full flex items-center justify-center shadow-sm`}
+                                      >
                                         {getSocialIcon(link)}
                                       </div>
                                       <div className="flex-1 text-left">
                                         <div
                                           className={`font-semibold ${
-                                            editMode ? "max-w-28" : ""
+                                            editMode ? "max-w-28 truncate" : ""
                                           } break-all text-xs flex items-center gap-1 ${
                                             editMode && !link.isVisible
                                               ? "text-gray-400"
@@ -3407,7 +3461,7 @@ export default function ManageVCard() {
                                         </div>
                                         <div
                                           className={`text-xs ${
-                                            editMode ? "max-w-28" : ""
+                                            editMode ? "max-w-28 truncate" : ""
                                           } break-all ${
                                             editMode && !link.isVisible
                                               ? "text-gray-400"
@@ -3556,11 +3610,11 @@ export default function ManageVCard() {
                                 )}
 
                                 {/* Create Your Own Card - Only in View Mode */}
-                                {!editMode && (
-                                  <div className="text-gray-500 px-4 py-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-2xl font-medium bg-white flex justify-center w-fit mx-auto text-xs">
+                                {/* {!editMode && (
+                                  <div className="text-gray-500 px-4 py-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-2xl font-medium hidden bg-white  justify-center w-fit mx-auto text-xs">
                                     Create Your Own Card
                                   </div>
-                                )}
+                                )} */}
                               </div>
                             )}
 
@@ -3603,10 +3657,10 @@ export default function ManageVCard() {
 
                     <div className="relative flex items-center ">
                       <Link
-                        href={`/vcard/${vCard?.handle}`}
+                        href={`/${vCard?.handle}`}
                         className="px-4 py-2 bg-gray-50 border truncate max-w-[260px] sm:max-w-full   border-gray-200 rounded-lg text-sm text-blue-600 hover:text-blue-700 hover:underline"
                       >
-                        {`${config.BACKEND_URL}/vcard/${vCard?.handle}`}
+                        {`${config.FRONTEND_URL}${vCard?.handle}`}
                       </Link>
 
                       <div className="relative group ml-2">
@@ -3614,7 +3668,7 @@ export default function ManageVCard() {
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              `${config.BACKEND_URL}/vcard/${vCard?.handle}`
+                              `${config.FRONTEND_URL}${vCard?.handle}`
                             );
                             showNotification(
                               "Link copied to clipboard!",
@@ -3633,6 +3687,48 @@ export default function ManageVCard() {
                 </div>
               </div>
             </div>
+            {/* Footer */}
+            <div className="flex flex-col sm:flex-row sm:justify-end mt-4 sm:mb-0 mb-9 items-center justify-between gap-3  text-primary  px-4">
+              <div className="flex items-center gap-6 order-1 sm:order-2 flex-wrap justify-center ">
+                <a
+                  href="mailto:success@delightloop.com"
+                  className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
+                  title="Support"
+                >
+                  {/* <HelpCircle className="w-4 h-4 sm:hidden" /> */}
+                  <span className="flex items-center gap-1">
+                    <HelpCircle className="size-4" />
+                    Support
+                  </span>
+                </a>
+                <Link
+                  href="https://delightloop.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
+                  title="About us"
+                >
+                  {/* <ExternalLink className="w-4 h-4 sm:hidden" /> */}
+                  <span className="flex items-center gap-1">
+                    <ExternalLink className="size-4" />
+                    About us
+                  </span>
+                </Link>
+                <Link
+                  href="https://www.delightloop.com/bookademo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
+                  title="Book a meeting"
+                >
+                  {/* <Calendar className="w-4 h-4 sm:hidden" /> */}
+                  <span className="flex items-center gap-1">
+                    <Calendar className="size-4" />
+                    Book a meeting
+                  </span>
+                </Link>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -3640,7 +3736,7 @@ export default function ManageVCard() {
       {/* Toast Notification */}
       {showToast && (
         <div
-          className={`fixed top-[70px] right-1 sm:top-4 sm:right-4 z-50 px-4 py-3 rounded-lg shadow-lg ${
+          className={`fixed top-1 right-1 sm:top-4 sm:right-4 z-50 px-4 py-3 rounded-lg shadow-lg ${
             toastType === "success"
               ? "bg-green-100 text-green-800"
               : "bg-red-100 text-red-800"
@@ -3683,7 +3779,7 @@ export default function ManageVCard() {
       {showAddLinkModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
           <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
+            <div className="flex justify-between items-center bg-primary-xlight rounded-t-lg border-b border-gray-200 px-6 py-4">
               <h3 className="text-lg font-medium text-gray-900">
                 {editingLinkIndex !== null ? "Edit Link" : "Add New Link"}
               </h3>
@@ -3722,7 +3818,7 @@ export default function ManageVCard() {
               </button>
             </div>
 
-            <div className="px-4 sm:px-6 py-4 max-h-[80vh] overflow-scroll">
+            <div className="px-4 sm:px-6 py-4 max-h-[80vh] overflow-scroll scrollbar-hide ">
               {/* Show selection grid only when adding new link */}
               {editingLinkIndex === null && (
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4">
@@ -3754,7 +3850,7 @@ export default function ManageVCard() {
                       }}
                       className={`flex items-center gap-2 p-2 rounded-lg border ${
                         newLink.icon === option.type
-                          ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                          ? "border-primary bg-primary-xlight text-primary"
                           : "border-gray-200 hover:border-gray-300 text-gray-700"
                       }`}
                     >
@@ -3769,7 +3865,7 @@ export default function ManageVCard() {
                     }}
                     className={`flex items-center gap-2 p-2 rounded-lg border ${
                       isCustomLinkType
-                        ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                        ? "border-primary bg-primary-xlight text-primary"
                         : "border-gray-200 hover:border-gray-300 text-gray-700"
                     }`}
                   >
@@ -3829,7 +3925,7 @@ export default function ManageVCard() {
               )}
 
               {(newLink.type || newLink.icon || isCustomLinkType) && (
-                <div className="mb-4">
+                <div className="">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Link Title
                   </label>
@@ -3874,7 +3970,7 @@ export default function ManageVCard() {
                         }
                       }}
                       maxLength={30}
-                      className="w-full pl-12 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full pl-12 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       placeholder={
                         newLink.icon
                           ? `e.g., My ${newLink.icon}, Business ${newLink.icon}, etc.`
@@ -3883,8 +3979,8 @@ export default function ManageVCard() {
                     />
                   </div>
                   <div className="mt-1 flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      {newLink.icon && (
+                    <div className="flex items-center gap-1 ">
+                      {/* {newLink.icon && (
                         <div className="flex items-center gap-1">
                           {newLink.removedIcon ? (
                             <p className="text-xs text-gray-500 flex items-center gap-1">
@@ -3895,7 +3991,7 @@ export default function ManageVCard() {
                               <span>validation, generic link icon</span>
                             </p>
                           ) : (
-                            <p className="text-xs text-gray-500 flex items-center gap-1">
+                            <p className={`text-xs text-gray-500 flex items-center gap-1  `}>
                               <span>Using</span>
                               <span className="font-medium text-gray-700">
                                 {newLink.icon}
@@ -3903,7 +3999,7 @@ export default function ManageVCard() {
                               <span>icon</span>
                             </p>
                           )}
-                          {/* Show remove/restore icon buttons only when adding new link */}
+
                           {editingLinkIndex === null && (
                             <>
                               {!newLink.removedIcon ? (
@@ -3914,7 +4010,7 @@ export default function ManageVCard() {
                                       removedIcon: true,
                                     });
                                   }}
-                                  className="text-xs text-red-500 hover:text-red-700 ml-1 px-1 py-0.5 rounded hover:bg-red-50"
+                                  className="text-xs text-red-500  hover:text-red-700 ml-1 px-1 py-0.5 rounded-full hover:bg-red-50"
                                   title="Remove icon"
                                 >
                                   ✕
@@ -3927,7 +4023,7 @@ export default function ManageVCard() {
                                       removedIcon: false,
                                     });
                                   }}
-                                  className="text-xs text-green-500 hover:text-green-700 ml-1 px-1 py-0.5 rounded hover:bg-green-50"
+                                  className="text-xs text-green-500 hover:text-green-700 ml-1 px-1 py-0.5 rounded-full hover:bg-green-50"
                                   title="Restore icon"
                                 >
                                   ↻
@@ -3936,7 +4032,7 @@ export default function ManageVCard() {
                             </>
                           )}
                         </div>
-                      )}
+                      )} */}
                     </div>
                     <span className="text-xs text-gray-500">
                       {newLink.type.length}/30
@@ -3945,140 +4041,144 @@ export default function ManageVCard() {
                 </div>
               )}
 
-              <div>
-                {newLink.icon === "WhatsApp" ||
-                newLink.icon === "Phone" ||
-                newLink.icon === "SMS" ? (
-                  <>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      value={newLink.value}
-                      onChange={(e) => {
-                        let value = e.target.value;
-                        // Allow only valid phone characters
-                        value = value.replace(/[^+\d\s\-\(\)\.]/g, "");
+              {newLink.type && (
+                <>
+                  <div>
+                    {newLink.icon === "WhatsApp" ||
+                    newLink.icon === "Phone" ||
+                    newLink.icon === "SMS" ? (
+                      <>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          value={newLink.value}
+                          onChange={(e) => {
+                            let value = e.target.value;
+                            // Allow only valid phone characters
+                            value = value.replace(/[^+\d\s\-\(\)\.]/g, "");
 
-                        setNewLink({ ...newLink, value: value });
-                        // Clear validation errors when user starts typing
-                        if (validationErrors.linkValue) {
-                          setValidationErrors({
-                            ...validationErrors,
-                            linkValue: undefined,
-                          });
-                        }
-                      }}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                        validationErrors.linkValue
-                          ? "border-red-300 focus:ring-red-500"
-                          : "border-gray-300 focus:ring-indigo-500"
-                      }`}
-                      placeholder={
-                        newLink.icon === "WhatsApp"
-                          ? "+1 (555) 123-4567 or 5551234567"
-                          : newLink.icon === "SMS"
-                          ? "+1 (555) 123-4567 for SMS"
-                          : "+1 (555) 123-4567"
+                            setNewLink({ ...newLink, value: value });
+                            // Clear validation errors when user starts typing
+                            if (validationErrors.linkValue) {
+                              setValidationErrors({
+                                ...validationErrors,
+                                linkValue: undefined,
+                              });
+                            }
+                          }}
+                          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                            validationErrors.linkValue
+                              ? "border-red-300 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-primary"
+                          }`}
+                          placeholder={
+                            newLink.icon === "WhatsApp"
+                              ? "+1 (555) 123-4567 or 5551234567"
+                              : newLink.icon === "SMS"
+                              ? "+1 (555) 123-4567 for SMS"
+                              : "+1 (555) 123-4567"
+                          }
+                          maxLength={20}
+                        />
+                        <p className="mt-1 text-xs text-gray-500">
+                          Enter 10-15 digits. Include country code for
+                          international numbers (e.g., +1 for US/Canada)
+                        </p>
+                      </>
+                    ) : newLink.icon === "Email" ? (
+                      <>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Email Address
+                        </label>
+                        <input
+                          type="email"
+                          value={newLink.value}
+                          onChange={(e) => {
+                            setNewLink({ ...newLink, value: e.target.value });
+                            // Clear validation errors when user starts typing
+                            if (validationErrors.linkValue) {
+                              setValidationErrors({
+                                ...validationErrors,
+                                linkValue: undefined,
+                              });
+                            }
+                          }}
+                          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                            validationErrors.linkValue
+                              ? "border-red-300 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-primary"
+                          }`}
+                          placeholder="example@email.com"
+                        />
+                        <p className="mt-1 text-xs text-gray-500">
+                          Enter a valid email address
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Link URL
+                        </label>
+                        <input
+                          type="url"
+                          value={newLink.value}
+                          onChange={(e) => {
+                            setNewLink({ ...newLink, value: e.target.value });
+                            // Clear validation errors when user starts typing
+                            if (validationErrors.linkValue) {
+                              setValidationErrors({
+                                ...validationErrors,
+                                linkValue: undefined,
+                              });
+                            }
+                          }}
+                          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                            validationErrors.linkValue
+                              ? "border-red-300 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-primary"
+                          }`}
+                          placeholder="https://example.com"
+                        />
+                      </>
+                    )}
+                    {validationErrors.linkValue && (
+                      <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                        <svg
+                          className="w-4 h-4"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        {validationErrors.linkValue}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center mt-4">
+                    <input
+                      type="checkbox"
+                      checked={newLink.isVisible}
+                      onChange={(e) =>
+                        setNewLink({ ...newLink, isVisible: e.target.checked })
                       }
-                      maxLength={20}
+                      className="h-4 w-4  focus:ring-primary border-gray-300 rounded accent-primary"
                     />
-                    <p className="mt-1 text-xs text-gray-500">
-                      Enter 10-15 digits. Include country code for international
-                      numbers (e.g., +1 for US/Canada)
-                    </p>
-                  </>
-                ) : newLink.icon === "Email" ? (
-                  <>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email Address
+                    <label className="ml-2 block text-sm text-gray-700">
+                      Make this link visible on profile
                     </label>
-                    <input
-                      type="email"
-                      value={newLink.value}
-                      onChange={(e) => {
-                        setNewLink({ ...newLink, value: e.target.value });
-                        // Clear validation errors when user starts typing
-                        if (validationErrors.linkValue) {
-                          setValidationErrors({
-                            ...validationErrors,
-                            linkValue: undefined,
-                          });
-                        }
-                      }}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                        validationErrors.linkValue
-                          ? "border-red-300 focus:ring-red-500"
-                          : "border-gray-300 focus:ring-indigo-500"
-                      }`}
-                      placeholder="example@email.com"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      Enter a valid email address
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Link URL
-                    </label>
-                    <input
-                      type="url"
-                      value={newLink.value}
-                      onChange={(e) => {
-                        setNewLink({ ...newLink, value: e.target.value });
-                        // Clear validation errors when user starts typing
-                        if (validationErrors.linkValue) {
-                          setValidationErrors({
-                            ...validationErrors,
-                            linkValue: undefined,
-                          });
-                        }
-                      }}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                        validationErrors.linkValue
-                          ? "border-red-300 focus:ring-red-500"
-                          : "border-gray-300 focus:ring-indigo-500"
-                      }`}
-                      placeholder="https://example.com"
-                    />
-                  </>
-                )}
-                {validationErrors.linkValue && (
-                  <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    {validationErrors.linkValue}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center mt-4">
-                <input
-                  type="checkbox"
-                  checked={newLink.isVisible}
-                  onChange={(e) =>
-                    setNewLink({ ...newLink, isVisible: e.target.checked })
-                  }
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label className="ml-2 block text-sm text-gray-700">
-                  Make this link visible on profile
-                </label>
-              </div>
+                  </div>
+                </>
+              )}
             </div>
 
-            <div className="bg-gray-50 px-6 py-3 flex justify-end gap-3 border-t border-gray-200">
+            <div className="bg-gray-50 px-6 py-3 flex justify-end gap-3 border-t border-gray-200 rounded-b-lg">
               <button
                 onClick={() => {
                   setShowAddLinkModal(false);
@@ -4096,7 +4196,7 @@ export default function ManageVCard() {
                     linkValue: undefined,
                   });
                 }}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
                 Cancel
               </button>
@@ -4115,7 +4215,7 @@ export default function ManageVCard() {
       {showAlertModal && (
         <div className="fixed   inset-0 bg-gray-600 bg-opacity-75  overflow-y-auto h-full w-full z-50 flex justify-center items-center">
           <div className="relative bg-white  rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
+            <div className="flex bg-primary-xlight rounded-t-lg justify-between items-center border-b border-gray-200 px-6 py-4">
               <h3 className="text-lg font-medium text-gray-900">
                 {vCard?.alert ? "Edit Alert" : "Add Alert"}
               </h3>
@@ -4161,12 +4261,12 @@ export default function ManageVCard() {
                     value={alertData.text}
                     onChange={handleAlertChange}
                     required
-                    rows={2}
+                    rows={1}
                     maxLength={40}
                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 resize-none ${
                       alertValidationErrors.text
                         ? "border-red-300 focus:ring-red-500"
-                        : "border-gray-300 focus:ring-indigo-500"
+                        : "border-gray-300 focus:ring-primary"
                     }`}
                     placeholder={"Enter your alert message (max 40 chars)..."}
                   />
@@ -4197,7 +4297,7 @@ export default function ManageVCard() {
                   name="type"
                   value={alertData.type}
                   onChange={handleAlertChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="text">Text Only</option>
                   <option value="link">Clickable Link</option>
@@ -4224,7 +4324,7 @@ export default function ManageVCard() {
                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
                       alertValidationErrors.linkName
                         ? "border-red-300 focus:ring-red-500"
-                        : "border-gray-300 focus:ring-indigo-500"
+                        : "border-gray-300 focus:ring-primary"
                     }`}
                     placeholder="https://example.com"
                   />
@@ -4302,7 +4402,7 @@ export default function ManageVCard() {
                       }
                       className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-all hover:bg-gray-50 ${
                         alertData.icon === iconOption.name
-                          ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                          ? "border-primary bg-indigo-50 text-indigo-700"
                           : "border-gray-200 text-gray-600"
                       }`}
                     >
@@ -4348,27 +4448,52 @@ export default function ManageVCard() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Expiry Date (Optional)
                 </label>
-                <input
-                  type="date"
-                  value={
-                    alertData.expiryDate
-                      ? new Date(alertData.expiryDate)
-                          .toISOString()
-                          .split("T")[0]
-                      : ""
-                  }
-                  onChange={(e) => {
-                    const date = e.target.value
-                      ? new Date(e.target.value + "T00:00:00")
-                      : null;
-                    handleAlertDateChange(date);
-                  }}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                    alertValidationErrors.expiryDate
-                      ? "border-red-300 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-indigo-500"
-                  }`}
-                />
+                <div className="relative inline-block w-full">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      readOnly
+                      value={
+                        alertData.expiryDate
+                          ? new Date(alertData.expiryDate).toLocaleDateString()
+                          : ""
+                      }
+                      placeholder="Select expiry date"
+                      onClick={() => setShowCalendar(!showCalendar)}
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 cursor-pointer ${
+                        alertValidationErrors.expiryDate
+                          ? "border-red-300 focus:ring-red-500"
+                          : "border-gray-300 focus:ring-primary"
+                      }`}
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg
+                        className="w-5 h-5 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                  {showCalendar && (
+                    <CustomCalendar
+                      selectedDate={
+                        alertData.expiryDate
+                          ? new Date(alertData.expiryDate)
+                          : null
+                      }
+                      onChange={handleAlertDateChange}
+                      onClose={() => setShowCalendar(false)}
+                    />
+                  )}
+                </div>
                 <p className="mt-1 text-xs text-gray-500">
                   Alert will be hidden after this date
                 </p>
@@ -4406,7 +4531,10 @@ export default function ManageVCard() {
                       !alertData.linkName?.trim()) ||
                     !!alertValidationErrors.text ||
                     !!alertValidationErrors.linkName ||
-                    !!alertValidationErrors.expiryDate
+                    !!alertValidationErrors.expiryDate ||
+                    (alertData.expiryDate &&
+                      new Date(alertData.expiryDate).setHours(0, 0, 0, 0) <
+                        new Date().setHours(0, 0, 0, 0))
                   }
                   className="px-4 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
@@ -4422,7 +4550,7 @@ export default function ManageVCard() {
       {showPhotoModal && currentPhotoType && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
           <div className="relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
-            <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
+            <div className="flex justify-between items-center bg-primary-xlight rounded-t-lg border-b border-gray-200 px-6 py-4">
               <h3 className="text-lg font-medium text-gray-900">
                 {currentPhotoType === "profilePhoto"
                   ? "Profile Photo"
@@ -4485,20 +4613,20 @@ export default function ManageVCard() {
                       className={`
                        ${
                          currentPhotoType === "coverImage"
-                           ? "w-60 h-32"
-                           : "w-32 h-32"
+                           ? "w-72 h-32"
+                           : "w-72 h-32"
                        }
                        ${
                          currentPhotoType === "profilePhoto"
-                           ? "rounded-full"
+                           ? "rounded-lg"
                            : "rounded-lg"
                        }
-                       bg-gray-200 border-2 border-gray-300 border-dashed flex items-center justify-center
+                       bg-primary-xlight border border-primary-light  flex items-center justify-center
                      `}
                     >
-                      <div className="text-center">
+                      <div className="text-center text-primary-light">
                         <svg
-                          className="w-8 h-8 text-gray-400 mx-auto mb-2"
+                          className="w-8 h-8 text-primary-light mx-auto mb-2"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -4516,7 +4644,7 @@ export default function ManageVCard() {
                             d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
                           />
                         </svg>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm ">
                           No{" "}
                           {currentPhotoType === "profilePhoto"
                             ? "profile photo"
@@ -4524,6 +4652,13 @@ export default function ManageVCard() {
                             ? "company logo"
                             : "cover image"}
                         </p>
+                        {/* Upload Guidelines */}
+                        <div className="text-xs  mt-2">
+                          <p className="">
+                            Supported formats: PNG, JPG, GIF, WebP • Max size:
+                            10MB
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -4531,7 +4666,7 @@ export default function ManageVCard() {
               </div>
 
               {/* Upload Status */}
-              {imageUploads[currentPhotoType].uploading && (
+              {/* {imageUploads[currentPhotoType].uploading && (
                 <div className="text-center">
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-lg">
                     <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
@@ -4540,7 +4675,7 @@ export default function ManageVCard() {
                     </span>
                   </div>
                 </div>
-              )}
+              )} */}
 
               {/* Upload Error */}
               {imageUploads[currentPhotoType].error && (
@@ -4579,7 +4714,7 @@ export default function ManageVCard() {
                   <button
                     disabled={imageUploads[currentPhotoType].uploading}
                     className={`
-                      inline-flex items-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors
+                      inline-flex items-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors
                       ${
                         imageUploads[currentPhotoType].uploading
                           ? "opacity-50 cursor-not-allowed"
@@ -4600,11 +4735,14 @@ export default function ManageVCard() {
                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                       />
                     </svg>
-                    {(currentPhotoType === "profilePhoto" &&
-                      vCard?.avatarUrl) ||
-                    (currentPhotoType === "companyLogo" &&
-                      vCard?.companyLogoUrl) ||
-                    (currentPhotoType === "coverImage" && vCard?.coverImageUrl)
+                    {imageUploads[currentPhotoType].uploading
+                      ? "Uploading..."
+                      : (currentPhotoType === "profilePhoto" &&
+                          vCard?.avatarUrl) ||
+                        (currentPhotoType === "companyLogo" &&
+                          vCard?.companyLogoUrl) ||
+                        (currentPhotoType === "coverImage" &&
+                          vCard?.coverImageUrl)
                       ? "Change Photo"
                       : "Upload Photo"}
                   </button>
@@ -4643,23 +4781,6 @@ export default function ManageVCard() {
                     </svg>
                     Delete
                   </button>
-                )}
-              </div>
-
-              {/* Upload Guidelines */}
-              <div className="text-center">
-                <p className="text-xs text-gray-500">
-                  Supported formats: PNG, JPG, GIF, WebP • Max size: 10MB
-                </p>
-                {currentPhotoType === "profilePhoto" && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    Recommended: Square image (1:1 aspect ratio)
-                  </p>
-                )}
-                {currentPhotoType === "coverImage" && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    Recommended: Wide image (2:1 aspect ratio)
-                  </p>
                 )}
               </div>
             </div>

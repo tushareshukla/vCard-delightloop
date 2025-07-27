@@ -8,6 +8,7 @@ import InfinityLoader from "../components/common/InfinityLoader";
 import { HelpCircle, ExternalLink, Calendar } from "lucide-react";
 import { config } from "@/utils/config";
 
+
 export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -17,9 +18,6 @@ export default function Page() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // Partner and VCard states
-  const [partnerData, setPartnerData] = useState<any>(null);
-  const [isLoadingPartner, setIsLoadingPartner] = useState(false);
   const [vCardData, setVCardData] = useState<string | null>(null);
   const [isLoadingVCard, setIsLoadingVCard] = useState(false);
   const [vCardError, setVCardError] = useState<string | null>(null);
@@ -34,36 +32,23 @@ export default function Page() {
   const [isInitialLoading, setIsInitialLoading] = useState(
     !!searchParams.get("vcr") || !!searchParams.get("vid")
   );
-  const [dataWithoutSecret, setDataWithoutSecret] = useState<string | null>(null);
-  const [bothVCRandVidCorrectButUserHaventRegistered, setBothVCRandVidCorrectButUserHaventRegistered] = useState(false);
+  const [dataWithoutSecret, setDataWithoutSecret] = useState<string | null>(
+    null
+  );
+  const [
+    bothVCRandVidCorrectButUserHaventRegistered,
+    setBothVCRandVidCorrectButUserHaventRegistered,
+  ] = useState(false);
   const [referralCardUser, setReferralCardUser] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Quick params
-  const quicksend = searchParams.get("quicksend");
-  const user_id = searchParams.get("user_id");
-  const gift_id = searchParams.get("gift_id");
-  const partner = searchParams.get("partner_id");
+  // ----------- VCard & Main Page Logic -----
 
-  // ----------- Partner Data Fetch (if partner param present)
+  const vcr = searchParams.get("vcr");
+  const vid = searchParams.get("vid");
+  const vcardsignupuser = searchParams.get("vcardsignupuser");
+  const errorMessage = searchParams.get("error");
   useEffect(() => {
-    const partner_id = searchParams.get("partner_id");
-    if (!partner_id) return;
-
-    setIsLoadingPartner(true);
-    fetch(`/api/partner/${partner_id}`)
-      .then((r) => r.json())
-      .then((data) => data.success && setPartnerData(data.data))
-      .catch(() => setPartnerData(null))
-      .finally(() => setIsLoadingPartner(false));
-  }, [searchParams]);
-
-  // ----------- VCard & Main Page Logic
-  useEffect(() => {
-    const vcr = searchParams.get("vcr");
-    const vid = searchParams.get("vid");
-    const vcardsignupuser = searchParams.get("vcardsignupuser");
-
     if (vcardsignupuser) {
       setShowVCardSection(false);
       setShowLoginSection(true);
@@ -87,6 +72,9 @@ export default function Page() {
       setShowLoginSection(true);
       setVCardExists(false);
     }
+    if (errorMessage) {
+      console.log("errorMessage", errorMessage);
+    }
     // eslint-disable-next-line
   }, [searchParams]);
 
@@ -100,9 +88,7 @@ export default function Page() {
     }
     setIsValidatingVCardKey(true);
     try {
-      const res = await fetch(
-        `${config.BACKEND_URL}/v1/vcard/key/${key}`
-      );
+      const res = await fetch(`${config.BACKEND_URL}/v1/vcard/key/${key}`);
       const data = await res.json();
       if (data.success && !data.data.userId) {
         setVCardExists(true);
@@ -133,14 +119,11 @@ export default function Page() {
 
   const fetchVcardDataWithoutSecret = async (key: string) => {
     try {
-      const res = await fetch(
-        `${config.BACKEND_URL}/v1/vcard/authenticate`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ key }),
-        }
-      );
+      const res = await fetch(`${config.BACKEND_URL}/v1/vcard/authenticate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key }),
+      });
       const data = await res.json();
       if (data.success) setDataWithoutSecret(data.data.fullName);
     } finally {
@@ -203,7 +186,7 @@ export default function Page() {
       if (data.success) {
         setVCardData(data.data.fullName);
         const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set("vid", secret);
+        currentUrl.searchParams.set("vid", secret.toUpperCase());
         window.history.replaceState({}, "", currentUrl.toString());
         setShowVCardSection(false);
         setShowLoginSection(true);
@@ -228,14 +211,60 @@ export default function Page() {
     user_id: string,
     organization_id: string
   ) => {
-    const cookieOptions = { expires: 2, sameSite: "Lax" as const, secure: true };
+    const cookieOptions = {
+      expires: 2,
+      sameSite: "Lax" as const,
+      secure: true,
+    };
     Cookies.set("auth_token", auth_token, cookieOptions);
     Cookies.set("user_email", user_email, cookieOptions);
     Cookies.set("user_id", user_id, cookieOptions);
     Cookies.set("organization_id", organization_id, cookieOptions);
   };
 
+  const [emailError, setEmailError] = useState("");
+  const [showResendButton, setShowResendButton] = useState(false);
+
+  // ----------- Resend Verification Handler
+  const handleResendVerification = async () => {
+    try {
+      const emailToUse = email;
+      console.log("Attempting to resend verification to:", emailToUse);
+
+      setIsLoading(true);
+      const response = await fetch("/api/resend-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: emailToUse?.trim().toLowerCase() || "",
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Resend verification response:", data);
+
+      if (data.success) {
+        setEmailError(
+          "Verification email sent successfully! Please check your inbox."
+        );
+        setShowResendButton(false);
+      } else {
+        setEmailError(data.error || "Failed to send verification email");
+      }
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      setEmailError("Failed to send verification email. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
+     // Remove error param from URL if it exists
+     const url = new URL(window.location.href);
+     url.searchParams.delete('error');
+     window.history.replaceState({}, '', url.toString());
     e.preventDefault();
     setError("");
     setIsLoading(true);
@@ -243,7 +272,10 @@ export default function Page() {
     try {
       const response = await fetch("/api/login", {
         method: "POST",
-        headers: { accept: "application/json", "Content-Type": "application/json" },
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email: email.toLocaleLowerCase(), password }),
       });
       const data = await response.json();
@@ -256,26 +288,7 @@ export default function Page() {
         data.data?.organizationId
       );
 
-      const isOAuthFlow = !!(searchParams.get("code") && searchParams.get("state"));
-
-      if (partner) {
-        if (isOAuthFlow) {
-          const params = new URLSearchParams();
-          params.append("partner_id", partner);
-          params.append("auth", "true");
-          const code = searchParams.get("code");
-          const state = searchParams.get("state");
-          if (code) params.append("code", code);
-          if (state) params.append("state", state);
-          router.push(`/partner-integrations/OAuth?${params.toString()}`);
-        } else {
-          router.push(`/partner-integrations/${partner}?auth=true`);
-        }
-      } else if (quicksend && user_id && gift_id) {
-        router.push(
-          `/public/sendquick?quicksend=true&user_id=${user_id}&gift_id=${gift_id}`
-        );
-      } else if (searchParams.get("vcr") || searchParams.get("vid")) {
+      if (searchParams.get("vcr") || searchParams.get("vid")) {
         router.push(`/manage-vcard?vcarduser=true`);
       } else {
         router.push("/manage-vcard");
@@ -297,47 +310,88 @@ export default function Page() {
 
   // ----------- RENDER STARTS
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full relative bg-gradient-to-b from-white to-primary-xlight p-4 ">
+    <div className="grid items-center justify-center min-h-screen w-full relative bg-gradient-to-b from-white to-primary-xlight p-4 ">
       {/* Logo Section */}
-      <div className="mb-4">
-        {partnerData?.logo_url ? (
-          <Link href="https://www.delightloop.com/" target="_blank" rel="noopener noreferrer" className="flex justify-center">
-            <Image src={partnerData?.logo_url} alt="Logo" className="w-[120px] sm:w-[150px] lg:w-[189px] h-auto" width={189} height={48} priority />
+      <div className="mb-4 px-4 md:px-8">
+        {!dataWithoutSecret && (
+          <Link
+            href="https://www.delightloop.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex justify-center"
+          >
+            {/* <Image
+              src="/svgs/Logo.svg"
+              alt="Logo"
+              className="w-[120px] sm:w-[150px] lg:w-[189px] h-auto"
+              width={189}
+              height={48}
+              priority
+            /> */}
           </Link>
-        ) : (
-          !dataWithoutSecret && (
-            <Link href="https://www.delightloop.com/" target="_blank" rel="noopener noreferrer" className="flex justify-center">
-              <Image src="/svgs/Logo.svg" alt="Logo" className="w-[120px] sm:w-[150px] lg:w-[189px] h-auto" width={189} height={48} priority />
-            </Link>
-          )
         )}
 
-        <div className="w-full grif place-items-center">
+        <div className="w-full grid place-items-center mt-10">
           {/* --- INITIAL LOADING --- */}
           {isInitialLoading ? (
             <div className="text-center">
-              <h1 className="text-3xl font-semibold mb-2 text-[#101828] text-center">Welcome to DelightLoop</h1>
-              <p className="font-normal text-base text-[#667085] mb-8 text-center">Verifying VCard details...</p>
+              <h1 className="text-3xl font-semibold mb-2 text-[#101828] text-center">
+                Welcome to DelightLoop
+              </h1>
+              <p className="font-normal text-base text-[#667085] mb-8 text-center">
+                Verifying VCard details...
+              </p>
               <div className="flex items-center justify-center">
-                <svg className="animate-spin h-8 w-8 text-[#7F56D9]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
+              <InfinityLoader width={64} height={64} />
+                {/* <svg
+                  className="animate-spin h-8 w-8 text-[#7F56D9]"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg> */}
               </div>
             </div>
           ) : dataWithoutSecret || vCardData ? (
             <>
-              <h1 className={`text-3xl font-semibold mb-2 text-[#101828] text-center capitalize ${referralCardUser ? "w-[80vw]" : ""}`}>
-                Welcome{referralCardUser ? " " : vCardHasOwner ? " back" : ","} {referralCardUser ? "" : dataWithoutSecret || vCardData}
+              <h1
+                className={`text-3xl font-semibold mb-2 text-[#101828] text-center capitalize ${
+                  referralCardUser ? "w-[80vw]" : ""
+                }`}
+              >
+                Welcome{referralCardUser ? " " : vCardHasOwner ? " back" : ","}{" "}
+                {referralCardUser ? "" : dataWithoutSecret || vCardData}
               </h1>
-              {!vCardHasOwner && !bothVCRandVidCorrectButUserHaventRegistered && (
-                <p className="font-normal text-base text-[#667085] mb-5  text-center">Let's Get Your Card Activated!</p>
-              )}
+              {!vCardHasOwner &&
+                !bothVCRandVidCorrectButUserHaventRegistered && (
+                  <p className="font-normal text-base text-[#667085] mb-5  text-center">
+                    Let's Get Your Card Activated!
+                  </p>
+                )}
             </>
           ) : (
             <>
-              <h1 className="text-3xl font-semibold mb-2 text-[#101828] text-center">Welcome to DelightLoop</h1>
-              {showLoginSection && <p className="font-normal text-base text-[#667085] mb-5  text-center">Sign in to start sending personalized AI-powered gifts</p>}
+              <h1 className="text-3xl font-semibold mb-2 text-[#101828] text-center">
+                {/* Welcome to DelightLoop */}
+              </h1>
+              {showLoginSection && (
+                <p className="font-normal text-base text-[#667085] mb-5  text-center">
+                  {/* Sign in to start sending personalized AI-powered gifts */}
+                </p>
+              )}
             </>
           )}
 
@@ -345,39 +399,76 @@ export default function Page() {
           {!isInitialLoading && showLoginSection && (
             <div className="bg-white mx-auto p-6 rounded-lg shadow-sm w-full max-w-md">
               <a
-                href={`${config.BACKEND_URL}/v1/auth/linkedin?${searchParams.toString()}`}
+                href={`${
+                  config.BACKEND_URL
+                }/v1/auth/linkedin?vcardflow=true&${searchParams.toString()}`}
                 className="w-full font-medium bg-primary/95 hover:bg-primary text-white py-3 rounded-md flex items-center justify-center"
                 onClick={(e) => {
+                     // Remove error param from URL if it exists
+                     const url = new URL(window.location.href);
+                     url.searchParams.delete('error');
+                     window.history.replaceState({}, '', url.toString());
+
                   e.preventDefault();
                   setIsLoading(true);
-                  window.location.href = `${config.BACKEND_URL}/v1/auth/linkedin?${searchParams.toString()}`;
+                  window.location.href = `${
+                  config.BACKEND_URL
+                }/v1/auth/linkedin?vcardflow=true&${searchParams.toString()}`;
                 }}
               >
                 {isLoading ? (
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                 ) : (
                   <>
-                    <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
                       <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
                     </svg>
                     Continue with LinkedIn
                   </>
                 )}
               </a>
+
               <div className="flex items-center my-4">
                 <div className="flex-1 h-px bg-gray-200"></div>
                 <div className="px-4 text-gray-500 text-sm">OR</div>
                 <div className="flex-1 h-px bg-gray-200"></div>
               </div>
               <form
-                className={`space-y-4 ${bothVCRandVidCorrectButUserHaventRegistered ? "hidden" : ""}`}
+                className={`space-y-4 ${
+                  bothVCRandVidCorrectButUserHaventRegistered ? "hidden" : ""
+                }`}
                 onSubmit={handleSubmit}
               >
                 <div>
-                  <label htmlFor="email" className="block text-[#344054] text-sm font-medium mb-1">Email*</label>
+                  <label
+                    htmlFor="email"
+                    className="block text-[#344054] text-sm font-medium mb-1"
+                  >
+                    Email*
+                  </label>
                   <input
                     type="email"
                     id="email"
@@ -389,7 +480,12 @@ export default function Page() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="password" className="block text-[#344054] text-sm font-medium mb-1">Password*</label>
+                  <label
+                    htmlFor="password"
+                    className="block text-[#344054] text-sm font-medium mb-1"
+                  >
+                    Password*
+                  </label>
                   <input
                     type="password"
                     id="password"
@@ -400,14 +496,34 @@ export default function Page() {
                     required
                   />
                 </div>
-                {error && <div className="text-red-500 text-sm">{error} </div>}
-                {error.includes("Please verify your email before logging in") && (
-                  <Link href={`/auth/register?verify_email=${email}&need_mail_verification_login=true`} className="font-medium inline-block text-primary w-full text-center text-sm hover:text-primary-dark hover:underline">
-                    Resend Verification Link
-                  </Link>
+                {error && !emailError && (
+                  <div className="text-red-500 text-sm">{error} </div>
                 )}
+                {emailError && (
+                  <div className="text-green-500 text-sm ">{emailError} </div>
+                )}
+                {error.includes(
+                  "Please verify your email before logging in"
+                ) && (
+                  <button
+                    onClick={handleResendVerification}
+                    className="font-medium inline-block text-primary w-full text-center text-sm hover:text-primary-dark hover:underline"
+                  >
+                    Resend Verification Link
+                  </button>
+                )}
+
                 <div className="flex items-center justify-center font-[450]">
-                  <Link href="/auth/forgot-password" className="text-sm text-primary hover:text-primary-dark hover:underline">
+                  <Link
+                    onClick={() => {
+                      // Remove error param from URL if it exists
+                      const url = new URL(window.location.href);
+                      url.searchParams.delete('error');
+                      window.history.replaceState({}, '', url.toString());
+                    }}
+                    href={`/auth/forgot-password${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
+                    className="text-sm text-primary hover:text-primary-dark hover:underline"
+                  >
                     Forgot password?
                   </Link>
                 </div>
@@ -418,26 +534,39 @@ export default function Page() {
                   Sign in
                 </button>
               </form>
+              {errorMessage && (
+                <div className="text-red-500 mt-2 text-sm ">{errorMessage ? "Email already registered. Log in with email and password instead of LinkedIn." : ""} </div>
+              )}
               {bothVCRandVidCorrectButUserHaventRegistered && (
                 <Link
-                  href={`/auth/register${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
+                  href={`/auth/register${
+                    searchParams.toString() ? `?${searchParams.toString()}` : ""
+                  }`}
                   className="h-11 w-full bg-white text-primary border border-primary hover:bg-primary hover:text-white font-[500] rounded-[8px] duration-300 focus:outline-none focus:ring-2 focus:ring-[#7F56D9] flex items-center justify-center"
                 >
                   Sign Up With Email
                 </Link>
               )}
-              <div className={`mt-4 text-center ${bothVCRandVidCorrectButUserHaventRegistered ? "hidden" : ""}`}>
+              <div
+                className={`mt-4 text-center ${
+                  bothVCRandVidCorrectButUserHaventRegistered ? "hidden" : ""
+                }`}
+              >
                 <p className="text-sm text-[#667085] font-[500]">
                   Don&apos;t have an account?{" "}
-                  {quicksend && user_id && gift_id ? (
-                    <Link href={`/auth/register?quicksend=true&user_id=${user_id}&gift_id=${gift_id}`} className="text-[#6941C6] hover:text-[#5a35b1] hover:underline font-medium">Sign up</Link>
-                  ) : searchParams.get("vcr") && searchParams.get("vid") ? (
-                    <Link href={`/auth/register?vcr=${searchParams.get("vcr")}&vid=${searchParams.get("vid")}`} className="text-[#6941C6] hover:text-[#5a35b1] hover:underline font-medium">Sign up</Link>
-                  ) : searchParams.get("vcr") ? (
-                    <Link href={`/auth/register?vcr=${searchParams.get("vcr")}`} className="text-[#6941C6] hover:text-[#5a35b1] hover:underline font-medium">Sign up</Link>
-                  ) : (
-                    <Link href="/auth/register" className="text-[#6941C6] hover:text-[#5a35b1] hover:underline font-medium">Sign up</Link>
-                  )}
+                  <Link
+                    onClick={() => {
+                      // Remove error param from URL if it exists
+                      const url = new URL(window.location.href);
+                      url.searchParams.delete('error');
+                      window.history.replaceState({}, '', url.toString());
+
+                    }}
+                    href={`/auth/register${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
+                    className="text-[#6941C6] hover:text-[#5a35b1] hover:underline font-medium"
+                  >
+                    Sign up
+                  </Link>
                 </p>
               </div>
             </div>
@@ -449,11 +578,29 @@ export default function Page() {
               {isValidatingVCardKey && (
                 <div className="mb-4 p-4 bg-gray-50 rounded-lg border">
                   <div className="flex items-center justify-center">
-                    <svg className="animate-spin h-5 w-5 text-[#7F56D9] mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    <svg
+                      className="animate-spin h-5 w-5 text-[#7F56D9] mr-2"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
                     </svg>
-                    <span className="text-sm text-gray-600">Validating VCard...</span>
+                    <span className="text-sm text-gray-600">
+                      Validating VCard...
+                    </span>
                   </div>
                 </div>
               )}
@@ -462,20 +609,32 @@ export default function Page() {
                 <div className="mb-4 p-4 bg-gray-50 rounded-lg border">
                   {vCardHasOwner ? (
                     <>
-                      <p className="text-sm text-gray-600 mb-3">Sign in to manage your card, Update your profile anytime</p>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Sign in to manage your card, Update your profile anytime
+                      </p>
                       <button
                         onClick={() => {
-                          setShowVCardSection(false);
-                          setShowLoginSection(true);
+                            // Remove error param from URL if it exists
+                            const url = new URL(window.location.href);
+                            url.searchParams.delete('error');
+                            window.history.replaceState({}, '', url.toString());
+                            setShowVCardSection(false);
+                            setShowLoginSection(true);
                         }}
                         className="w-full px-4 py-2 bg-[#7F56D9] text-white rounded-md hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-[#7F56D9]"
                       >
                         Sign In
                       </button>
+                      {errorMessage && (
+                <div className="text-red-500 mt-2 text-sm ">{errorMessage ? "Email already registered. Log in with email and password instead of LinkedIn." : ""} </div>
+              )}
                     </>
                   ) : (
                     <>
-                      <p className="text-sm text-gray-600 mb-3">Enter the 6-digit code to register and manage your digital information</p>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Enter the 6-digit code to register and manage your
+                        digital information
+                      </p>
                       <div className="mb-3">
                         <div className="flex gap-2 justify-center">
                           {codeInputs.map((value, index) => (
@@ -484,10 +643,14 @@ export default function Page() {
                               id={`code-input-${index}`}
                               type="text"
                               value={value}
-                              onChange={(e) => handleCodeInputChange(index, e.target.value)}
-                              onKeyDown={(e) => handleCodeInputKeyDown(index, e)}
+                              onChange={(e) =>
+                                handleCodeInputChange(index, e.target.value)
+                              }
+                              onKeyDown={(e) =>
+                                handleCodeInputKeyDown(index, e)
+                              }
                               onPaste={handleCodeInputPaste}
-                              className="w-12 h-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7F56D9] focus:border-transparent text-lg font-medium"
+                              className="size-10 sm:size-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7F56D9] focus:border-transparent text-lg font-medium"
                               maxLength={1}
                               pattern="\d"
                               inputMode="numeric"
@@ -496,23 +659,59 @@ export default function Page() {
                         </div>
                       </div>
                       <button
-                        onClick={handleClaimCard}
-                        disabled={codeInputs.join("").length !== 6 || isLoadingVCard}
+                        onClick={() => {
+                          handleClaimCard();
+                          // Remove error param from URL if it exists
+                          const url = new URL(window.location.href);
+                          url.searchParams.delete('error');
+                          window.history.replaceState({}, '', url.toString());
+                        }}
+                        disabled={
+                          codeInputs.join("").length !== 6 || isLoadingVCard
+                        }
                         className="w-full px-4 py-2 bg-[#7F56D9] text-white rounded-md hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-[#7F56D9] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                       >
                         {isLoadingVCard && (
-                          <svg className="animate-spin h-4 w-4 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          <svg
+                            className="animate-spin h-4 w-4 text-white mr-2"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
                           </svg>
                         )}
                         Link My Card
                       </button>
-                      {vCardError && <p className="mt-2 text-sm text-red-600">{vCardError}</p>}
+                      {vCardError && (
+                        <p className="mt-2 text-sm text-red-600">
+                          {vCardError}
+                        </p>
+                      )}
+                       {errorMessage && (
+                <div className="text-red-500 mt-2 text-sm ">{errorMessage ? "Email already registered. Log in with email and password instead of LinkedIn." : ""} </div>
+              )}
                       {vCardData && (
                         <>
-                          <p className="mt-2 text-sm text-green-600">Welcome {vCardData}! VCard verified successfully.</p>
-                          <p className="mt-2 text-sm text-green-600 font-medium">Proceed with sign in if existing user or sign up if new user</p>
+                          <p className="mt-2 text-sm text-green-600">
+                            Welcome {vCardData}! VCard verified successfully.
+                          </p>
+                          <p className="mt-2 text-sm text-green-600 font-medium">
+                            Proceed with sign in if existing user or sign up if
+                            new user
+                          </p>
                         </>
                       )}
                     </>
@@ -521,7 +720,9 @@ export default function Page() {
               )}
               <div className="p-4 bg-gray-50 rounded-lg border">
                 <h3 className="text-lg font-medium text-gray-900 mb-2 capitalize">
-                  {searchParams?.get("vcr") ? `Not ${dataWithoutSecret}?` : "No, but I want one!"}
+                  {searchParams?.get("vcr")
+                    ? `Not ${dataWithoutSecret}?`
+                    : "No, but I want one!"}
                 </h3>
                 <button
                   onClick={() => {
@@ -532,65 +733,69 @@ export default function Page() {
                   }}
                   className="w-full px-4 py-2 bg-white text-[#7F56D9] border border-[#7F56D9] rounded-md hover:bg-[#7F56D9] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#7F56D9] transition-colors"
                 >
-                  {searchParams?.get("vcr") ? "Get My Card" : "Create my free card"}
+                  {searchParams?.get("vcr")
+                    ? "Get My Card"
+                    : "Create my free card"}
                 </button>
               </div>
             </div>
           )}
         </div>
-      </div>
-
-      {/* Background Illustration (desktop only) */}
-      <div className="lg:w-[50%] h-screen relative hidden ">
-        {partner === "get-replies" ? (
-          <Image src="/auth/partner-integration.png" alt="LOGIN IMAGE" fill className="object-cover" />
-        ) : (
-          <Image src="/img/LoginPhoto.jpg" alt="LOGIN IMAGE" fill className="object-cover" />
+        {showLoginSection && (
+          <div className=" text-sm text-[#667085] mt-6 font-[400] flex items-center gap-1 justify-center">
+            Powered By {/* Delightloop */}
+            <Image
+              src="/svgs/Logo.svg"
+              alt="Logo"
+              className="w-24 sm:w-32 lg:w-36 h-auto"
+              width={189}
+              height={48}
+            />
+          </div>
         )}
       </div>
+      {/* Footer */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3  text-primary place-self-end w-screen px-4">
+        <p className="font-[400] text-[14px] text-[#667085] order-2 sm:order-1">
+          © 2025 Delightloop
+        </p>
 
+        <div className="flex items-center gap-4 sm:gap-6 order-1 sm:order-2 ">
+          <a
+            href="mailto:success@delightloop.com"
+            className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
+            title="Support"
+          >
+            <HelpCircle className="w-4 h-4 sm:hidden" />
+            <span className="hidden sm:inline">Support</span>
+          </a>
+          <Link
+            href="https://delightloop.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
+            title="About us"
+          >
+            <ExternalLink className="w-4 h-4 sm:hidden" />
+            <span className="hidden sm:inline">About us</span>
+          </Link>
+          <Link
+            href="https://www.delightloop.com/bookademo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
+            title="Book a meeting"
+          >
+            <Calendar className="w-4 h-4 sm:hidden" />
+            <span className="hidden sm:inline">Book a meeting</span>
+          </Link>
+        </div>
+      </div>
       {/* Loading Overlay */}
       {isLoading && (
         <div className="fixed inset-0 bg-slate-50 bg-opacity-70 flex items-center justify-center z-50">
           <InfinityLoader width={56} height={56} />
         </div>
-      )}
-
-      {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-sm">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-[400] text-[14px] text-[#667085] order-2 sm:order-1">© 2025</p>
-          {partner !== "get-replies" && (
-            <div className="flex items-center gap-4 sm:gap-6 order-1 sm:order-2">
-              <a href="mailto:success@delightloop.com" className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]" title="Support">
-                <HelpCircle className="w-4 h-4 sm:hidden" />
-                <span className="hidden sm:inline">Support</span>
-              </a>
-              <Link href="https://delightloop.com/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]" title="About us">
-                <ExternalLink className="w-4 h-4 sm:hidden" />
-                <span className="hidden sm:inline">About us</span>
-              </Link>
-              <Link href="https://www.delightloop.com/bookademo" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]" title="Book a meeting">
-                <Calendar className="w-4 h-4 sm:hidden" />
-                <span className="hidden sm:inline">Book a meeting</span>
-              </Link>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {dataWithoutSecret && (
-        <div className="absolute bottom-20 left-5 text-sm text-[#667085] font-[400]">
-          Powered By Delightloop
-        </div>
-      )}
-      {partner === "get-replies" && (
-        <p className="absolute bottom-5 right-[45%] font-[400] text-[14px] text-[#667085] flex items-center gap-2">
-          Powered by{" "}
-          <Link href="https://www.delightloop.com/" target="_blank" rel="noopener noreferrer">
-            <Image src="/Logo Final.png" alt="Logo" width={103} height={26} priority />
-          </Link>
-        </p>
       )}
     </div>
   );

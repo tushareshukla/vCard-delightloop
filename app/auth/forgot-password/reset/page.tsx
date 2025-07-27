@@ -29,7 +29,7 @@ export default function ResetPassword() {
 
       try {
         setIsValidating(true);
-        const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/validate-token`, {  
+        const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/validate-token`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ export default function ResetPassword() {
     return (
       <div className="flex h-screen w-full relative">
         {/* Logo Section */}
-        <div className="absolute top-5 left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10">
+        <div className="absolute top-5 left-1/2 transform opacity-0 -translate-x-1/2 lg:left-5 lg:transform-none z-10">
           {partner === "get-replies" ? (
             <Link href="https://www.delightloop.com/" target="_blank" rel="noopener noreferrer">
               <Image
@@ -194,7 +194,7 @@ export default function ResetPassword() {
     return (
       <div className="flex h-screen w-full relative">
         {/* Logo Section */}
-        <div className="absolute top-5 left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10">
+        <div className="absolute top-5 opacity-0 left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10">
           {partner === "get-replies" ? (
             <Link href="https://www.delightloop.com/" target="_blank" rel="noopener noreferrer">
               <Image
@@ -259,7 +259,7 @@ export default function ResetPassword() {
   return (
     <div className="flex h-screen w-full relative">
       {/* Logo Section */}
-      <div className="absolute top-5 left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10">
+      <div className="absolute top-5 opacity-0 pointer-events-none left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10">
         {partner === "get-replies" ? (
           <Link href="https://www.delightloop.com/" target="_blank" rel="noopener noreferrer">
             <Image
@@ -425,4 +425,4 @@ export default function ResetPassword() {
       )}
     </div>
   );
-} 
+}

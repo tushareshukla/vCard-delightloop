@@ -10,7 +10,7 @@ export default function ResetSuccess() {
   return (
     <div className="flex h-screen w-full relative">
       {/* Logo Section */}
-      <div className="absolute top-5 left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10">
+      <div className="absolute top-5 left-1/2 transform opacity-0 -translate-x-1/2 lg:left-5 lg:transform-none z-10">
         {partner === "get-replies" ? (
           <Link href="https://www.delightloop.com/" target="_blank" rel="noopener noreferrer">
             <Image
@@ -62,11 +62,11 @@ export default function ResetSuccess() {
               href="/"
               className="h-11 w-full bg-[#7F56D9] text-white font-[500] rounded-[8px] hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-[#7F56D9] flex items-center justify-center mb-6"
             >
-              Continue
+              Continue to Login
             </Link>
 
             {/* Back to login */}
-            <div className="mt-4">
+            {/* <div className="mt-4">
               <Link
                 href="/"
                 className="text-[#6941C6] hover:text-[#5a35b1] font-medium inline-flex items-center"
@@ -87,7 +87,7 @@ export default function ResetSuccess() {
                 </svg>
                 Back to log in
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -126,4 +126,4 @@ export default function ResetSuccess() {
       )}
     </div>
   );
-} 
+}

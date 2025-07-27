@@ -92,8 +92,43 @@ export async function POST(request: Request) {
       addLog("9. Updated last login time and incremented login count");
     }
 
+    // Check if user already has a VCard
+    const existingUserVCard = await VCard.findOne({
+      userId: result.user.id,
+      isDeleted: false,
+      isActive: true,
+    });
+
+    // If user doesn't have a VCard, create one
+    if (!existingUserVCard) {
+      const newVCard = new VCard({
+        handle: `${result.user.firstName.replace(/\s+/g, "")}${Math.random()
+          .toString(36)
+          .substring(2, 7)}`,
+        userId: result.user.id,
+        fullName: `${result.user.firstName} ${result.user.lastName}`,
+        nfcEnabled: true,
+        isActive: true,
+        links: [
+          {
+            type: "Email",
+            value: result.user.email,
+            icon: "Email",
+            removedIcon: false,
+            isVisible: true,
+            lastUpdated: new Date(),
+          },
+        ],
+        isDeleted: false,
+      });
+
+      await newVCard.save();
+      addLog(`Created new VCard for user ${result.user.id}`);
+    }
+
     // Check for VCard referral parameters for new users only (vcr + vid)
     let referredVCard: IVCard | null = null;
+
     if (referer) {
       const refererUrl = new URL(referer);
       const vcr = refererUrl.searchParams.get("vcr");
@@ -118,6 +153,58 @@ export async function POST(request: Request) {
           }
         } catch (error) {
           addLog("Error searching for VCard:" + error);
+        }
+      }
+      if (vcr && !vid) {
+        const existingVCardUserAssignment = await VCard.findOne({
+          key: vcr,
+          isDeleted: false,
+          isActive: true,
+        });
+        if (existingVCardUserAssignment) {
+          addLog("Existing VCard user assignment found");
+          // Find the existing user's VCard
+          // const existingUser = await VCard.findOne({
+          //   userId: result.user.id,
+          //   isDeleted: false,
+          //   isActive: true,
+          // });
+          // If user has a VCard and it doesn't have a referredByVcardId
+          // if (existingUser &&
+          //     !existingUser.referredByVcardId &&
+          //     (existingVCardUserAssignment._id.toString() !== existingUser._id.toString()) &&
+          //     (existingVCardUserAssignment.referredByVcardId?.toString() !== existingUser._id.toString())) {
+          //   // Optionally, you can add the assignment logic here
+          //   await VCard.findByIdAndUpdate(
+          //     existingUser._id,
+          //     { referredByVcardId: existingVCardUserAssignment._id },
+          //     { new: true }
+          //   );
+          // }
+
+          // If user doesn't have a VCard, create one
+          // if (!existingUser) {
+          //   const newVCard = new VCard({
+          //     handle: `${result.user.firstName}${Math.random().toString(36).substring(2, 7)}`,
+          //     userId: result.user.id,
+          //     fullName: `${result.user.firstName} ${result.user.lastName}`,
+          //     referredByVcardId: existingVCardUserAssignment._id,
+          //     nfcEnabled: true,
+          //     isActive: true,
+          //     isDeleted: false,
+          //     links: [{
+          //       type: "Email",
+          //       value: result.user.email,
+          //       icon: "Email",
+          //       removedIcon: false,
+          //       isVisible: true,
+          //       lastUpdated: new Date()
+          //     }]
+          //   });
+
+          //   await newVCard.save();
+          //   addLog(`Created new VCard for user ${result.user.id} referred by VCard ${existingVCardUserAssignment._id}`);
+          // }
         }
       }
     }

@@ -4,7 +4,7 @@ import User from "@/models/User";
 import EmailVerificationToken from "@/models/EmailVerificationToken";
 import crypto from "crypto";
 import { config } from "@/utils/config";
-
+import sgMail from "@sendgrid/mail";
 
 export async function POST(request: Request) {
   try {
@@ -31,66 +31,58 @@ export async function POST(request: Request) {
     await EmailVerificationToken.deleteMany({ userId: user._id });
 
     // Create new token
-    const token = crypto.randomBytes(32).toString('hex');
+    const token = crypto.randomBytes(32).toString("hex");
     await EmailVerificationToken.create({
       userId: user._id,
       token,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
-    // Send verification email
-    const verificationUrl = `${config.BACKEND_URL}/auth/verify-email/${token}`;
-    await fetch(`${config.BACKEND_URL}/api/email/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    // Send verification email using SendGrid
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
+    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email/${token}`;
+
+    try {
+      const msg = {
         to: email,
-        subject: "Welcome to Delightloop – Let's Start Creating Meaningful Connections!",
+        from: "VCard Success <vcard@mail.delightloop.ai>",
+        subject: "Action Required: Verify Your Email to Manage Your Card",
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <img src="${process.env.NEXT_PUBLIC_APP_URL}/img/favicon-logo.png" alt="DelightLoop Logo" style="max-width: 200px; height: auto;" />
-            </div>
-
             <h2>Hi ${user.firstName},</h2>
-
-            <p>Welcome aboard! 🎉 We're excited to have you on DelightLoop.</p>
-
-            <p>With Delightloop, you can:</p>
-            <ul style="list-style: none; padding-left: 0;">
-              <li>✅ Send thoughtful gifts effortlessly to build strong relationships.</li>
-              <li>✅ Boost engagement and customer retention.</li>
-              <li>✅ Track campaign impact with real-time insights.</li>
-            </ul>
-
-            <p>To get started, please verify your email by clicking the button below:</p>
-
+            <p>To complete your setup and access your card management account, please click the link below to verify your email address:</p>
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${verificationUrl}" style="background-color: #7F56D9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Verify Email</a>
+              <a href="${verificationUrl}" style="background-color: #7F56D9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Verify Your Email</a>
             </div>
-
-            <p>After verification, you can start exploring Delightloop. If you need any help, our team is here for you!</p>
-
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="https://app.delightloop.ai/" style="background-color: #7F56D9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Start Gifting Now</a>
-            </div>
-
-            <p>Cheers,<br>The DelightLoop Team</p>
+            <p>This link will expire in 24 hours for security reasons.
+              Once verified, you'll be able to effortlessly manage and update your digital card's information.
+              If you didn't create an account, please ignore this email.</p>
+            <p>Best regards,<br>DelightLoop VCard Team</p>
           </div>
-        `
-      })
-    });
+        `,
+      };
+
+      const response = await sgMail.send(msg);
+      console.log(
+        "Verification email sent successfully:",
+        response[0].statusCode
+      );
+    } catch (emailError) {
+      console.error("Error sending verification email:", emailError);
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Verification email sent successfully"
+      message: "Verification email sent successfully",
     });
-
   } catch (error) {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to resend verification"
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to resend verification",
       },
       { status: 500 }
     );

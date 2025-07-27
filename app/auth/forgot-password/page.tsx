@@ -23,7 +23,7 @@ export default function ForgotPassword() {
 
     try {
       console.log('[Forgot Password] Sending request to API');
-      const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/request`, {
+      const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/request?vcardflow=true`, {
        // const response = await fetch(`http://localhost:5500/v1/password-reset/request`, {
         method: 'POST',
         headers: {
@@ -102,7 +102,7 @@ export default function ForgotPassword() {
   return (
     <div className="flex h-screen w-full relative">
       {/* Logo Section */}
-      <div className="absolute top-5 left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10">
+      <div className="absolute top-5 opacity-0 left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10">
         {partner === "get-replies" ? (
           <Link href="https://www.delightloop.com/" target="_blank" rel="noopener noreferrer">
             <Image
@@ -179,7 +179,7 @@ export default function ForgotPassword() {
 
             <div className="mt-8 text-center">
               <Link
-                href="/"
+                href={`/${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
                 className="text-[#6941C6] hover:text-[#5a35b1] font-medium inline-flex items-center"
               >
                 <svg
@@ -244,4 +244,4 @@ export default function ForgotPassword() {
       )}
     </div>
   );
-} 
+}

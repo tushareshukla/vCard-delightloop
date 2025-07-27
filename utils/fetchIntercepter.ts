@@ -1,11 +1,12 @@
 // lib/fetchInterceptor.ts
 import Cookies from "js-cookie";
+import { config } from "./config";
 
 const originalFetch = globalThis.fetch;
 
 globalThis.fetch = async (input: RequestInfo, init: RequestInit = {}) => {
   const url = typeof input === "string" ? input : input?.url;
-  const isInternalAPI = url?.startsWith(process.env.NEXT_PUBLIC_API_BASE_URL || "");
+  const isInternalAPI = url?.startsWith(config.BACKEND_URL || "");
 
   // Ensure headers is always a plain object
   const headers: Record<string, string> = (() => {

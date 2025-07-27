@@ -77,13 +77,7 @@ export default function Sidebar() {
       title: "VCard",
       icon: <IdCard className="size-[24px]" />,
       active: isMenuActive("/manage-vcard"),
-    },
-    {
-      href: "/profile",
-      title: "Profile",
-      icon: <CircleUserRound className="size-[24px]" />,
-      active: isMenuActive("/profile"),
-    },
+    }
   ];
 
   return (
@@ -102,7 +96,7 @@ export default function Sidebar() {
           />
         </div>
         {/* Nav Icons */}
-        <nav className="flex flex-col items-center gap-5 w-full">
+        <nav className="flex flex-col justify-between h-full items-center gap-5 w-full">
           {navLinks.map((item) => (
             <Link
               key={item.title}
@@ -125,7 +119,7 @@ export default function Sidebar() {
           </button>
         </nav>
         {/* User info at bottom */}
-        <div className="mt-auto mb-2 flex flex-col items-center w-full">
+        <div className="mt-auto mb-2 flex-col items-center w-full hidden">
           <p className="text-white font-medium text-xs truncate max-w-[90px] text-center">
             {userData
               ? `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "User"
@@ -151,7 +145,7 @@ export default function Sidebar() {
           />
         </div>
         {/* Nav links center */}
-        <div className="flex-1 flex justify-center items-center gap-8">
+        <div className="flex-1 flex justify-center items-center gap-8 ">
           {navLinks.map((item) => (
             <Link
               key={item.title}
@@ -166,7 +160,7 @@ export default function Sidebar() {
           ))}
         </div>
         {/* Logout & user info right */}
-        <div className="flex flex-col items-center gap-1 min-w-[60px]">
+        <div className="flex flex-col items-center gap-1 min-w-[60px] ">
           <button
             onClick={handleLogout}
             className="flex items-center justify-center p-2 rounded-lg text-white/80 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200"
@@ -174,7 +168,7 @@ export default function Sidebar() {
           >
             <LogOut className="size-[22px]" />
           </button>
-          <p className="text-white/80 text-[10px] font-medium text-right max-w-[56px] truncate">
+          <p className="text-white/80 text-[10px] font-medium text-right max-w-[56px] truncate hidden">
             {userData
               ? `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "User"
               : "User"}
