@@ -17,12 +17,14 @@ const PUBLIC_ROUTES = [
 
 // Define routes that should always be accessible regardless of auth state
 const ALWAYS_ACCESSIBLE_ROUTES = [
-  "/vcard", // Public vCard routes
+  "/vcard", // Public vCard routes (legacy)
   "/api", // API routes
   "/auth/verify-email", // Email verification routes
   "/_next", // Next.js internal routes
   "/favicon.ico",
   "/static",
+  // Add root-level vCard routes
+  "/[handle]", // Dynamic vCard routes at root level
 ];
 
 export default function AuthStateManager() {

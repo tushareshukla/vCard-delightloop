@@ -143,6 +143,20 @@ const getThemeColors = (theme: string) => {
       };
   }
 };
+const RESERVED_HANDLES = [
+  "wallet",
+  "vcard",
+  "referral",
+  "profile",
+  "manage-vcard",
+  "auth",
+  "api",
+  "context",
+  "components",
+  "clientinterceptor",
+  "login",
+  "logout",
+];
 
 const getSocialIcon = (link: {
   type: string;
@@ -990,6 +1004,10 @@ export default function ManageVCard() {
   };
 
   const checkHandleUniqueness = async (handle: string) => {
+    if (RESERVED_HANDLES.includes(handle.toLowerCase())) {
+      return;
+    }
+
     if (!handle.trim() || !isValidHandle(handle)) {
       return;
     }
@@ -1135,6 +1153,8 @@ export default function ManageVCard() {
         errors.handle = "Handle is required";
       } else if (processedValue.length < 3) {
         errors.handle = "Handle must be at least 3 characters long";
+      } else if (RESERVED_HANDLES.includes(processedValue)) {
+        errors.handle = "This handle name is reserved and cannot be used";
       } else if (processedValue.length > 30) {
         errors.handle = "Handle cannot be longer than 30 characters";
       } else if (!isValidHandle(processedValue)) {
@@ -1144,8 +1164,8 @@ export default function ManageVCard() {
 
       setValidationErrors(errors);
 
-      // Only check uniqueness if frontend validation passes AND handle is longer than 3 characters
-      if (!errors.handle && processedValue.trim().length > 3) {
+      // Only check uniqueness if frontend validation passes AND handle is at least 3 characters
+      if (!errors.handle && processedValue.trim().length >= 3) {
         if (handleCheckTimeout) {
           clearTimeout(handleCheckTimeout);
         }
@@ -1430,7 +1450,14 @@ export default function ManageVCard() {
     if (isSaveDisabled || isCheckingHandle || validationErrors.handle) {
       return;
     }
-
+    if (vCard?.handle && RESERVED_HANDLES.includes(vCard?.handle.toLowerCase())) {
+      showNotification("This handle is reserved and cannot be used", "error");
+      setValidationErrors((prev) => ({
+        ...prev,
+        handle: "This handle is reserved and cannot be used",
+      }));
+      return;
+    }
     // Check if any image is uploading
     const isAnyImageUploading = Object.values(imageUploads).some(
       (upload) => upload.uploading
@@ -3630,10 +3657,10 @@ export default function ManageVCard() {
 
                     <div className="relative flex items-center ">
                       <Link
-                        href={`/vcard/${vCard?.handle}`}
+                        href={`/${vCard?.handle}`}
                         className="px-4 py-2 bg-gray-50 border truncate max-w-[260px] sm:max-w-full   border-gray-200 rounded-lg text-sm text-blue-600 hover:text-blue-700 hover:underline"
                       >
-                        {`${config.FRONTEND_URL}vcard/${vCard?.handle}`}
+                        {`${config.FRONTEND_URL}${vCard?.handle}`}
                       </Link>
 
                       <div className="relative group ml-2">
@@ -3641,7 +3668,7 @@ export default function ManageVCard() {
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              `${config.FRONTEND_URL}vcard/${vCard?.handle}`
+                              `${config.FRONTEND_URL}${vCard?.handle}`
                             );
                             showNotification(
                               "Link copied to clipboard!",
