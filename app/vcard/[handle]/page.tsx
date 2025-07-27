@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect,use } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,7 @@ import {
   FaTwitter,
 } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import Cookies from "js-cookie";
 
 // VCard Alert interface
 interface IVCardAlert {
@@ -153,7 +154,7 @@ export default function VCardProfilePage({
         return null;
     }
   };
-
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   // Load profile data based on handle
   useEffect(() => {
     const loadProfile = async () => {
@@ -163,6 +164,7 @@ export default function VCardProfilePage({
           setNotFound(true);
           return;
         }
+
 
         const response = await fetch(
           `${config.BACKEND_URL}/v1/vcard/handle/${handle.toLowerCase()}`
@@ -202,6 +204,28 @@ export default function VCardProfilePage({
       }
     };
 
+    const validateAuth = async () => {
+      const token = Cookies.get("auth_token");
+      const userId = Cookies.get("user_id");
+      const userEmail = Cookies.get("user_email");
+      const orgId = Cookies.get("organization_id");
+      if (token && userId && userEmail && orgId) {
+        const userResponse = await fetch(
+          `${config.BACKEND_URL}/v1/organizations/${orgId}/users/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (userResponse.status === 401) {
+          setIsAuthenticated(false);
+        } else {
+          setIsAuthenticated(true);
+        }
+      }
+    };
+    validateAuth();
     loadProfile();
   }, [handle]);
 
@@ -215,20 +239,20 @@ export default function VCardProfilePage({
   }, []);
 
   // Device detection utility using ua-parser-js
-  const getDeviceType = (): 'ios' | 'android' | 'other' => {
-    if (typeof window === 'undefined') return 'other';
+  const getDeviceType = (): "ios" | "android" | "other" => {
+    if (typeof window === "undefined") return "other";
 
     const parser = new UAParser();
     const os = parser.getOS();
     console.log("os", os.name);
 
-    if (os.name === 'iOS') {
-      return 'ios';
-    } else if (os.name === 'Android') {
-      return 'android';
+    if (os.name === "iOS") {
+      return "ios";
+    } else if (os.name === "Android") {
+      return "android";
     }
 
-    return 'other';
+    return "other";
   };
 
   // Handle save contact (device-specific vCard generation)
@@ -240,7 +264,7 @@ export default function VCardProfilePage({
       let vCardContent: string;
 
       // Choose vCard generation method based on device
-      if (deviceType === 'ios') {
+      if (deviceType === "ios") {
         // Use iPhone-optimized vCard with X-SOCIALPROFILE fields
         vCardContent = await createVCardForiOS(profile);
         console.log("iOS vCardContent", vCardContent);
@@ -294,7 +318,9 @@ export default function VCardProfilePage({
   };
 
   // Helper function to convert image URL to base64 (for better Android compatibility)
-  const convertImageToBase64 = async (imageUrl: string): Promise<string | null> => {
+  const convertImageToBase64 = async (
+    imageUrl: string
+  ): Promise<string | null> => {
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
@@ -304,13 +330,13 @@ export default function VCardProfilePage({
         reader.onloadend = () => {
           const base64String = reader.result as string;
           // Remove data:image/jpeg;base64, prefix and return just the base64 data
-          resolve(base64String.split(',')[1] || null);
+          resolve(base64String.split(",")[1] || null);
         };
         reader.onerror = () => resolve(null);
         reader.readAsDataURL(blob);
       });
     } catch (error) {
-      console.error('Error converting image to base64:', error);
+      console.error("Error converting image to base64:", error);
       return null;
     }
   };
@@ -442,7 +468,11 @@ export default function VCardProfilePage({
     });
 
     // Add note if available and visible
-    if (profile.note && profile.note.isVisible && profile.note.value.trim() !== "") {
+    if (
+      profile.note &&
+      profile.note.isVisible &&
+      profile.note.value.trim() !== ""
+    ) {
       vcard += `NOTE:${profile.note.value.replace(/\n/g, "\\n")}\n`;
     }
 
@@ -599,7 +629,11 @@ export default function VCardProfilePage({
     });
 
     // Add note if available and visible (keep it clean)
-    if (profile.note && profile.note.isVisible && profile.note.value.trim() !== "") {
+    if (
+      profile.note &&
+      profile.note.isVisible &&
+      profile.note.value.trim() !== ""
+    ) {
       vcard += `NOTE:${profile.note.value.replace(/\n/g, "\\n")}\n`;
     }
 
@@ -627,7 +661,9 @@ export default function VCardProfilePage({
   };
 
   // Create vCard content with base64 photos for better Android compatibility
-  const createVCardWithBase64Photos = async (profile: ProfileData): Promise<string> => {
+  const createVCardWithBase64Photos = async (
+    profile: ProfileData
+  ): Promise<string> => {
     let vcard = "BEGIN:VCARD\nVERSION:3.0\n";
     vcard += `FN:${profile.fullName}\n`;
 
@@ -644,109 +680,113 @@ export default function VCardProfilePage({
     const emails = new Set<string>();
     const websites = new Set<string>();
 
-         // Add ALL visible links (same logic as createVCard)
-     profile.links.forEach((link) => {
-       if (link.isVisible) {
-         const actionType = (link.icon || link.type).toLowerCase();
-         const hasValue = link.value && link.value.trim() !== "";
-         const formattedUrl = hasValue ? formatLinkUrl(link) : "";
+    // Add ALL visible links (same logic as createVCard)
+    profile.links.forEach((link) => {
+      if (link.isVisible) {
+        const actionType = (link.icon || link.type).toLowerCase();
+        const hasValue = link.value && link.value.trim() !== "";
+        const formattedUrl = hasValue ? formatLinkUrl(link) : "";
 
-         switch (actionType) {
-           case "email":
-             if (hasValue && !emails.has(link.value)) {
-               vcard += `EMAIL;TYPE=INTERNET:${link.value}\n`;
-               emails.add(link.value);
-             }
-             break;
-           case "phone":
-             if (hasValue && !phoneNumbers.has(link.value)) {
-               vcard += `TEL;TYPE=CELL:${link.value}\n`;
-               phoneNumbers.add(link.value);
-             }
-             break;
-                     case "whatsapp":
-             if (hasValue) {
-               if (!phoneNumbers.has(link.value)) {
-                 vcard += `TEL;TYPE=CELL:${link.value}\n`;
-                 phoneNumbers.add(link.value);
-               }
-               vcard += `URL;TYPE=WhatsApp:${formattedUrl}\n`;
-             }
-             break;
-           case "sms":
-             if (hasValue) {
-               if (!phoneNumbers.has(link.value)) {
-                 vcard += `TEL;TYPE=CELL:${link.value}\n`;
-                 phoneNumbers.add(link.value);
-               }
-               vcard += `URL;TYPE=SMS:sms:${link.value}\n`;
-             }
-             break;
-           case "linkedin":
-             if (hasValue) {
-               vcard += `URL;TYPE=LinkedIn:${formattedUrl}\n`;
-             }
-             break;
-           case "instagram":
-             if (hasValue) {
-               vcard += `URL;TYPE=Instagram:${formattedUrl}\n`;
-             }
-             break;
-           case "twitter":
-             if (hasValue) {
-               vcard += `URL;TYPE=Twitter:${formattedUrl}\n`;
-             }
-             break;
-           case "facebook":
-             if (hasValue) {
-               vcard += `URL;TYPE=Facebook:${formattedUrl}\n`;
-             }
-             break;
-           case "youtube":
-             if (hasValue) {
-               vcard += `URL;TYPE=YouTube:${formattedUrl}\n`;
-             }
-             break;
-           case "github":
-             if (hasValue) {
-               vcard += `URL;TYPE=GitHub:${formattedUrl}\n`;
-             }
-             break;
-           case "website":
-             if (hasValue && !websites.has(formattedUrl)) {
-               vcard += `URL;TYPE=Website:${formattedUrl}\n`;
-               websites.add(formattedUrl);
-             }
-             break;
-           case "book-meeting":
-           case "book a meeting":
-             if (hasValue) {
-               vcard += `URL;TYPE=Calendar:${formattedUrl}\n`;
-             }
-             break;
-           case "address":
-             if (hasValue) {
-               vcard += `ADR;TYPE=WORK:;;${link.value};;;;\n`;
-             }
-             break;
-           case "message":
-             if (hasValue) {
-               vcard += `URL;TYPE=Message:${formattedUrl}\n`;
-             }
-             break;
-           default:
-             if (hasValue) {
-               vcard += `URL;TYPE=Other:${formattedUrl}\n`;
-             }
-             break;
+        switch (actionType) {
+          case "email":
+            if (hasValue && !emails.has(link.value)) {
+              vcard += `EMAIL;TYPE=INTERNET:${link.value}\n`;
+              emails.add(link.value);
+            }
+            break;
+          case "phone":
+            if (hasValue && !phoneNumbers.has(link.value)) {
+              vcard += `TEL;TYPE=CELL:${link.value}\n`;
+              phoneNumbers.add(link.value);
+            }
+            break;
+          case "whatsapp":
+            if (hasValue) {
+              if (!phoneNumbers.has(link.value)) {
+                vcard += `TEL;TYPE=CELL:${link.value}\n`;
+                phoneNumbers.add(link.value);
+              }
+              vcard += `URL;TYPE=WhatsApp:${formattedUrl}\n`;
+            }
+            break;
+          case "sms":
+            if (hasValue) {
+              if (!phoneNumbers.has(link.value)) {
+                vcard += `TEL;TYPE=CELL:${link.value}\n`;
+                phoneNumbers.add(link.value);
+              }
+              vcard += `URL;TYPE=SMS:sms:${link.value}\n`;
+            }
+            break;
+          case "linkedin":
+            if (hasValue) {
+              vcard += `URL;TYPE=LinkedIn:${formattedUrl}\n`;
+            }
+            break;
+          case "instagram":
+            if (hasValue) {
+              vcard += `URL;TYPE=Instagram:${formattedUrl}\n`;
+            }
+            break;
+          case "twitter":
+            if (hasValue) {
+              vcard += `URL;TYPE=Twitter:${formattedUrl}\n`;
+            }
+            break;
+          case "facebook":
+            if (hasValue) {
+              vcard += `URL;TYPE=Facebook:${formattedUrl}\n`;
+            }
+            break;
+          case "youtube":
+            if (hasValue) {
+              vcard += `URL;TYPE=YouTube:${formattedUrl}\n`;
+            }
+            break;
+          case "github":
+            if (hasValue) {
+              vcard += `URL;TYPE=GitHub:${formattedUrl}\n`;
+            }
+            break;
+          case "website":
+            if (hasValue && !websites.has(formattedUrl)) {
+              vcard += `URL;TYPE=Website:${formattedUrl}\n`;
+              websites.add(formattedUrl);
+            }
+            break;
+          case "book-meeting":
+          case "book a meeting":
+            if (hasValue) {
+              vcard += `URL;TYPE=Calendar:${formattedUrl}\n`;
+            }
+            break;
+          case "address":
+            if (hasValue) {
+              vcard += `ADR;TYPE=WORK:;;${link.value};;;;\n`;
+            }
+            break;
+          case "message":
+            if (hasValue) {
+              vcard += `URL;TYPE=Message:${formattedUrl}\n`;
+            }
+            break;
+          default:
+            if (hasValue) {
+              vcard += `URL;TYPE=Other:${formattedUrl}\n`;
+            }
+            break;
         }
       }
     });
 
-         // Add note if available and visible (keep it clean)
-     if (profile.note && profile.note.isVisible && profile.note.value.trim() !== "") {
-       vcard += `NOTE:${profile.note.value.replace(/\n/g, "\\n")}\n`;
-     }
+    // Add note if available and visible (keep it clean)
+    if (
+      profile.note &&
+      profile.note.isVisible &&
+      profile.note.value.trim() !== ""
+    ) {
+      vcard += `NOTE:${profile.note.value.replace(/\n/g, "\\n")}\n`;
+    }
 
     // Try to embed photo as base64 for better Android compatibility
     if (profile.avatarUrl) {
@@ -814,7 +854,7 @@ export default function VCardProfilePage({
       const deviceType = getDeviceType();
       let vCardContent: string;
 
-      if (deviceType === 'ios') {
+      if (deviceType === "ios") {
         vCardContent = await createVCardForiOS(profile);
       } else {
         vCardContent = await createVCardWithBase64Photos(profile);
@@ -1703,7 +1743,11 @@ export default function VCardProfilePage({
             </div>
           </div>
           <Link
-            href={`/?vcr=${profile?.key}`}
+            href={`${
+              isAuthenticated
+                ? `/manage-vcard`
+                : `/?vcr=${profile?.key}`
+            }`}
             className="text-gray-500 px-8 py-3.5 shadow-[0_3px_10px_rgb(0,0,0,0.2)] duration-500  hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-3xl  transition-colors font-medium bg-white flex justify-center w-fit mx-auto  "
           >
             Manage Your Own Card

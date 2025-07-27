@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/layouts/PageHeader";
 import { config } from "@/utils/config";
+import Cookies from "js-cookie";
 
 // User interface (without publicProfileCard)
 interface UserProfile {
@@ -1468,6 +1469,19 @@ export default function ManageVCard() {
             }
           );
 
+          // Handle unauthorized/token expired
+          if (checkResponse.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
+
           if (checkResponse.ok) {
             vCardResponse = await fetch(
               `${config.BACKEND_URL}/v1/organizations/${orgId}/users/${userId}/vcard`,
@@ -1518,6 +1532,19 @@ export default function ManageVCard() {
             );
           }
 
+          // Handle unauthorized/token expired
+          if (vCardResponse.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
+
           const vCardResult = await vCardResponse.json();
 
           if (vCardResult.success) {
@@ -1565,6 +1592,19 @@ export default function ManageVCard() {
             }
           );
 
+          // Handle unauthorized/token expired
+          if (userResponse.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
+
           if (!userResponse.ok) {
             throw new Error(`Error fetching user data: ${userResponse.status}`);
           }
@@ -1580,6 +1620,19 @@ export default function ManageVCard() {
               },
             }
           );
+
+          // Handle unauthorized for org fetch
+          if (orgResponse.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
 
           if (!orgResponse.ok) {
             throw new Error(
@@ -1603,6 +1656,19 @@ export default function ManageVCard() {
               }
             );
 
+            // Handle unauthorized for vCard fetch
+            if (vCardResponse.status === 401) {
+              // Clear cookies
+              Cookies.remove("auth_token");
+              Cookies.remove("user_id");
+              Cookies.remove("organization_id");
+              Cookies.remove("user_email");
+
+              // Redirect to login with session expired flag
+              router.push("/");
+              return;
+            }
+
             if (vCardResponse.ok) {
               const vCardData = await vCardResponse.json();
               if (vCardData.success) {
@@ -1618,9 +1684,33 @@ export default function ManageVCard() {
             }
           } catch (vCardError) {
             console.warn("Error fetching VCard:", vCardError);
+            // Check if vCard error is due to unauthorized
+            if (vCardError.response?.status === 401) {
+              // Clear cookies
+              Cookies.remove("auth_token");
+              Cookies.remove("user_id");
+              Cookies.remove("organization_id");
+              Cookies.remove("user_email");
+
+              // Redirect to login with session expired flag
+              router.push("/");
+              return;
+            }
           }
         } catch (err) {
           console.error("Error fetching data:", err);
+          // Check if error is due to unauthorized
+          if (err.response?.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
           setError(
             err instanceof Error
               ? err.message
@@ -3019,7 +3109,7 @@ export default function ManageVCard() {
                                   className={`absolute -bottom-1 -right-1 size-8  bg-white rounded-full border-2 border-white flex items-center justify-center overflow-hidden group cursor-pointer`}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (editMode ) {
+                                    if (editMode) {
                                       openPhotoModal("companyLogo");
                                     }
                                   }}
@@ -3061,9 +3151,7 @@ export default function ManageVCard() {
                               )}
                               {/* Add Company Logo button when no logo exists */}
                               {!vCard?.companyLogoUrl && (
-                                <div
-                                  className="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-100 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
-                                >
+                                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-100 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
                                   <svg
                                     className="w-2 h-2 text-gray-600"
                                     fill="none"
@@ -4333,9 +4421,9 @@ export default function ManageVCard() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Expiry Date (Optional)
                 </label>
-                                  <div className="relative inline-block w-full">
-                    <div className="relative">
-                      <input
+                <div className="relative inline-block w-full">
+                  <div className="relative">
+                    <input
                       type="text"
                       readOnly
                       value={
