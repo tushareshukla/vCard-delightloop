@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/layouts/PageHeader";
 import { config } from "@/utils/config";
+import Cookies from "js-cookie";
 
 // User interface (without publicProfileCard)
 interface UserProfile {
@@ -142,6 +143,20 @@ const getThemeColors = (theme: string) => {
       };
   }
 };
+const RESERVED_HANDLES = [
+  "wallet",
+  "vcard",
+  "referral",
+  "profile",
+  "manage-vcard",
+  "auth",
+  "api",
+  "context",
+  "components",
+  "clientinterceptor",
+  "login",
+  "logout",
+];
 
 const getSocialIcon = (link: {
   type: string;
@@ -989,6 +1004,10 @@ export default function ManageVCard() {
   };
 
   const checkHandleUniqueness = async (handle: string) => {
+    if (RESERVED_HANDLES.includes(handle.toLowerCase())) {
+      return;
+    }
+
     if (!handle.trim() || !isValidHandle(handle)) {
       return;
     }
@@ -1134,6 +1153,8 @@ export default function ManageVCard() {
         errors.handle = "Handle is required";
       } else if (processedValue.length < 3) {
         errors.handle = "Handle must be at least 3 characters long";
+      } else if (RESERVED_HANDLES.includes(processedValue)) {
+        errors.handle = "This handle name is reserved and cannot be used";
       } else if (processedValue.length > 30) {
         errors.handle = "Handle cannot be longer than 30 characters";
       } else if (!isValidHandle(processedValue)) {
@@ -1143,8 +1164,8 @@ export default function ManageVCard() {
 
       setValidationErrors(errors);
 
-      // Only check uniqueness if frontend validation passes AND handle is longer than 3 characters
-      if (!errors.handle && processedValue.trim().length > 3) {
+      // Only check uniqueness if frontend validation passes AND handle is at least 3 characters
+      if (!errors.handle && processedValue.trim().length >= 3) {
         if (handleCheckTimeout) {
           clearTimeout(handleCheckTimeout);
         }
@@ -1429,7 +1450,14 @@ export default function ManageVCard() {
     if (isSaveDisabled || isCheckingHandle || validationErrors.handle) {
       return;
     }
-
+    if (vCard?.handle && RESERVED_HANDLES.includes(vCard?.handle.toLowerCase())) {
+      showNotification("This handle is reserved and cannot be used", "error");
+      setValidationErrors((prev) => ({
+        ...prev,
+        handle: "This handle is reserved and cannot be used",
+      }));
+      return;
+    }
     // Check if any image is uploading
     const isAnyImageUploading = Object.values(imageUploads).some(
       (upload) => upload.uploading
@@ -1467,6 +1495,19 @@ export default function ManageVCard() {
               },
             }
           );
+
+          // Handle unauthorized/token expired
+          if (checkResponse.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
 
           if (checkResponse.ok) {
             vCardResponse = await fetch(
@@ -1518,6 +1559,19 @@ export default function ManageVCard() {
             );
           }
 
+          // Handle unauthorized/token expired
+          if (vCardResponse.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
+
           const vCardResult = await vCardResponse.json();
 
           if (vCardResult.success) {
@@ -1565,6 +1619,19 @@ export default function ManageVCard() {
             }
           );
 
+          // Handle unauthorized/token expired
+          if (userResponse.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
+
           if (!userResponse.ok) {
             throw new Error(`Error fetching user data: ${userResponse.status}`);
           }
@@ -1580,6 +1647,19 @@ export default function ManageVCard() {
               },
             }
           );
+
+          // Handle unauthorized for org fetch
+          if (orgResponse.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
 
           if (!orgResponse.ok) {
             throw new Error(
@@ -1603,6 +1683,19 @@ export default function ManageVCard() {
               }
             );
 
+            // Handle unauthorized for vCard fetch
+            if (vCardResponse.status === 401) {
+              // Clear cookies
+              Cookies.remove("auth_token");
+              Cookies.remove("user_id");
+              Cookies.remove("organization_id");
+              Cookies.remove("user_email");
+
+              // Redirect to login with session expired flag
+              router.push("/");
+              return;
+            }
+
             if (vCardResponse.ok) {
               const vCardData = await vCardResponse.json();
               if (vCardData.success) {
@@ -1618,9 +1711,33 @@ export default function ManageVCard() {
             }
           } catch (vCardError) {
             console.warn("Error fetching VCard:", vCardError);
+            // Check if vCard error is due to unauthorized
+            if (vCardError.response?.status === 401) {
+              // Clear cookies
+              Cookies.remove("auth_token");
+              Cookies.remove("user_id");
+              Cookies.remove("organization_id");
+              Cookies.remove("user_email");
+
+              // Redirect to login with session expired flag
+              router.push("/");
+              return;
+            }
           }
         } catch (err) {
           console.error("Error fetching data:", err);
+          // Check if error is due to unauthorized
+          if (err.response?.status === 401) {
+            // Clear cookies
+            Cookies.remove("auth_token");
+            Cookies.remove("user_id");
+            Cookies.remove("organization_id");
+            Cookies.remove("user_email");
+
+            // Redirect to login with session expired flag
+            router.push("/");
+            return;
+          }
           setError(
             err instanceof Error
               ? err.message
@@ -3019,7 +3136,7 @@ export default function ManageVCard() {
                                   className={`absolute -bottom-1 -right-1 size-8  bg-white rounded-full border-2 border-white flex items-center justify-center overflow-hidden group cursor-pointer`}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (editMode ) {
+                                    if (editMode) {
                                       openPhotoModal("companyLogo");
                                     }
                                   }}
@@ -3061,9 +3178,7 @@ export default function ManageVCard() {
                               )}
                               {/* Add Company Logo button when no logo exists */}
                               {!vCard?.companyLogoUrl && (
-                                <div
-                                  className="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-100 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
-                                >
+                                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-100 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
                                   <svg
                                     className="w-2 h-2 text-gray-600"
                                     fill="none"
@@ -3542,10 +3657,10 @@ export default function ManageVCard() {
 
                     <div className="relative flex items-center ">
                       <Link
-                        href={`/vcard/${vCard?.handle}`}
+                        href={`/${vCard?.handle}`}
                         className="px-4 py-2 bg-gray-50 border truncate max-w-[260px] sm:max-w-full   border-gray-200 rounded-lg text-sm text-blue-600 hover:text-blue-700 hover:underline"
                       >
-                        {`${config.FRONTEND_URL}vcard/${vCard?.handle}`}
+                        {`${config.FRONTEND_URL}${vCard?.handle}`}
                       </Link>
 
                       <div className="relative group ml-2">
@@ -3553,7 +3668,7 @@ export default function ManageVCard() {
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              `${config.FRONTEND_URL}/vcard/${vCard?.handle}`
+                              `${config.FRONTEND_URL}${vCard?.handle}`
                             );
                             showNotification(
                               "Link copied to clipboard!",
@@ -4333,9 +4448,9 @@ export default function ManageVCard() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Expiry Date (Optional)
                 </label>
-                                  <div className="relative inline-block w-full">
-                    <div className="relative">
-                      <input
+                <div className="relative inline-block w-full">
+                  <div className="relative">
+                    <input
                       type="text"
                       readOnly
                       value={
