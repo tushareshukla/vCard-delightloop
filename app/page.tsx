@@ -509,7 +509,7 @@ export default function Page() {
                           }`}
                           className="text-primary hover:text-primary-dark underline transition-colors duration-200"
                         >
-                          reset your password
+                          Reset your password
                         </Link>
                         .
                       </>
