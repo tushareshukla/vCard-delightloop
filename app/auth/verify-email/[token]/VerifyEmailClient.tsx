@@ -124,9 +124,12 @@ export default function VerifyEmailClient({ token }: VerifyEmailClientProps) {
               </svg>
             </div>
             <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-              {message}
+              Verification Failed
             </h2>
-            <div className="mt-4 space-y-4 flex flex-col items-center">
+            <p className="mt-2 text-sm text-gray-600">
+              {message}
+            </p>
+            <div className="mt-6 space-y-4 flex flex-col items-center">
               {needsResend && userId && (
                 <button
                   onClick={async () => {
@@ -177,16 +180,16 @@ export default function VerifyEmailClient({ token }: VerifyEmailClientProps) {
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                       </svg>
-                      <span>Resend verification email</span>
+                      <span>Resend Verification Link</span>
                     </>
                   )}
                 </button>
               )}
               <Link
                 href="/"
-                className="text-purple-600 hover:text-purple-500 font-medium block"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
               >
-                Return to login
+                Go to Login
               </Link>
             </div>
           </div>
