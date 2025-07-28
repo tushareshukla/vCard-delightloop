@@ -314,14 +314,11 @@ export default function Register() {
       });
     } catch (err) {
       console.error("Registration error:", err);
-      //   if (err instanceof Error && err.message === "Email already registered") {
-      //     setEmailTitle("Email already registered. Please verify to continue.");
-      //     setRegisteredEmail(formData.email);
-      //     setIsRegistered(true);
-      //     handleResendVerification();
-      //   } else {
-      setError(err instanceof Error ? err.message : "Registration failed");
-      //   }
+      if (err instanceof Error && err.message === "Email already registered") {
+        setError("Email already registered");
+      } else {
+        setError(err instanceof Error ? err.message : "Registration failed");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -551,7 +548,39 @@ export default function Register() {
               </p>
             </div>
 
-            {error && <div className="text-red-500 text-sm">{error}</div>}
+            {error && (
+              <div className="text-red-500 text-sm">
+                {error === "Email already registered" ? (
+                  <>
+                    This email is already registered. You can{" "}
+                    <Link
+                      href={`/${
+                        searchParams.toString()
+                          ? `?${searchParams.toString()}`
+                          : ""
+                      }`}
+                      className="text-primary hover:text-primary-dark underline transition-colors duration-200"
+                    >
+                      log in here
+                    </Link>{" "}
+                    or{" "}
+                    <Link
+                      href={`/auth/forgot-password${
+                        searchParams.toString()
+                          ? `?${searchParams.toString()}`
+                          : ""
+                      }`}
+                      className="text-primary hover:text-primary-dark underline transition-colors duration-200"
+                    >
+                      reset your password
+                    </Link>{" "}
+                    if needed.
+                  </>
+                ) : (
+                  error
+                )}
+              </div>
+            )}
 
             <button
               type="submit"
