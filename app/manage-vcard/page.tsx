@@ -1108,8 +1108,8 @@ export default function ManageVCard() {
     const { name, value } = e.target;
     if (!userProfile) return;
 
-    // Convert value to lowercase
-    const processedValue = value.toLowerCase();
+    // Convert only handle to lowercase, keep other fields as is
+    const processedValue = name === "handle" ? value.toLowerCase() : value;
 
     const currentVCard = vCard || {
       userId: userProfile._id,
