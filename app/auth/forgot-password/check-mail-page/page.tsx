@@ -130,7 +130,7 @@ export default function CheckMailPage() {
             {/* Success Message */}
             {resendSuccess && (
               <p className="text-sm text-green-500 mt-2">
-                Reset link has been resent to your email
+                Reset link has been sent to your inbox.Still can’t find it? Check spam or promotions folder.
               </p>
             )}
 
