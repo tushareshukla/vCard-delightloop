@@ -552,7 +552,7 @@ export default function Page() {
                   bothVCRandVidCorrectButUserHaventRegistered ? "hidden" : ""
                 }`}
               >
-                <p className="text-sm text-[#667085] font-[500]">
+                <p className={`text-sm text-[#667085] font-[500] ${vCardHasOwner ? "hidden" : ""}`}>
                   Don&apos;t have an account?{" "}
                   <Link
                     onClick={() => {
