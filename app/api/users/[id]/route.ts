@@ -15,9 +15,9 @@ export async function GET(
     const user = await User.findById(id).select("-password"); // Exclude password field
 
     if (!user) {
-      console.log("User not found:", id);
+      console.log("No account found with that email. Try another or check for a typo.", id);
       return NextResponse.json(
-        { success: false, error: "User not found" },
+        { success: false, error: "No account found with that email. Try another or check for a typo." },
         { status: 404 }
       );
     }
@@ -76,9 +76,9 @@ export async function PATCH(
     const user = await User.findById(id);
 
     if (!user) {
-      console.log("User not found:", id);
+      console.log("No account found with that email. Try another or check for a typo:", id);
       return NextResponse.json(
-        { success: false, error: "User not found" },
+        { success: false, error: "No account found with that email. Try another or check for a typo." },
         { status: 404 }
       );
     }

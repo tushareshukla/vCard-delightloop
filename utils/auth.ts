@@ -55,7 +55,7 @@ export async function validateLogin(
   addLog("4. Querying database for user");
   const dbUser = await User.findOne({ email });
   addLog(
-    `5. Database query completed: ${dbUser ? "User found" : "User not found"}`
+    `5. Database query completed: ${dbUser ? "User found" : "No account found with that email. Try another or check for a typo."}`
   );
 
   if (!dbUser) {
