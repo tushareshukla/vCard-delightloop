@@ -202,8 +202,7 @@ export default function Register() {
       if (!nameRegex.test(trimmedFirstName)) {
         setNameError((prev) => ({
           ...prev,
-          firstName:
-            "First name should only contain letters with single spaces between words",
+          firstName: "Please enter a valid name using only letters and spaces.",
         }));
         hasNameError = true;
       }
@@ -211,8 +210,7 @@ export default function Register() {
       if (!nameRegex.test(trimmedLastName)) {
         setNameError((prev) => ({
           ...prev,
-          lastName:
-            "Last name should only contain letters with single spaces between words",
+          lastName: "Please enter a valid name using only letters and spaces.",
         }));
         hasNameError = true;
       }
