@@ -8,7 +8,6 @@ import InfinityLoader from "../components/common/InfinityLoader";
 import { HelpCircle, ExternalLink, Calendar } from "lucide-react";
 import { config } from "@/utils/config";
 
-
 export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -261,10 +260,10 @@ export default function Page() {
     }
   };
   const handleSubmit = async (e: React.FormEvent) => {
-     // Remove error param from URL if it exists
-     const url = new URL(window.location.href);
-     url.searchParams.delete('error');
-     window.history.replaceState({}, '', url.toString());
+    // Remove error param from URL if it exists
+    const url = new URL(window.location.href);
+    url.searchParams.delete("error");
+    window.history.replaceState({}, "", url.toString());
     e.preventDefault();
     setError("");
     setIsLoading(true);
@@ -342,7 +341,7 @@ export default function Page() {
                 Verifying VCard details...
               </p>
               <div className="flex items-center justify-center">
-              <InfinityLoader width={64} height={64} />
+                <InfinityLoader width={64} height={64} />
                 {/* <svg
                   className="animate-spin h-8 w-8 text-[#7F56D9]"
                   xmlns="http://www.w3.org/2000/svg"
@@ -404,16 +403,16 @@ export default function Page() {
                 }/v1/auth/linkedin?vcardflow=true&${searchParams.toString()}`}
                 className="w-full font-medium bg-primary/95 hover:bg-primary text-white py-3 rounded-md flex items-center justify-center"
                 onClick={(e) => {
-                     // Remove error param from URL if it exists
-                     const url = new URL(window.location.href);
-                     url.searchParams.delete('error');
-                     window.history.replaceState({}, '', url.toString());
+                  // Remove error param from URL if it exists
+                  const url = new URL(window.location.href);
+                  url.searchParams.delete("error");
+                  window.history.replaceState({}, "", url.toString());
 
                   e.preventDefault();
                   setIsLoading(true);
                   window.location.href = `${
-                  config.BACKEND_URL
-                }/v1/auth/linkedin?vcardflow=true&${searchParams.toString()}`;
+                    config.BACKEND_URL
+                  }/v1/auth/linkedin?vcardflow=true&${searchParams.toString()}`;
                 }}
               >
                 {isLoading ? (
@@ -497,8 +496,29 @@ export default function Page() {
                   />
                 </div>
                 {error && !emailError && (
-                  <div className="text-red-500 text-sm">{error} </div>
+                  <div className="text-sm text-red-500">
+                    {error.includes("Reset your password") ? (
+                      <>
+                        We couldn’t log you in. Please verify your credentials
+                        or{" "}
+                        <Link
+                          href={`/auth/forgot-password${
+                            searchParams.toString()
+                              ? `?${searchParams.toString()}`
+                              : ""
+                          }`}
+                          className="text-primary hover:text-primary-dark underline transition-colors duration-200"
+                        >
+                          reset your password
+                        </Link>
+                        .
+                      </>
+                    ) : (
+                      error
+                    )}
+                  </div>
                 )}
+
                 {emailError && (
                   <div className="text-green-500 text-sm ">{emailError} </div>
                 )}
@@ -518,10 +538,14 @@ export default function Page() {
                     onClick={() => {
                       // Remove error param from URL if it exists
                       const url = new URL(window.location.href);
-                      url.searchParams.delete('error');
-                      window.history.replaceState({}, '', url.toString());
+                      url.searchParams.delete("error");
+                      window.history.replaceState({}, "", url.toString());
                     }}
-                    href={`/auth/forgot-password${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
+                    href={`/auth/forgot-password${
+                      searchParams.toString()
+                        ? `?${searchParams.toString()}`
+                        : ""
+                    }`}
                     className="text-sm text-primary hover:text-primary-dark hover:underline"
                   >
                     Forgot password?
@@ -535,7 +559,11 @@ export default function Page() {
                 </button>
               </form>
               {errorMessage && (
-                <div className="text-red-500 mt-2 text-sm ">{errorMessage ? "Email already registered. Log in with email and password instead of LinkedIn." : ""} </div>
+                <div className="text-red-500 mt-2 text-sm ">
+                  {errorMessage
+                    ? "Email already registered. Log in with email and password instead of LinkedIn."
+                    : ""}{" "}
+                </div>
               )}
               {bothVCRandVidCorrectButUserHaventRegistered && (
                 <Link
@@ -552,17 +580,24 @@ export default function Page() {
                   bothVCRandVidCorrectButUserHaventRegistered ? "hidden" : ""
                 }`}
               >
-                <p className={`text-sm text-[#667085] font-[500] ${vCardHasOwner ? "hidden" : ""}`}>
+                <p
+                  className={`text-sm text-[#667085] font-[500] ${
+                    vCardHasOwner ? "hidden" : ""
+                  }`}
+                >
                   Don&apos;t have an account?{" "}
                   <Link
                     onClick={() => {
                       // Remove error param from URL if it exists
                       const url = new URL(window.location.href);
-                      url.searchParams.delete('error');
-                      window.history.replaceState({}, '', url.toString());
-
+                      url.searchParams.delete("error");
+                      window.history.replaceState({}, "", url.toString());
                     }}
-                    href={`/auth/register${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
+                    href={`/auth/register${
+                      searchParams.toString()
+                        ? `?${searchParams.toString()}`
+                        : ""
+                    }`}
                     className="text-[#6941C6] hover:text-[#5a35b1] hover:underline font-medium"
                   >
                     Sign up
@@ -614,20 +649,24 @@ export default function Page() {
                       </p>
                       <button
                         onClick={() => {
-                            // Remove error param from URL if it exists
-                            const url = new URL(window.location.href);
-                            url.searchParams.delete('error');
-                            window.history.replaceState({}, '', url.toString());
-                            setShowVCardSection(false);
-                            setShowLoginSection(true);
+                          // Remove error param from URL if it exists
+                          const url = new URL(window.location.href);
+                          url.searchParams.delete("error");
+                          window.history.replaceState({}, "", url.toString());
+                          setShowVCardSection(false);
+                          setShowLoginSection(true);
                         }}
                         className="w-full px-4 py-2 bg-[#7F56D9] text-white rounded-md hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-[#7F56D9]"
                       >
                         Sign In
                       </button>
                       {errorMessage && (
-                <div className="text-red-500 mt-2 text-sm ">{errorMessage ? "Email already registered. Log in with email and password instead of LinkedIn." : ""} </div>
-              )}
+                        <div className="text-red-500 mt-2 text-sm ">
+                          {errorMessage
+                            ? "Email already registered. Log in with email and password instead of LinkedIn."
+                            : ""}{" "}
+                        </div>
+                      )}
                     </>
                   ) : (
                     <>
@@ -663,8 +702,8 @@ export default function Page() {
                           handleClaimCard();
                           // Remove error param from URL if it exists
                           const url = new URL(window.location.href);
-                          url.searchParams.delete('error');
-                          window.history.replaceState({}, '', url.toString());
+                          url.searchParams.delete("error");
+                          window.history.replaceState({}, "", url.toString());
                         }}
                         disabled={
                           codeInputs.join("").length !== 6 || isLoadingVCard
@@ -700,9 +739,13 @@ export default function Page() {
                           {vCardError}
                         </p>
                       )}
-                       {errorMessage && (
-                <div className="text-red-500 mt-2 text-sm ">{errorMessage ? "Email already registered. Log in with email and password instead of LinkedIn." : ""} </div>
-              )}
+                      {errorMessage && (
+                        <div className="text-red-500 mt-2 text-sm ">
+                          {errorMessage
+                            ? "Email already registered. Log in with email and password instead of LinkedIn."
+                            : ""}{" "}
+                        </div>
+                      )}
                       {vCardData && (
                         <>
                           <p className="mt-2 text-sm text-green-600">
