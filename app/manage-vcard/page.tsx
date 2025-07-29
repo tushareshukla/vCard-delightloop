@@ -1048,7 +1048,7 @@ export default function ManageVCard() {
           } else {
             setValidationErrors((prev) => ({
               ...prev,
-              handle: "This handle is already taken by another user",
+              handle: "This handle is already taken. Try another one?",
             }));
             setHideSaveButton(true);
           }
