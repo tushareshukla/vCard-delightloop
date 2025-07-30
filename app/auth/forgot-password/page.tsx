@@ -283,7 +283,7 @@ export default function ForgotPassword() {
 
             <div className="mt-8 text-center">
               <Link
-                href={`/${
+                href={`/login${
                   searchParams.toString() ? `?${searchParams.toString()}` : ""
                 }`}
                 className="text-[#6941C6] hover:text-[#5a35b1] font-medium inline-flex items-center"

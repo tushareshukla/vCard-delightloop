@@ -137,7 +137,7 @@ export default function CheckMailPage() {
             {/* Back to login */}
             <div className="mt-8">
               <Link
-                href="/"
+                href="/login"
                 className="text-[#6941C6] hover:text-[#5a35b1] font-medium inline-flex items-center"
               >
                 <svg

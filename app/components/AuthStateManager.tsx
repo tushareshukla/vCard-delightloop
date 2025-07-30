@@ -13,6 +13,7 @@ const PUBLIC_ROUTES = [
   "/auth/forgot-password/password-reset",
   "/auth/forgot-password/reset",
   "/auth/forgot-password/reset-success",
+  "/login",
 ];
 
 // Define routes that should always be accessible regardless of auth state

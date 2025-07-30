@@ -114,9 +114,9 @@ export default function Register() {
     }
 
     // If no parameters exist, return to root
-    if (params.toString() === "") return "/";
+    if (params.toString() === "") return "/login";
 
-    return `/?${params.toString()}`;
+    return `/login?${params.toString()}`;
   };
 
   const validateEmail = async (email: string) => {
@@ -565,7 +565,7 @@ export default function Register() {
                     </span>{" "}
                     on{" "}
                     <Link
-                      href={`/${
+                      href={`/login${
                         searchParams.toString()
                           ? `?${searchParams.toString()}`
                           : ""
@@ -580,7 +580,7 @@ export default function Register() {
                   <>
                     This email is already registered. You can{" "}
                     <Link
-                      href={`/${
+                      href={`/login${
                         searchParams.toString()
                           ? `?${searchParams.toString()}`
                           : ""
@@ -624,7 +624,7 @@ export default function Register() {
           <div className=" mt-4 text-center text-sm text-gray-600 font-[500]">
             Already have an account?{" "}
             <Link
-              href={`/${
+              href={`/login${
                 searchParams.toString() ? `?${searchParams.toString()}` : ""
               }`}
               className="text-[#6941C6] hover:text-[#5a35b1] font-medium hover:underline"
