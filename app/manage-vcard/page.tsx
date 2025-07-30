@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import CustomCalendar from "@/components/ui/calendar";
+import { handleLogout } from "@/utils/logout";
 import {
   Megaphone,
   AlertTriangle,
@@ -1497,17 +1498,7 @@ export default function ManageVCard() {
           );
 
           // Handle unauthorized/token expired
-          if (checkResponse.status === 401) {
-            // Clear cookies
-            Cookies.remove("auth_token");
-            Cookies.remove("user_id");
-            Cookies.remove("organization_id");
-            Cookies.remove("user_email");
 
-            // Redirect to login with session expired flag
-            router.push("/");
-            return;
-          }
 
           if (checkResponse.ok) {
             vCardResponse = await fetch(
@@ -1559,18 +1550,7 @@ export default function ManageVCard() {
             );
           }
 
-          // Handle unauthorized/token expired
-          if (vCardResponse.status === 401) {
-            // Clear cookies
-            Cookies.remove("auth_token");
-            Cookies.remove("user_id");
-            Cookies.remove("organization_id");
-            Cookies.remove("user_email");
-
-            // Redirect to login with session expired flag
-            router.push("/");
-            return;
-          }
+          
 
           const vCardResult = await vCardResponse.json();
 
@@ -1621,14 +1601,7 @@ export default function ManageVCard() {
 
           // Handle unauthorized/token expired
           if (userResponse.status === 401) {
-            // Clear cookies
-            Cookies.remove("auth_token");
-            Cookies.remove("user_id");
-            Cookies.remove("organization_id");
-            Cookies.remove("user_email");
-
-            // Redirect to login with session expired flag
-            router.push("/");
+            handleLogout();
             return;
           }
 
@@ -1650,14 +1623,7 @@ export default function ManageVCard() {
 
           // Handle unauthorized for org fetch
           if (orgResponse.status === 401) {
-            // Clear cookies
-            Cookies.remove("auth_token");
-            Cookies.remove("user_id");
-            Cookies.remove("organization_id");
-            Cookies.remove("user_email");
-
-            // Redirect to login with session expired flag
-            router.push("/");
+            handleLogout();
             return;
           }
 
@@ -1686,13 +1652,7 @@ export default function ManageVCard() {
             // Handle unauthorized for vCard fetch
             if (vCardResponse.status === 401) {
               // Clear cookies
-              Cookies.remove("auth_token");
-              Cookies.remove("user_id");
-              Cookies.remove("organization_id");
-              Cookies.remove("user_email");
-
-              // Redirect to login with session expired flag
-              router.push("/");
+              handleLogout();
               return;
             }
 
@@ -1714,13 +1674,7 @@ export default function ManageVCard() {
             // Check if vCard error is due to unauthorized
             if (vCardError.response?.status === 401) {
               // Clear cookies
-              Cookies.remove("auth_token");
-              Cookies.remove("user_id");
-              Cookies.remove("organization_id");
-              Cookies.remove("user_email");
-
-              // Redirect to login with session expired flag
-              router.push("/");
+              handleLogout();
               return;
             }
           }
@@ -1728,14 +1682,7 @@ export default function ManageVCard() {
           console.error("Error fetching data:", err);
           // Check if error is due to unauthorized
           if (err.response?.status === 401) {
-            // Clear cookies
-            Cookies.remove("auth_token");
-            Cookies.remove("user_id");
-            Cookies.remove("organization_id");
-            Cookies.remove("user_email");
-
-            // Redirect to login with session expired flag
-            router.push("/");
+            handleLogout();
             return;
           }
           setError(

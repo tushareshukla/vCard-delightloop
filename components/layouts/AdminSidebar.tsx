@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import { LogOut, CircleUserRound, IdCard } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import { config } from "@/utils/config";
+import { handleLogout } from "@/utils/logout";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -20,28 +21,7 @@ export default function Sidebar() {
   const [userEmail, setUserEmail] = useState("");
 
   // Logout handler
-  const handleLogout = async () => {
-    try {
-      await fetch(
-        `${config.BACKEND_URL}/v1/auth/logout`,
-        { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" } }
-      );
-    } catch {}
-    [
-      "auth_token", "user_email", "userId", "user_id",
-      "organization_id", "authToken", "organizationId"
-    ].forEach((cookie) => {
-      Cookies.remove(cookie);
-      Cookies.remove(cookie, { domain: window.location.hostname });
-      Cookies.remove(cookie, { domain: "." + window.location.hostname });
-      Cookies.remove(cookie, { path: "/" });
-      Cookies.remove(cookie, { domain: window.location.hostname, path: "/" });
-      Cookies.remove(cookie, { domain: "." + window.location.hostname, path: "/" });
-    });
-    localStorage.clear();
-    sessionStorage.clear();
-    window.location.replace("/");
-  };
+ 
 
   useEffect(() => {
     setUserEmail(Cookies.get("user_email") || "");
