@@ -59,7 +59,7 @@ export default function ResetSuccess() {
 
             {/* Continue Button */}
             <Link
-              href="/"
+              href="/login"
               className="h-11 w-full bg-[#7F56D9] text-white font-[500] rounded-[8px] hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-[#7F56D9] flex items-center justify-center mb-6"
             >
               Continue to Login

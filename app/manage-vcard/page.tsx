@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import CustomCalendar from "@/components/ui/calendar";
+import { handleLogout } from "@/utils/logout";
 import {
   Megaphone,
   AlertTriangle,
@@ -1048,7 +1049,7 @@ export default function ManageVCard() {
           } else {
             setValidationErrors((prev) => ({
               ...prev,
-              handle: "This handle is already taken by another user",
+              handle: "This handle is already taken. Try another one?",
             }));
             setHideSaveButton(true);
           }
@@ -1108,8 +1109,8 @@ export default function ManageVCard() {
     const { name, value } = e.target;
     if (!userProfile) return;
 
-    // Convert value to lowercase
-    const processedValue = value.toLowerCase();
+    // Convert only handle to lowercase, keep other fields as is
+    const processedValue = name === "handle" ? value.toLowerCase() : value;
 
     const currentVCard = vCard || {
       userId: userProfile._id,
@@ -1497,17 +1498,7 @@ export default function ManageVCard() {
           );
 
           // Handle unauthorized/token expired
-          if (checkResponse.status === 401) {
-            // Clear cookies
-            Cookies.remove("auth_token");
-            Cookies.remove("user_id");
-            Cookies.remove("organization_id");
-            Cookies.remove("user_email");
 
-            // Redirect to login with session expired flag
-            router.push("/");
-            return;
-          }
 
           if (checkResponse.ok) {
             vCardResponse = await fetch(
@@ -1559,18 +1550,7 @@ export default function ManageVCard() {
             );
           }
 
-          // Handle unauthorized/token expired
-          if (vCardResponse.status === 401) {
-            // Clear cookies
-            Cookies.remove("auth_token");
-            Cookies.remove("user_id");
-            Cookies.remove("organization_id");
-            Cookies.remove("user_email");
-
-            // Redirect to login with session expired flag
-            router.push("/");
-            return;
-          }
+          
 
           const vCardResult = await vCardResponse.json();
 
@@ -1621,14 +1601,7 @@ export default function ManageVCard() {
 
           // Handle unauthorized/token expired
           if (userResponse.status === 401) {
-            // Clear cookies
-            Cookies.remove("auth_token");
-            Cookies.remove("user_id");
-            Cookies.remove("organization_id");
-            Cookies.remove("user_email");
-
-            // Redirect to login with session expired flag
-            router.push("/");
+            handleLogout();
             return;
           }
 
@@ -1650,14 +1623,7 @@ export default function ManageVCard() {
 
           // Handle unauthorized for org fetch
           if (orgResponse.status === 401) {
-            // Clear cookies
-            Cookies.remove("auth_token");
-            Cookies.remove("user_id");
-            Cookies.remove("organization_id");
-            Cookies.remove("user_email");
-
-            // Redirect to login with session expired flag
-            router.push("/");
+            handleLogout();
             return;
           }
 
@@ -1686,13 +1652,7 @@ export default function ManageVCard() {
             // Handle unauthorized for vCard fetch
             if (vCardResponse.status === 401) {
               // Clear cookies
-              Cookies.remove("auth_token");
-              Cookies.remove("user_id");
-              Cookies.remove("organization_id");
-              Cookies.remove("user_email");
-
-              // Redirect to login with session expired flag
-              router.push("/");
+              handleLogout();
               return;
             }
 
@@ -1714,13 +1674,7 @@ export default function ManageVCard() {
             // Check if vCard error is due to unauthorized
             if (vCardError.response?.status === 401) {
               // Clear cookies
-              Cookies.remove("auth_token");
-              Cookies.remove("user_id");
-              Cookies.remove("organization_id");
-              Cookies.remove("user_email");
-
-              // Redirect to login with session expired flag
-              router.push("/");
+              handleLogout();
               return;
             }
           }
@@ -1728,14 +1682,7 @@ export default function ManageVCard() {
           console.error("Error fetching data:", err);
           // Check if error is due to unauthorized
           if (err.response?.status === 401) {
-            // Clear cookies
-            Cookies.remove("auth_token");
-            Cookies.remove("user_id");
-            Cookies.remove("organization_id");
-            Cookies.remove("user_email");
-
-            // Redirect to login with session expired flag
-            router.push("/");
+            handleLogout();
             return;
           }
           setError(
@@ -3003,7 +2950,7 @@ export default function ManageVCard() {
                                             }
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-xs pt-[1px] text-[#6941C6] hover:text-[#6941C6]/80 underline break-words block break-all"
+                                            className="text-xs pt-[1px] text-[#6941C6] hover:text-[#6941C6]/80 underline break-words block "
                                           >
                                             {vCard.alert?.text}
                                           </a>
@@ -3133,7 +3080,7 @@ export default function ManageVCard() {
                               </div>
                               {vCard?.companyLogoUrl && (
                                 <div
-                                  className={`absolute -bottom-1 -right-1 size-8  bg-white rounded-full border-2 border-white flex items-center justify-center overflow-hidden group cursor-pointer`}
+                                  className={`absolute  -bottom-1 -right-1 size-8  bg-white rounded-full border-2 border-white flex items-center justify-center overflow-hidden group cursor-pointer`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     if (editMode) {
@@ -3150,7 +3097,7 @@ export default function ManageVCard() {
                                   />
                                   {/* Company Logo Edit Overlay */}
                                   {editMode && (
-                                    <div className="absolute inset-0 bg-black bg-opacity-50 transition-all duration-200 flex items-center justify-center rounded-full">
+                                    <div className="absolute  inset-0 bg-black bg-opacity-50 transition-all duration-200 flex items-center justify-center rounded-full">
                                       <div className="opacity-100 transition-opacity duration-200">
                                         <svg
                                           className="size-2 text-white"
@@ -3178,7 +3125,13 @@ export default function ManageVCard() {
                               )}
                               {/* Add Company Logo button when no logo exists */}
                               {!vCard?.companyLogoUrl && (
-                                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-100 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
+                                <div
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (editMode) {
+                                      openPhotoModal("companyLogo");
+                                    }
+                                  }} className="absolute  -bottom-1 -right-1 w-4 h-4 bg-gray-100 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
                                   <svg
                                     className="w-2 h-2 text-gray-600"
                                     fill="none"

@@ -130,14 +130,14 @@ export default function CheckMailPage() {
             {/* Success Message */}
             {resendSuccess && (
               <p className="text-sm text-green-500 mt-2">
-                Reset link has been resent to your email
+                Reset link has been sent to your inbox.Still can’t find it? Check spam or promotions folder.
               </p>
             )}
 
             {/* Back to login */}
             <div className="mt-8">
               <Link
-                href="/"
+                href="/login"
                 className="text-[#6941C6] hover:text-[#5a35b1] font-medium inline-flex items-center"
               >
                 <svg

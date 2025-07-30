@@ -69,7 +69,7 @@ export default function ResetPassword() {
     // Validate passwords match
     if (password !== confirmPassword) {
       console.log('[Reset Password] Passwords do not match');
-      setError("Passwords do not match");
+      setError("Passwords don’t match. Try retyping to be sure.");
       return;
     }
 
@@ -360,7 +360,7 @@ export default function ResetPassword() {
 
             <div className="mt-8 text-center">
               <Link
-                href="/"
+                href="/login"
                 className="text-[#6941C6] hover:text-[#5a35b1] font-medium inline-flex items-center"
               >
                 <svg
