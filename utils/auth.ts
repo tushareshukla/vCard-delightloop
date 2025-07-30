@@ -55,14 +55,15 @@ export async function validateLogin(
   addLog("4. Querying database for user");
   const dbUser = await User.findOne({ email });
   addLog(
-    `5. Database query completed: ${dbUser ? "User found" : "User not found"}`
+    `5. Database query completed: ${dbUser ? "User found" : "No account found with that email. Try another or check for a typo."}`
   );
 
   if (!dbUser) {
     addLog("6A. User not found in database");
     return {
       success: false,
-      message: "Invalid email or password",
+      message:
+        "We couldn't log you in. Please verify your credentials or Reset your password.",
       logs,
     };
   }
@@ -87,7 +88,8 @@ export async function validateLogin(
     addLog("10A. Password invalid");
     return {
       success: false,
-      message: "Invalid email or password",
+      message:
+        "We couldn't log you in. Please verify your credentials or Reset your password.",
       logs,
     };
   }

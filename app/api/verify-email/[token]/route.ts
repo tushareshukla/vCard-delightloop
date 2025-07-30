@@ -19,7 +19,8 @@ export async function GET(
       return NextResponse.json(
         {
           success: false,
-          error: "You have already verified your email or the link is invalid",
+          error:
+            "This link is no longer valid. You may have already verified your email or the link may have expired.",
         },
         { status: 400 }
       );

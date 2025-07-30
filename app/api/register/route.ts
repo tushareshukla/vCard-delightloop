@@ -54,10 +54,22 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     // Check if user exists with normalized email
     const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
-      return NextResponse.json(
-        { success: false, error: "Email already registered" },
-        { status: 400 }
-      );
+      const isLinkedInUser =
+        existingUser.linkedinCreds &&
+        (existingUser.linkedinCreds.linkedinProfile ||
+          existingUser.linkedinCreds.linkedinEmail);
+
+      if (isLinkedInUser) {
+        return NextResponse.json(
+          { success: false, error: "Email already registered via LinkedIn" },
+          { status: 400 }
+        );
+      } else {
+        return NextResponse.json(
+          { success: false, error: "Email already registered" },
+          { status: 400 }
+        );
+      }
     }
 
     // Extract domain from normalized email

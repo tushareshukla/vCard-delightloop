@@ -69,7 +69,7 @@ export default function ResetPassword() {
     // Validate passwords match
     if (password !== confirmPassword) {
       console.log('[Reset Password] Passwords do not match');
-      setError("Passwords do not match");
+      setError("Passwords don’t match. Try retyping to be sure.");
       return;
     }
 

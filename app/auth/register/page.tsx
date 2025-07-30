@@ -202,8 +202,7 @@ export default function Register() {
       if (!nameRegex.test(trimmedFirstName)) {
         setNameError((prev) => ({
           ...prev,
-          firstName:
-            "First name should only contain letters with single spaces between words",
+          firstName: "Please enter a valid name using only letters and spaces.",
         }));
         hasNameError = true;
       }
@@ -211,8 +210,7 @@ export default function Register() {
       if (!nameRegex.test(trimmedLastName)) {
         setNameError((prev) => ({
           ...prev,
-          lastName:
-            "Last name should only contain letters with single spaces between words",
+          lastName: "Please enter a valid name using only letters and spaces.",
         }));
         hasNameError = true;
       }
@@ -314,14 +312,19 @@ export default function Register() {
       });
     } catch (err) {
       console.error("Registration error:", err);
-      //   if (err instanceof Error && err.message === "Email already registered") {
-      //     setEmailTitle("Email already registered. Please verify to continue.");
-      //     setRegisteredEmail(formData.email);
-      //     setIsRegistered(true);
-      //     handleResendVerification();
-      //   } else {
-      setError(err instanceof Error ? err.message : "Registration failed");
-      //   }
+      if (
+        err instanceof Error &&
+        err.message === "Email already registered via LinkedIn"
+      ) {
+        setError("Email already registered via LinkedIn");
+      } else if (
+        err instanceof Error &&
+        err.message === "Email already registered"
+      ) {
+        setError("Email already registered");
+      } else {
+        setError(err instanceof Error ? err.message : "Registration failed");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -551,7 +554,59 @@ export default function Register() {
               </p>
             </div>
 
-            {error && <div className="text-red-500 text-sm">{error}</div>}
+            {error && (
+              <div className="text-red-500 text-sm">
+                {error === "Email already registered via LinkedIn" ? (
+                  <>
+                    Looks like you already have an account with this email via
+                    LinkedIn. Please log in using{" "}
+                    <span className="font-bold text-[#7F56D9]">
+                      Continue with LinkedIn
+                    </span>{" "}
+                    on{" "}
+                    <Link
+                      href={`/${
+                        searchParams.toString()
+                          ? `?${searchParams.toString()}`
+                          : ""
+                      }`}
+                      className="text-primary hover:text-primary-dark underline transition-colors duration-200"
+                    >
+                      login page
+                    </Link>
+                    .
+                  </>
+                ) : error === "Email already registered" ? (
+                  <>
+                    This email is already registered. You can{" "}
+                    <Link
+                      href={`/${
+                        searchParams.toString()
+                          ? `?${searchParams.toString()}`
+                          : ""
+                      }`}
+                      className="text-primary hover:text-primary-dark underline transition-colors duration-200"
+                    >
+                      log in here
+                    </Link>{" "}
+                    or{" "}
+                    <Link
+                      href={`/auth/forgot-password${
+                        searchParams.toString()
+                          ? `?${searchParams.toString()}`
+                          : ""
+                      }`}
+                      className="text-primary hover:text-primary-dark underline transition-colors duration-200"
+                    >
+                      Reset your password
+                    </Link>{" "}
+                    if needed.
+                  </>
+                ) : (
+                  error
+                )}
+              </div>
+            )}
 
             <button
               type="submit"

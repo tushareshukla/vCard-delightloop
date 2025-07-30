@@ -60,8 +60,8 @@ export async function validateUser(request: NextRequest): Promise<ValidationResu
     });
 
     if (!user) {
-      console.error('User not found in database');
-      return { success: false, error: "User not found" };
+      console.error('No account found with that email. Try another or check for a typo.');
+      return { success: false, error: "No account found with that email. Try another or check for a typo." };
     }
 
     if (!user.isActive) {

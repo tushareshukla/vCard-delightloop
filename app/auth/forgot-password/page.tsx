@@ -39,8 +39,11 @@ export default function ForgotPassword() {
       console.log("[Forgot Password] Response data:", data);
 
       if (!data.success) {
-        console.error("[Forgot Password] API error:", data.error);
-        throw new Error(data.error || "Failed to process request");
+        console.error('[Forgot Password] API error:', data.error);
+        const errorMessage = data.error === "Invalid email format"
+          ? "That doesn't look like a valid email. Missing something?"
+          : data.error || 'Failed to process request';
+        throw new Error(errorMessage);
       }
 
       // Navigate to check-mail page with email parameter

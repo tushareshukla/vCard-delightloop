@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
-        { success: false, error: "User not found" },
+        { success: false, error: "No account found with that email. Try another or check for a typo." },
         { status: 404 }
       );
     }
