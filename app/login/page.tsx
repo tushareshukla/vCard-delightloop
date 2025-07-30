@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import InfinityLoader from "@/components/common/InfinityLoader";
 import { HelpCircle, ExternalLink, Calendar } from "lucide-react";
 import { config } from "@/utils/config";
+import TempLogo from "@/components/ui/TempLogo";
 
 export default function Page() {
   const router = useRouter();
@@ -329,6 +330,7 @@ export default function Page() {
               priority
             /> */}
           </Link>
+
         )}
 
         <div className="w-full grid place-items-center mt-10">
@@ -336,7 +338,7 @@ export default function Page() {
           {isInitialLoading ? (
             <div className="text-center">
               <h1 className="text-3xl font-semibold mb-2 text-[#101828] text-center">
-                Welcome to DelightLoop
+                Welcome to Delighto
               </h1>
               <p className="font-normal text-base text-[#667085] mb-8 text-center">
                 Verifying VCard details...
@@ -831,22 +833,16 @@ export default function Page() {
           )}
         </div>
         {showLoginSection && (
-          <div className=" text-sm text-[#667085] mt-6 font-[400] flex items-center gap-1 justify-center">
-            Powered By {/* Delightloop */}
-            <Image
-              src="/svgs/Logo.svg"
-              alt="Logo"
-              className="w-24 sm:w-32 lg:w-36 h-auto"
-              width={189}
-              height={48}
-            />
+          <div className=" text-sm text-[#667085] mt-6  flex items-center gap-1 justify-center">
+            Powered By <TempLogo  />
+
           </div>
         )}
       </div>
       {/* Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3  text-primary place-self-end w-screen px-4">
         <p className="font-[400] text-[14px] text-[#667085] order-2 sm:order-1">
-          © 2025 Delightloop
+          © 2025 Delighto
         </p>
 
         <div className="flex items-center gap-4 sm:gap-6 order-1 sm:order-2 ">

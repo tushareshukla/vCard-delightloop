@@ -11,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Delightloop",
-  description: "This is a website for Delightloop",
+  title: "Delighto",
+  description: "This is a website for Delighto",
   icons: {
     icon: '/Favicon.svg',
     shortcut: '/Favicon.svg',

@@ -251,7 +251,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
     // Send verification email using SendGrid directly
 
-let verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email/${token}`;
+let verificationUrl = `${config.FRONTEND_URL}/auth/verify-email/${token}`;
     const urlParams = new URLSearchParams();
 
     if (quicksend && user_id && gift_id) {

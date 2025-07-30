@@ -6,14 +6,13 @@ import Cookies from "js-cookie";
 
 // Define public routes that should redirect logged-in users
 const PUBLIC_ROUTES = [
-  "/",
+  "/login",
   "/auth/register",
   "/auth/forgot-password",
   "/auth/forgot-password/check-mail-page",
   "/auth/forgot-password/password-reset",
   "/auth/forgot-password/reset",
   "/auth/forgot-password/reset-success",
-  "/login",
 ];
 
 // Define routes that should always be accessible regardless of auth state
