@@ -270,7 +270,6 @@ export default function About() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="tel:+1929423300" className="hidden md:block text-sm text-gray-600">+1 929 423 300</Link>
           <Link href="/login" className="text-sm text-gray-600 hover:text-primary">Login</Link>
           <Link href="/contact" className="text-sm text-gray-600 hover:text-primary">Contact</Link>
           <Button className="bg-primary text-white hover:bg-primary/90">Buy</Button>
