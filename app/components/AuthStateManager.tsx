@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 
 // Define public routes that should redirect logged-in users
 const PUBLIC_ROUTES = [
-  "/",
+  "/login",
   "/auth/register",
   "/auth/forgot-password",
   "/auth/forgot-password/check-mail-page",

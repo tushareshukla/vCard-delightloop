@@ -1550,7 +1550,7 @@ export default function ManageVCard() {
             );
           }
 
-          
+
 
           const vCardResult = await vCardResponse.json();
 
@@ -1601,7 +1601,7 @@ export default function ManageVCard() {
 
           // Handle unauthorized/token expired
           if (userResponse.status === 401) {
-            handleLogout();
+            // handleLogout();
             return;
           }
 
@@ -1623,7 +1623,7 @@ export default function ManageVCard() {
 
           // Handle unauthorized for org fetch
           if (orgResponse.status === 401) {
-            handleLogout();
+            // handleLogout();
             return;
           }
 
@@ -1652,7 +1652,7 @@ export default function ManageVCard() {
             // Handle unauthorized for vCard fetch
             if (vCardResponse.status === 401) {
               // Clear cookies
-              handleLogout();
+            //   handleLogout();
               return;
             }
 
@@ -1674,7 +1674,7 @@ export default function ManageVCard() {
             // Check if vCard error is due to unauthorized
             if (vCardError.response?.status === 401) {
               // Clear cookies
-              handleLogout();
+            //   handleLogout();
               return;
             }
           }
@@ -1682,7 +1682,7 @@ export default function ManageVCard() {
           console.error("Error fetching data:", err);
           // Check if error is due to unauthorized
           if (err.response?.status === 401) {
-            handleLogout();
+            // handleLogout();
             return;
           }
           setError(
@@ -1702,7 +1702,7 @@ export default function ManageVCard() {
   return (
     <div className="flex h-screen flex-col sm:flex-row ">
       <AdminSidebar />
-      <div className="sm:pt-3 bg-primary w-full overflow-x-hidden pb-6 sm:pb-0 ">
+      <div className="sm:pt-3 sm:bg-primary w-full overflow-x-hidden  sm:pb-0 ">
         {isLoading ? (
           <div className="min-h-[100vh]  sm:rounded-tl-3xl bg-white p-4 sm:p-6 lg:p-8">
             {/* PageHeader Skeleton */}
@@ -1778,63 +1778,10 @@ export default function ManageVCard() {
         ) : (
           <div className="overflow-y-auto h-full sm:rounded-tl-3xl bg-white p-4 sm:p-6 lg:p-8 animate-in fade-in duration-500">
             {/* //! ----- Header -------  */}
-            <PageHeader
-              title="Manage VCard"
-              description="Create and customize your digital business card"
-              //   primaryButton={
-              //     !hideSaveButton
-              //       ? {
-              //           text: isSaving
-              //             ? "Saving..."
-              //             : isCheckingHandle
-              //             ? "Checking..."
-              //             : Object.values(imageUploads).some(
-              //                 (upload) => upload.uploading
-              //               )
-              //             ? "Uploading..."
-              //             : editMode
-              //             ? "Save Changes"
-              //             : "Edit",
-              //           onClick:
-              //             isSaving ||
-              //             isSaveDisabled ||
-              //             isCheckingHandle ||
-              //             hideSaveButton ||
-              //             Object.values(imageUploads).some(
-              //               (upload) => upload.uploading
-              //             )
-              //               ? undefined
-              //               : editMode
-              //               ? handleSave
-              //               : enterEditMode,
-              //           variant: "primary",
-              //           className: `${
-              //             isSaving ||
-              //             isSaveDisabled ||
-              //             isCheckingHandle ||
-              //             hideSaveButton ||
-              //             Object.values(imageUploads).some(
-              //               (upload) => upload.uploading
-              //             )
-              //               ? "opacity-50 cursor-not-allowed"
-              //               : ""
-              //           } hidden sm:block`,
-              //         }
-              //       : undefined
-              //   }
-              //   secondaryButton={
-              //     editMode
-              //       ? {
-              //           text: "Cancel",
-              //           className: "hidden sm:block",
-              //           onClick: cancelEdit,
-              //           variant: "secondary",
-              //         }
-              //       : undefined
-              //   }
-              showDivider={true}
-              className="pt-2  "
-            />
+           <div className="pb-3 sm:space-y-1 px-1">
+            <h1 className="text-2xl sm:text-3xl font-medium text-gray-900">Manage VCard</h1>
+            <p className="text-sm text-gray-500">Customize your digital business card</p>
+           </div>
 
             {/* //! ----- Content -------  */}
             <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300">
@@ -2789,80 +2736,44 @@ export default function ManageVCard() {
                   </div>
                 </div> */}
                 <div className=" w-full">
-                  <h2 className="text-base w-full sm:w-fit mx-auto md:w-[310px]  font-medium justify-between  text-gray-800 mb-4 md:mb-6 flex  items-center gap-2  ">
-                    <div className="flex items-center gap-1 text-sm">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-indigo-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M12 18h.01M8 21h8a3 3 0 003-3V6a3 3 0 00-3-3H8a3 3 0 00-3 3v12a3 3 0 003 3z"
-                        />
-                      </svg>
-                      Preview
+                <div className="flex flex-col sm:flex-row sm:justify-center items-center gap-2 ">
+                    <div className="flex items-center gap-2 justify-start text-sm font-medium text-gray-500">
+                      Your Vcard URL :
                     </div>
-                    <div className="  gap-3 justify-end  text-sm  flex  ">
-                      {editMode && (
+
+                    <div className="relative flex items-center ">
+                      <Link
+                        href={`/${vCard?.handle}`}
+                        className="px-4 py-2 bg-gray-50 border truncate max-w-[260px] sm:max-w-full   border-gray-200 rounded-lg text-sm text-blue-600 hover:text-blue-700 hover:underline"
+                      >
+                        {`${config.FRONTEND_URL}${vCard?.handle}`}
+                      </Link>
+
+                      <div className="relative group ml-2">
                         <button
-                          className={`bg-white text-gray-500 font-medium border border-gray-300 px-2 py-1.5 rounded-md hover:bg-gray-100  `}
-                          onClick={cancelEdit}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              `${config.FRONTEND_URL}${vCard?.handle}`
+                            );
+                            showNotification(
+                              "Link copied to clipboard!",
+                              "success"
+                            );
+                          }}
                         >
-                          Cancel
+                          <Copy className="w-5 h-5 text-gray-600" />
                         </button>
-                      )}
-                      <button
-                        className={` font-medium  bg-primary text-white px-3 py-1.5 rounded-md hover:bg-primary/95   ${
-                          isSaving ||
-                          isSaveDisabled ||
-                          isCheckingHandle ||
-                          hideSaveButton ||
-                          Object.values(imageUploads).some(
-                            (upload) => upload.uploading
-                          )
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
-                        onClick={editMode ? handleSave : enterEditMode}
-                        disabled={
-                          isSaving ||
-                          isSaveDisabled ||
-                          isCheckingHandle ||
-                          hideSaveButton ||
-                          Object.values(imageUploads).some(
-                            (upload) => upload.uploading
-                          )
-                        }
-                      >
-                        {isSaving ? (
-                          "Saving"
-                        ) : isCheckingHandle ? (
-                          "Checking"
-                        ) : Object.values(imageUploads).some(
-                            (upload) => upload.uploading
-                          ) ? (
-                          "Uploading"
-                        ) : editMode ? (
-                          <div className="flex items-center gap-2  ">
-                            {/* <Save className="size-3" /> */}
-                            Save
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2  ">
-                            Edit <Pencil className="size-3" />
-                          </div>
-                        )}
-                      </button>
+                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                          Copy URL
+                        </span>
+                      </div>
                     </div>
-                  </h2>
+                  </div>
+
 
                   {/* Mobile Phone Frame */}
-                  <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[310px] h-[500px] sm:h-[550px] bg-black rounded-[2.5rem] p-2">
+                  <div className="relative mx-auto w-full my-5 max-w-[300px] sm:max-w-[310px] h-[500px] sm:h-[550px] bg-black rounded-[2.5rem] p-2">
                     <div className="w-full h-full bg-gradient-to-r from-[#ECFCFF] to-[#E8C2FF] rounded-[2rem] overflow-hidden">
                       <div className="max-w-md mx-auto h-full">
                         {/* Profile Card Preview */}
@@ -3603,40 +3514,78 @@ export default function ManageVCard() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center gap-2 mt-5">
-                    <div className="flex items-center gap-2 justify-start text-sm font-medium text-gray-500">
-                      Your Vcard URL
-                    </div>
-
-                    <div className="relative flex items-center ">
-                      <Link
-                        href={`/${vCard?.handle}`}
-                        className="px-4 py-2 bg-gray-50 border truncate max-w-[260px] sm:max-w-full   border-gray-200 rounded-lg text-sm text-blue-600 hover:text-blue-700 hover:underline"
+                  <h2 className="text-base w-full sm:w-fit mx-auto md:w-[310px]  font-medium justify-between  text-gray-800  flex  items-center gap-2  ">
+                    <div className="">
+                      {/* <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-indigo-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
                       >
-                        {`${config.FRONTEND_URL}${vCard?.handle}`}
-                      </Link>
-
-                      <div className="relative group ml-2">
-                        <button
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                          onClick={() => {
-                            navigator.clipboard.writeText(
-                              `${config.FRONTEND_URL}${vCard?.handle}`
-                            );
-                            showNotification(
-                              "Link copied to clipboard!",
-                              "success"
-                            );
-                          }}
-                        >
-                          <Copy className="w-5 h-5 text-gray-600" />
-                        </button>
-                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                          Copy URL
-                        </span>
-                      </div>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M12 18h.01M8 21h8a3 3 0 003-3V6a3 3 0 00-3-3H8a3 3 0 00-3 3v12a3 3 0 003 3z"
+                        />
+                      </svg>
+                      Preview */}
                     </div>
-                  </div>
+                    <div className="  gap-3 justify-end  text-sm  flex  ">
+                      {editMode && (
+                        <button
+                          className={`bg-white text-gray-500 font-medium border border-gray-300 px-2 py-1.5 rounded-md hover:bg-gray-100  `}
+                          onClick={cancelEdit}
+                        >
+                          Cancel
+                        </button>
+                      )}
+                      <button
+                        className={` font-medium  bg-primary text-white px-3 py-1.5 rounded-md hover:bg-primary/95   ${
+                          isSaving ||
+                          isSaveDisabled ||
+                          isCheckingHandle ||
+                          hideSaveButton ||
+                          Object.values(imageUploads).some(
+                            (upload) => upload.uploading
+                          )
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                        onClick={editMode ? handleSave : enterEditMode}
+                        disabled={
+                          isSaving ||
+                          isSaveDisabled ||
+                          isCheckingHandle ||
+                          hideSaveButton ||
+                          Object.values(imageUploads).some(
+                            (upload) => upload.uploading
+                          )
+                        }
+                      >
+                        {isSaving ? (
+                          "Saving"
+                        ) : isCheckingHandle ? (
+                          "Checking"
+                        ) : Object.values(imageUploads).some(
+                            (upload) => upload.uploading
+                          ) ? (
+                          "Uploading"
+                        ) : editMode ? (
+                          <div className="flex items-center gap-2  ">
+                            {/* <Save className="size-3" /> */}
+                            Save
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2  ">
+                            Edit <Pencil className="size-3" />
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                  </h2>
+
                 </div>
               </div>
             </div>

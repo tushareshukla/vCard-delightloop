@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import InfinityLoader from "@/components/common/InfinityLoader";
 import { config } from "@/utils/config";
+import TempLogo from "@/components/ui/TempLogo";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -52,9 +53,10 @@ export default function ForgotPassword() {
       );
       const params = new URLSearchParams();
       params.append("email", email);
-      if (partner) {
-        params.append("partner", partner);
-      }
+      // Append all existing URL parameters
+      searchParams.forEach((value, key) => {
+        params.append(key, value);
+      });
       router.push(`/auth/forgot-password/check-mail-page?${params.toString()}`);
     } catch (err) {
       console.error("[Forgot Password] Error:", err);
@@ -158,7 +160,7 @@ export default function ForgotPassword() {
   return (
     <div className="flex h-screen w-full relative">
       {/* Logo Section */}
-      <div className="absolute top-5 opacity-0 left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10">
+      <div className="absolute top-5  left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10">
         {partner === "get-replies" ? (
           <Link
             href="https://www.delightloop.com/"
@@ -175,20 +177,7 @@ export default function ForgotPassword() {
             />
           </Link>
         ) : (
-          <Link
-            href="https://www.delightloop.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              src="/svgs/Logo.svg"
-              alt="Logo"
-              className="w-[120px] sm:w-[150px] lg:w-[189px] h-auto"
-              width={189}
-              height={48}
-              priority
-            />
-          </Link>
+            <TempLogo   />
         )}
       </div>
 
@@ -255,7 +244,7 @@ export default function ForgotPassword() {
                         onClick={(e) => handleResendVerification(e)}
                       >
                         {" "}
-                        [Resend Verification Link]
+                        Resend Verification Link
                       </button>
                     </p>
                   ) : (
@@ -283,7 +272,7 @@ export default function ForgotPassword() {
 
             <div className="mt-8 text-center">
               <Link
-                href={`/${
+                href={`/login${
                   searchParams.toString() ? `?${searchParams.toString()}` : ""
                 }`}
                 className="text-[#6941C6] hover:text-[#5a35b1] font-medium inline-flex items-center"
@@ -328,7 +317,7 @@ export default function ForgotPassword() {
       )}
 
       <p className="absolute bottom-5 left-5 font-[400] text-[14px] text-[#667085]">
-        © DelightLoop 2025
+        © Delighto 2025
       </p>
       {partner === "get-replies" && (
         <p className="absolute bottom-5 right-[45%] font-[400] text-[14px] text-[#667085] flex items-center gap-2">

@@ -25,7 +25,7 @@ export default function VerifyEmailClient({ token }: VerifyEmailClientProps) {
   useEffect(() => {
     const verifyEmail = async () => {
       if (!token || isVerifying.current) return;
-      
+
       try {
         isVerifying.current = true;
         const response = await fetch(`/api/verify-email/${token}`);
@@ -38,7 +38,7 @@ export default function VerifyEmailClient({ token }: VerifyEmailClientProps) {
           // Close tab after showing success message
           setTimeout(() => {
             console.log("searchParams", searchParams.toString());
-            router.push(`/?${searchParams.toString()}`);
+            router.push(`/login?${searchParams.toString()}`);
             // window.close();
           }, 3000);
         } else {
@@ -138,7 +138,7 @@ export default function VerifyEmailClient({ token }: VerifyEmailClientProps) {
                       // Get user details using stored userId
                       console.log('user id ',userId);
                       const userResponse = await fetch(`/api/users/${userId}`);
-                      
+
                       const userData = await userResponse.json();
                       console.log('User data:', userData);
 
@@ -186,7 +186,7 @@ export default function VerifyEmailClient({ token }: VerifyEmailClientProps) {
                 </button>
               )}
               <Link
-                href="/"
+                href="/login"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
               >
                 Go to Login

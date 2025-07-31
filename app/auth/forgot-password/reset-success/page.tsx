@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import TempLogo from "@/components/ui/TempLogo";
 
 export default function ResetSuccess() {
   const searchParams = useSearchParams();
@@ -10,7 +11,7 @@ export default function ResetSuccess() {
   return (
     <div className="flex h-screen w-full relative">
       {/* Logo Section */}
-      <div className="absolute top-5 left-1/2 transform opacity-0 -translate-x-1/2 lg:left-5 lg:transform-none z-10">
+      <div className="absolute top-5 left-1/2 transform  -translate-x-1/2 lg:left-5 lg:transform-none z-10">
         {partner === "get-replies" ? (
           <Link href="https://www.delightloop.com/" target="_blank" rel="noopener noreferrer">
             <Image
@@ -24,14 +25,7 @@ export default function ResetSuccess() {
           </Link>
         ) : (
           <Link href="https://www.delightloop.com/" target="_blank" rel="noopener noreferrer">
-            <Image
-              src="/svgs/Logo.svg"
-              alt="Logo"
-              className="w-[120px] sm:w-[150px] lg:w-[189px] h-auto"
-              width={189}
-              height={48}
-              priority
-            />
+            <TempLogo/>
           </Link>
         )}
       </div>
@@ -59,7 +53,7 @@ export default function ResetSuccess() {
 
             {/* Continue Button */}
             <Link
-              href="/"
+              href="/login"
               className="h-11 w-full bg-[#7F56D9] text-white font-[500] rounded-[8px] hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-[#7F56D9] flex items-center justify-center mb-6"
             >
               Continue to Login
@@ -104,7 +98,7 @@ export default function ResetSuccess() {
       </div>
 
       <p className="absolute bottom-5 left-5 font-[400] text-[14px] text-[#667085]">
-        © DelightLoop 2024
+        © Delighto 2025
       </p>
       {partner === "get-replies" && (
         <p className="absolute bottom-5 right-[45%] font-[400] text-[14px] text-[#667085] flex items-center gap-2">

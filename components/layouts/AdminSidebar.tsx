@@ -4,10 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Cookies from "js-cookie";
-import { LogOut, CircleUserRound, IdCard } from "lucide-react";
+import { LogOut, CircleUserRound, IdCard, Search, X } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import { config } from "@/utils/config";
 import { handleLogout } from "@/utils/logout";
+import TempLogo from "@/components/ui/TempLogo";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -21,7 +22,7 @@ export default function Sidebar() {
   const [userEmail, setUserEmail] = useState("");
 
   // Logout handler
- 
+
 
   useEffect(() => {
     setUserEmail(Cookies.get("user_email") || "");
@@ -59,21 +60,134 @@ export default function Sidebar() {
       active: isMenuActive("/manage-vcard"),
     }
   ];
+  const sidebarConfig = {
+    menuItems: navLinks,
+    profileSection: {
+      defaultPath: "/",
+      defaultAvatar: "User",
+      defaultName: "User",
+      defaultEmail: "user@example.com",
+    },
+  };
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <>
+    	{/* //! (0) ------------ Mobile Sticky top bar  ------------ */}
+			<div className="sticky  top-0 inset-x-0 z-50 bg-primary sm:hidden px-4 py-4 flex items-center justify-between">
+				<Link href="/">
+				<TempLogo v2={true} />
+				</Link>
+				<div
+					className="grid gap-[5px] w-6"
+					onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+				>
+					<div
+						className={`h-[2px] bg-white rounded-full transition-all duration-150 ${
+							mobileMenuOpen ? "-rotate-45 translate-y-[7px]" : ""
+						}`}
+					></div>
+					<div
+						className={`h-[2px] bg-white rounded-full transition-all duration-150 ${
+							mobileMenuOpen ? "w-0" : "w-full"
+						}`}
+					></div>
+					<div
+						className={`h-[2px] bg-white rounded-full transition-all duration-150 ${
+							mobileMenuOpen ? "rotate-45 -translate-y-[7px]" : ""
+						}`}
+					></div>
+				</div>
+			</div>
+			{/* //! (1) ------------ Mobile Sidebar  ------------ */}
+			<div
+				className={`fixed inset-0 z-[9999] sm:hidden transition-all duration-300 ${
+					mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+				}`}
+			>
+				<div className="flex h-screen">
+					<div className="w-[304px] bg-primary text-white flex flex-col">
+						{/* //? ------------ Header ------------ */}
+						<div className="px-7 py-4 border-b border-purple-400/20">
+						<TempLogo v2={true} />
+						</div>
+						{/* //? ------------ Navigation ------------ */}
+						<nav className="flex-1 px-4 py-6 overflow-y-auto">
+							{/* Search Input (hidden if collapsed) */}
+
+
+
+							{sidebarConfig.menuItems.map((item) => (
+								<div key={item.title} className="mb-2">
+									{ (
+										<Link
+											href={item.href}
+											className={`flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
+												isMenuActive(item.href)
+													? "bg-white/20 text-white"
+													: "text-white/80 hover:bg-white/10 hover:text-white"
+											}`}
+											onClick={() => setMobileMenuOpen(false)}
+										>
+											{item.icon &&
+												item.icon}
+											<span className="font-medium">{item.title}</span>
+										</Link>
+									)}
+								</div>
+							))}
+						</nav>
+
+						{/* //? ------------ Bottom Section ------------ */}
+						<div className="p-4 border-t border-purple-400/20">
+							{/* User Profile */}
+							<Link
+								href={sidebarConfig.profileSection.defaultPath}
+								className={`flex items-center space-x-3  rounded-lg  transition-all duration-200 ${
+									isMenuActive(sidebarConfig.profileSection.defaultPath)
+										? "bg-[#7F56D9] text-white"
+										: "hover:bg-[#7F56D9] hover:text-white opacity-60"
+								}`}
+								onClick={() => setMobileMenuOpen(false)}
+							>
+								<CircleUserRound className="size-5" />
+								<div className={`flex-1 min-w-0 `}>
+									<p className="text-white font-medium text-sm truncate">
+										{userData?.firstName || ""} {userData?.lastName || ""}
+									</p>
+									<p className="text-white/60 text-xs truncate">
+										{userData?.email || ""}
+									</p>
+								</div>
+
+								<button className="p-1 hover:bg-white/10 text-sm flex gap-2 items-center rounded transition-colors">
+									<LogOut className="size-4 text-white/70" />
+									Log Out
+								</button>
+							</Link>
+						</div>
+					</div>
+
+					{/* // ------------ Overlay ------------ */}
+					<div
+						className="flex-1 relative bg-black/20 backdrop-blur-sm"
+						onClick={() => setMobileMenuOpen(false)}
+					>
+						<button
+							onClick={() => setMobileMenuOpen(false)}
+							className="text-white hover:text-gray-300 absolute top-4 right-4"
+						>
+							<X className="size-7" />
+						</button>
+					</div>
+				</div>
+			</div>
       {/* Desktop Sidebar */}
       <aside className="hidden sm:flex flex-col items-center bg-primary text-white h-screen sticky top-0 w-[81px] p-4 z-50">
         {/* Logo at top */}
         <div className="mb-10 mt-1">
-          <Image
-            src="/svgs/Infinitylogo.svg"
-            alt="Logo"
-            width={44}
-            height={21}
-            className="h-[21px] w-[44px]"
-            priority
-          />
+        <TempLogo v2={true} mobile={true}/>
         </div>
         {/* Nav Icons */}
         <nav className="flex flex-col justify-between h-full items-center gap-5 w-full">
@@ -112,18 +226,11 @@ export default function Sidebar() {
       </aside>
 
       {/* Mobile Bottom Nav */}
-      <nav className="fixed sm:hidden inset-x-0 bottom-0 z-50 bg-primary text-white flex items-center justify-between px-6 py-2 shadow-[0_-2px_10px_rgba(127,86,217,0.04)]">
+      <nav className="hidden inset-x-0 bottom-0 z-50 bg-primary text-white  items-center justify-between px-6 py-2 shadow-[0_-2px_10px_rgba(127,86,217,0.04)]">
         {/* Logo left */}
-        <div className="flex items-center">
-          <Image
-            src="/svgs/Infinitylogo.svg"
-            alt="Logo"
-            width={34}
-            height={18}
-            className="h-[18px] w-[34px]"
-            priority
-          />
-        </div>
+       <TempLogo v2={true}/>
+
+        <div className="flex items-center justify-between gap-6">
         {/* Nav links center */}
         <div className="flex-1 flex justify-center items-center gap-8 ">
           {navLinks.map((item) => (
@@ -153,6 +260,7 @@ export default function Sidebar() {
               ? `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "User"
               : "User"}
           </p>
+        </div>
         </div>
       </nav>
     </>

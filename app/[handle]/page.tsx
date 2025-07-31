@@ -1746,7 +1746,7 @@ export default function VCardProfilePage({
             href={`${
               isAuthenticated
                 ? `/manage-vcard`
-                : `/?vcr=${profile?.key}`
+                : `/login?vcr=${profile?.key}`
             }`}
             className="text-gray-500 px-8 py-3.5 shadow-[0_3px_10px_rgb(0,0,0,0.2)] duration-500  hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-3xl  transition-colors font-medium bg-white flex justify-center w-fit mx-auto  "
           >

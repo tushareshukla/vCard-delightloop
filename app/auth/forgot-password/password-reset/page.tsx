@@ -57,7 +57,7 @@ export default function PasswordReset() {
 
             {/* Continue Button */}
             <Link
-              href="/"
+              href="/login"
               className="h-11 w-full bg-[#7F56D9] text-white font-[500] rounded-[8px] hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-[#7F56D9] flex items-center justify-center mb-6"
             >
               Continue
@@ -66,7 +66,7 @@ export default function PasswordReset() {
             {/* Back to login */}
             <div className="mt-8">
               <Link
-                href="/"
+                href="/login"
                 className="text-[#6941C6] hover:text-[#5a35b1] font-medium inline-flex items-center"
               >
                 <svg
@@ -102,7 +102,7 @@ export default function PasswordReset() {
       </div>
 
       <p className="absolute bottom-5 left-5 font-[400] text-[14px] text-[#667085]">
-        © DelightLoop 2025
+        © Delighto 2025
       </p>
       {partner === "get-replies" && (
         <p className="absolute bottom-5 right-[45%] font-[400] text-[14px] text-[#667085] flex items-center gap-2">
