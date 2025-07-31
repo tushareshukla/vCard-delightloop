@@ -668,7 +668,7 @@ export default function VCardTrackingPage({
 
           {/* Powered by DelightLoop */}
           <div className="text-center pb-8">
-            <p className="text-gray-400 text-sm">Powered by Delightloop</p>
+            <p className="text-gray-400 text-sm">Powered by Delighto</p>
           </div>
         </div>
       </div>

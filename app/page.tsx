@@ -18,11 +18,17 @@ import {
   Linkedin,
   Twitter,
   Instagram,
+  User,
+  LogOut,
+  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { useAuth } from "@/app/context/AuthContext";
+import { handleLogout } from "@/utils/logout";
+import TempLogo from "@/components/ui/TempLogo";
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -100,8 +106,13 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
 interface PricingCardProps {
   title: string;
   price: string;
+  originalPrice?: string;
   period: string;
   features: string[];
+  subscriptionOptions?: {
+    monthly: { price: string; originalPrice: string };
+    annual: { price: string; originalPrice: string };
+  };
   popular?: boolean;
   delay?: number;
 }
@@ -109,8 +120,10 @@ interface PricingCardProps {
 const PricingCard: React.FC<PricingCardProps> = ({
   title,
   price,
+  originalPrice,
   period,
   features,
+  subscriptionOptions,
   popular = false,
   delay = 0,
 }) => (
@@ -137,10 +150,52 @@ const PricingCard: React.FC<PricingCardProps> = ({
         <div className="text-center">
           <h3 className="text-xl font-semibold text-foreground">{title}</h3>
           <div className="mt-4">
-            <span className="text-4xl font-bold text-primary">{price}</span>
-            <span className="text-muted-foreground">/{period}</span>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-4xl font-bold text-primary">{price}</span>
+              <div className="flex flex-col">
+                {originalPrice && (
+                  <span className="text-sm text-muted-foreground line-through">
+                    {originalPrice}
+                  </span>
+                )}
+                <span className="text-muted-foreground">/{period}</span>
+              </div>
+            </div>
           </div>
         </div>
+
+        {subscriptionOptions && (
+          <div className="border-t pt-4 ">
+            <p className="text-sm text-muted-foreground text-center mb-3">
+              + Optional Premium Features:
+            </p>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span>Monthly:</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground line-through text-xs">
+                    {subscriptionOptions.monthly.originalPrice}
+                  </span>
+                  <span className="font-semibold text-primary">
+                    {subscriptionOptions.monthly.price}/mo
+                  </span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span>Annual:</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground line-through text-xs">
+                    {subscriptionOptions.annual.originalPrice}
+                  </span>
+                  <span className="font-semibold text-primary">
+                    {subscriptionOptions.annual.price}/yr
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <ul className="space-y-3">
           {features.map((feature, index) => (
             <li key={index} className="flex items-center space-x-3">
@@ -149,21 +204,24 @@ const PricingCard: React.FC<PricingCardProps> = ({
             </li>
           ))}
         </ul>
-        <Button
-          className={`w-full ${
+        <Link
+          href="/auth/register"
+          className={`w-full block text-center py-2 rounded-md ${
             popular
               ? "bg-primary text-white hover:bg-primary/80"
               : "bg-primary/10 text-primary hover:bg-primary/20"
           }`}
         >
           Get Started
-        </Button>
+        </Link>
       </div>
     </Card>
   </motion.div>
 );
 
 export default function About() {
+  const { authToken, isLoadingCookies } = useAuth();
+
   const features = [
     {
       icon: <Smartphone className="w-6 h-6" />,
@@ -220,59 +278,119 @@ export default function About() {
 
   const pricingPlans = [
     {
-      title: "Starter",
-      price: "$9",
-      period: "month",
+      title: "Digital Card",
+      price: "Free",
+      period: "forever",
       features: [
-        "1 Digital Business Card",
+        "Digital Business Card",
+        "Instant Sharing",
+        "Contact Information",
+        "Social Media Links",
         "Basic Analytics",
         "Email Support",
         "Mobile App Access",
+        "White-label Solution",
       ],
-    },
-    {
-      title: "Professional",
-      price: "$19",
-      period: "month",
-      features: [
-        "5 Digital Business Cards",
-        "Advanced Analytics",
-        "Priority Support",
-        "Custom Branding",
-        "Lead Generation Tools",
-      ],
+      //   subscriptionOptions: {
+      //     monthly: { price: "$3", originalPrice: "$4.99" },
+      //     annual: { price: "$29", originalPrice: "$59" },
+      //   },
       popular: true,
     },
     {
-      title: "Enterprise",
-      price: "$49",
-      period: "month",
+      title: "Plastic Card",
+      price: "$19",
+      period: "one-time",
       features: [
-        "Unlimited Cards",
-        "Team Management",
-        "White-label Solution",
-        "API Access",
-        "Dedicated Support",
+        "Physical Plastic Card",
+        "NFC Technology",
+        "Instant Tap Sharing",
+        "Durable Material",
+        "Custom Design",
       ],
+      subscriptionOptions: {
+        monthly: { price: "$3", originalPrice: "$4.99" },
+        annual: { price: "$29", originalPrice: "$59" },
+      },
+    },
+    {
+      title: "Wooden Card",
+      price: "$29",
+      period: "one-time",
+      features: [
+        "Premium Wooden Card",
+        "NFC Technology",
+        "Eco-Friendly Material",
+        "Elegant Finish",
+        "Sustainable Choice",
+      ],
+      subscriptionOptions: {
+        monthly: { price: "$3", originalPrice: "$4.99" },
+        annual: { price: "$29", originalPrice: "$59" },
+      },
+    },
+    {
+      title: "Metal Card",
+      price: "$49",
+      period: "one-time",
+      features: [
+        "Premium Metal Card",
+        "NFC Technology",
+        "Luxury Feel",
+        "Scratch Resistant",
+        "Professional Look",
+      ],
+      subscriptionOptions: {
+        monthly: { price: "$3", originalPrice: "$4.99" },
+        annual: { price: "$29", originalPrice: "$59" },
+      },
     },
   ];
 
   return (
-    <section>
-      <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-4 sm:px-6 lg:px-16 xl:px-[70px] py-3 bg-white border-b">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="text-xl font-bold uppercase text-primary">Delighto</Link>
+    <section className="">
+      <nav className="fixed top-0 left-0  right-0 z-50   py-3 bg-white border-b px-4 ">
+        <div className="container mx-auto flex justify-between items-center">
+
+
+        <div className="flex items-center gap-8 ">
+          <TempLogo />
           <div className="hidden md:flex items-center gap-6">
-            <Link href="#features" className="text-sm text-gray-600 hover:text-primary">Features</Link>
-            <Link href="#pricing" className="text-sm text-gray-600 hover:text-primary">Pricing</Link>
-            <Link href="#product" className="text-sm text-gray-600 hover:text-primary">Product</Link>
-            <Link href="#more" className="text-sm text-gray-600 hover:text-primary">More</Link>
+            {/* <Link href="#features" className="text-sm text-gray-600 hover:text-primary">Features</Link> */}
+            {/* <Link href="#pricing" className="text-sm text-gray-600 hover:text-primary">Pricing</Link> */}
+            {/* <Link href="#product" className="text-sm text-gray-600 hover:text-primary">Product</Link> */}
+            {/* <Link href="#more" className="text-sm text-gray-600 hover:text-primary">More</Link> */}
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/login" className="text-sm text-gray-600 hover:text-primary">Login</Link>
-          <Link href="/contact" className="text-sm text-gray-600 hover:text-primary">Contact</Link>
-          <Button className="bg-primary text-white hover:bg-primary/90">Buy</Button>
+          {!isLoadingCookies && (
+            <>
+              {!authToken && (
+                <>
+                  <Link
+                    href="/login"
+                    className="text-sm text-gray-600 hover:text-primary"
+                  >
+                    Login
+                  </Link>
+
+                </>
+              ) }
+            </>
+          )}
+            <Link
+                    href="https://www.delightloop.com/bookademo"
+                    className="text-sm text-gray-600 hover:text-primary"
+                  >
+                    Contact
+                  </Link>
+                  <Link
+                    href="#pricing"
+                    className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90"
+                  >
+                    Buy
+                  </Link>
+        </div>
         </div>
       </nav>
       {/* Hero Section */}
@@ -301,24 +419,24 @@ export default function About() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  size="lg"
-                  className="bg-primary text-white hover:bg-primary/80"
+                <Link
+                  href="/auth/register"
+                  className="bg-primary flex items-center justify-center gap-1  py-2.5 rounded-md px-6 text-white hover:bg-primary/80"
                 >
                   Start Free Trial
                   <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-primary text-primary hover:bg-primary/10"
+                </Link>
+                <Link
+                  href="https://www.delightloop.com/bookademo"
+                  className="border hover:text-white border-primary flex items-center justify-center gap-1  py-2.5 rounded-md px-6 text-primary hover:bg-primary"
                 >
-                  <Play className="w-4 h-4 mr-2" />
-                  Watch Demo
-                </Button>
+
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Book A Demo
+                </Link>
               </div>
 
-              <div className="flex items-center space-x-8 pt-4">
+              <div className="flex items-center space-x-8 pt-4 justify-center sm:justify-start">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">50K+</div>
                   <div className="text-sm text-muted-foreground">
@@ -364,7 +482,7 @@ export default function About() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid sm:grid-cols-2 gap-4">
                       <div className="flex items-center space-x-2 text-muted-foreground">
                         <Mail className="w-4 h-4" />
                         <span className="text-sm">john@techcorp.com</span>
@@ -439,7 +557,7 @@ export default function About() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 hidden">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -473,7 +591,10 @@ export default function About() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-purple-50/50">
+      <section
+        id="pricing"
+        className="py-16  px-4 sm:px-6 lg:px-8 bg-purple-50/50"
+      >
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -486,12 +607,12 @@ export default function About() {
               Simple, Transparent Pricing
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Choose the plan that fits your networking needs. No hidden fees,
-              cancel anytime.
+              Choose your card type and optionally add premium features with our
+              discounted subscription plans.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {pricingPlans.map((plan, index) => (
               <PricingCard
                 key={index}
@@ -499,6 +620,7 @@ export default function About() {
                 price={plan.price}
                 period={plan.period}
                 features={plan.features}
+                subscriptionOptions={plan.subscriptionOptions}
                 popular={plan.popular}
                 delay={index * 0.1}
               />
@@ -525,20 +647,21 @@ export default function About() {
               digital business cards.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                className="bg-primary text-white hover:bg-primary/80"
-              >
+            <Link
+                  href="/auth/register"
+                  className="bg-primary flex items-center justify-center gap-1  py-2 rounded-md px-6 text-white hover:bg-primary/80"
+                >
                 Start Your Free Trial
                 <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-primary text-primary hover:bg-primary/10"
-              >
-                Schedule Demo
-              </Button>
+              </Link>
+              <Link
+                  href="https://www.delightloop.com/bookademo"
+                  className="border hover:text-white border-primary flex items-center justify-center gap-1  py-2.5 rounded-md px-6 text-primary hover:bg-primary"
+                >
+
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Book A Demo
+                </Link>
             </div>
           </motion.div>
         </div>
@@ -548,67 +671,34 @@ export default function About() {
       <footer className="bg-primary text-white py-12 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
-            <div className="space-y-4">
+            <div className="space-y-4 md:col-span-2">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                  <span className="text-purple-600 font-bold text-sm">D</span>
-                </div>
-                <span className="text-xl font-bold">Delighto</span>
+              <TempLogo v2={true} />
               </div>
-              <p className="text-purple-200">
+              <p className="text-purple-200 md:w-[60%]">
                 The future of networking is here. Share your contact information
                 instantly with digital business cards.
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-purple-200">
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Features
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Pricing
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Enterprise
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    API
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
               <h4 className="font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-purple-200">
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
+                  <Link
+                    href="https://delightloop.com/"
+                    className="hover:text-white transition-colors"
+                  >
                     About
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
+                  <Link
+                    href="https://www.delightloop.com/bookademo"
+                    className="hover:text-white transition-colors"
+                  >
                     Contact
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -617,31 +707,27 @@ export default function About() {
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-purple-200">
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Help Center
-                  </a>
+                  <Link
+                    href="mailto:success@delightloop.com"
+                    className="hover:text-white transition-colors"
+                  >
+                    Support
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Terms of Service
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Status
-                  </a>
+                  <Link
+                    href="https://www.delightloop.com/bookademo"
+                    className="hover:text-white transition-colors"
+                  >
+                    Book a Meeting
+                  </Link>
                 </li>
               </ul>
             </div>
           </div>
 
           <div className="border-t border-primary-dark mt-8 pt-8 text-center text-white/40">
-            <p>&copy; 2024 Delighto. All rights reserved.</p>
+            <p>&copy; 2025 Delighto. All rights reserved.</p>
           </div>
         </div>
       </footer>

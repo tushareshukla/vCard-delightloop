@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import InfinityLoader from "@/components/common/InfinityLoader";
 import { config } from "@/utils/config";
+import TempLogo from "@/components/ui/TempLogo";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -347,21 +348,24 @@ export default function Register() {
       >
         {/* //? (1) ======= Logo  ======= */}
         <Link
-          href="https://www.delightloop.com/"
+          href="/"
           className={`${
             vcardFlow ? " w-fit" : ""
-          } inline-block opacity-0  my-4 mx-auto lg:mx-0  `}
+          } inline-block   my-4 mx-1  text-xl font-bold  text-primary  `}
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Image
+          {/* <Image
             src="/svgs/Logo.svg"
             alt="Logo"
             className="w-[170px] sm:w-[150px] md:w-[189px] lg:w-[189px] h-auto"
             width={200}
             height={50}
             priority
-          />
+          /> */}
+
+            <TempLogo   />
+
         </Link>
         {/* //? (2) ======= Form  ======= */}
         <div className=" pb-6 max-w-[450px] mx-auto h-fit">
@@ -371,7 +375,7 @@ export default function Register() {
               {vcardData ? `Welcome ${vcardData}!` : "Sign up"}
             </h1>
             <p className={`  text-gray-600  hidden`}>
-              Start your 30-day free trial with Delightloop
+              Start your 30-day free trial with Delighto
             </p>
           </div>
           {/* // Form Section */}
@@ -635,7 +639,7 @@ export default function Register() {
         </div>
         {/* //? (3) ======= Footer  ======= */}
         <div className="text-sm text-center text-gray-600 mt-auto lg:text-start">
-          © DelightLoop 2025
+          © Delighto 2025
         </div>
       </div>
       {/* //! (1) (ONLY for email verification) ======= Email Verification Section  ======= */}

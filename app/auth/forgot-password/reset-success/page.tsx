@@ -104,7 +104,7 @@ export default function ResetSuccess() {
       </div>
 
       <p className="absolute bottom-5 left-5 font-[400] text-[14px] text-[#667085]">
-        © DelightLoop 2024
+        © Delighto 2025
       </p>
       {partner === "get-replies" && (
         <p className="absolute bottom-5 right-[45%] font-[400] text-[14px] text-[#667085] flex items-center gap-2">

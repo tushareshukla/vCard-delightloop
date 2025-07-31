@@ -916,7 +916,7 @@ export default function VCardProfilePage({
 
             <!-- Footer -->
             <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #eeeeee;">
-              <p style="color: #666666; font-size: 14px; margin: 0;">Made with ❤️ by DelightLoop</p>
+              <p style="color: #666666; font-size: 14px; margin: 0;">Made with ❤️ by Delighto</p>
             </div>
           </div>
         </body>

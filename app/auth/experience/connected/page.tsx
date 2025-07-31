@@ -392,7 +392,7 @@ export default function ConnectedPage() {
         Successfully Connected
       </h1>
       <p className="md:text-base text-sm text-center text-gray-600 mb-10 font-[450]">
-        Your LinkedIn profile has been connected to DelightLoop
+        Your LinkedIn profile has been connected to Delighto
       </p>
 
       <div className="bg-white p-6 rounded-lg shadow-sm w-full max-w-md border border-gray-200">
