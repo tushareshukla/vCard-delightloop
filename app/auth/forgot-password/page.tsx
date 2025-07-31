@@ -244,7 +244,7 @@ export default function ForgotPassword() {
                         onClick={(e) => handleResendVerification(e)}
                       >
                         {" "}
-                        [Resend Verification Link]
+                        Resend Verification Link
                       </button>
                     </p>
                   ) : (
