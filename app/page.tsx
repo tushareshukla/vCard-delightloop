@@ -726,7 +726,7 @@ export default function About() {
             </div>
           </div>
 
-          <div className="border-t border-primary-dark mt-8 pt-8 text-center text-white/40">
+          <div className="border-t border-white/10 mt-8 pt-8 text-center text-white/40">
             <p>&copy; 2025 Delighto. All rights reserved.</p>
           </div>
         </div>

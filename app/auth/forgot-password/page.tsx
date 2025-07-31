@@ -53,9 +53,10 @@ export default function ForgotPassword() {
       );
       const params = new URLSearchParams();
       params.append("email", email);
-      if (partner) {
-        params.append("partner", partner);
-      }
+      // Append all existing URL parameters
+      searchParams.forEach((value, key) => {
+        params.append(key, value);
+      });
       router.push(`/auth/forgot-password/check-mail-page?${params.toString()}`);
     } catch (err) {
       console.error("[Forgot Password] Error:", err);
