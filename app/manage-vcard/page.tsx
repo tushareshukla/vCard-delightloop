@@ -1601,7 +1601,7 @@ export default function ManageVCard() {
 
           // Handle unauthorized/token expired
           if (userResponse.status === 401) {
-            handleLogout();
+            // handleLogout();
             return;
           }
 
@@ -1623,7 +1623,7 @@ export default function ManageVCard() {
 
           // Handle unauthorized for org fetch
           if (orgResponse.status === 401) {
-            handleLogout();
+            // handleLogout();
             return;
           }
 
@@ -1652,7 +1652,7 @@ export default function ManageVCard() {
             // Handle unauthorized for vCard fetch
             if (vCardResponse.status === 401) {
               // Clear cookies
-              handleLogout();
+            //   handleLogout();
               return;
             }
 
@@ -1674,7 +1674,7 @@ export default function ManageVCard() {
             // Check if vCard error is due to unauthorized
             if (vCardError.response?.status === 401) {
               // Clear cookies
-              handleLogout();
+            //   handleLogout();
               return;
             }
           }
@@ -1682,7 +1682,7 @@ export default function ManageVCard() {
           console.error("Error fetching data:", err);
           // Check if error is due to unauthorized
           if (err.response?.status === 401) {
-            handleLogout();
+            // handleLogout();
             return;
           }
           setError(
@@ -1778,9 +1778,9 @@ export default function ManageVCard() {
         ) : (
           <div className="overflow-y-auto h-full sm:rounded-tl-3xl bg-white p-4 sm:p-6 lg:p-8 animate-in fade-in duration-500">
             {/* //! ----- Header -------  */}
-           <div className="pb-3 sm:space-y-1">
+           <div className="pb-3 sm:space-y-1 px-1">
             <h1 className="text-2xl sm:text-3xl font-medium text-gray-900">Manage VCard</h1>
-            <p className="text-sm text-gray-500">Create and customize your digital business card</p>
+            <p className="text-sm text-gray-500">Customize your digital business card</p>
            </div>
 
             {/* //! ----- Content -------  */}

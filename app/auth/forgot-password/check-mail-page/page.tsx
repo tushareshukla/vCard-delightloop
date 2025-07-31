@@ -129,7 +129,10 @@ export default function CheckMailPage() {
             {/* Back to login */}
             <div className="mt-8">
               <Link
-                href="/login"
+                href={`/login?${Array.from(searchParams.entries())
+                  .filter(([key]) => key !== 'email')
+                  .map(([key, value]) => `${key}=${value}`)
+                  .join('&')}`}
                 className="text-[#6941C6] hover:text-[#5a35b1] font-medium inline-flex items-center"
               >
                 <svg

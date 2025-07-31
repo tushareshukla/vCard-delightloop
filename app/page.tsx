@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Smartphone,
@@ -115,6 +115,7 @@ interface PricingCardProps {
   };
   popular?: boolean;
   delay?: number;
+  isAuthenticated: boolean;
 }
 
 const PricingCard: React.FC<PricingCardProps> = ({
@@ -126,6 +127,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
   subscriptionOptions,
   popular = false,
   delay = 0,
+  isAuthenticated,
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -205,7 +207,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
           ))}
         </ul>
         <Link
-          href="/auth/register"
+          href={`${isAuthenticated ? "/manage-vcard" : "/auth/register"}`}
           className={`w-full block text-center py-2 rounded-md ${
             popular
               ? "bg-primary text-white hover:bg-primary/80"
@@ -221,6 +223,13 @@ const PricingCard: React.FC<PricingCardProps> = ({
 
 export default function About() {
   const { authToken, isLoadingCookies } = useAuth();
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  useEffect(() => {
+    if (authToken) {
+      setIsAuthenticated(true);
+    }
+  }, [authToken]);
 
   const features = [
     {
@@ -365,7 +374,7 @@ export default function About() {
         <div className="flex items-center gap-4">
           {!isLoadingCookies && (
             <>
-              {!authToken && (
+              {!isAuthenticated ? (
                 <>
                   <Link
                     href="/login"
@@ -375,7 +384,14 @@ export default function About() {
                   </Link>
 
                 </>
-              ) }
+              ) : (
+                <Link
+                  href="/manage-vcard"
+                  className="text-sm text-gray-600 hover:text-primary"
+                >
+                VCard
+                </Link>
+              )}
             </>
           )}
             <Link
@@ -420,7 +436,7 @@ export default function About() {
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
-                  href="/auth/register"
+                  href={`${isAuthenticated ? "/manage-vcard" : "/auth/register"}`}
                   className="bg-primary flex items-center justify-center gap-1  py-2.5 rounded-md px-6 text-white hover:bg-primary/80"
                 >
                   Start Free Trial
@@ -623,6 +639,7 @@ export default function About() {
                 subscriptionOptions={plan.subscriptionOptions}
                 popular={plan.popular}
                 delay={index * 0.1}
+                isAuthenticated={isAuthenticated}
               />
             ))}
           </div>
@@ -648,7 +665,7 @@ export default function About() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-                  href="/auth/register"
+                  href={`${isAuthenticated ? "/manage-vcard" : "/auth/register"}`}
                   className="bg-primary flex items-center justify-center gap-1  py-2 rounded-md px-6 text-white hover:bg-primary/80"
                 >
                 Start Your Free Trial
@@ -708,14 +725,6 @@ export default function About() {
               <ul className="space-y-2 text-purple-200">
                 <li>
                   <Link
-                    href="mailto:success@delightloop.com"
-                    className="hover:text-white transition-colors"
-                  >
-                    Support
-                  </Link>
-                </li>
-                <li>
-                  <Link
                     href="https://www.delightloop.com/bookademo"
                     className="hover:text-white transition-colors"
                   >
@@ -726,7 +735,7 @@ export default function About() {
             </div>
           </div>
 
-          <div className="border-t border-primary-dark mt-8 pt-8 text-center text-white/40">
+          <div className="border-t border-white/10 mt-8 pt-8 text-center text-white/40">
             <p>&copy; 2025 Delighto. All rights reserved.</p>
           </div>
         </div>

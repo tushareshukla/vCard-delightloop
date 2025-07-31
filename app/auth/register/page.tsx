@@ -648,6 +648,27 @@ export default function Register() {
           isRegistered ? "" : "hidden"
         }`}
       >
+          {/* //? (1) ======= Logo  ======= */}
+          <Link
+          href="/"
+          className={`${
+            vcardFlow ? " w-fit" : ""
+          } inline-block  absolute top-5 left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10  text-xl font-bold  text-primary  `}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {/* <Image
+            src="/svgs/Logo.svg"
+            alt="Logo"
+            className="w-[170px] sm:w-[150px] md:w-[189px] lg:w-[189px] h-auto"
+            width={200}
+            height={50}
+            priority
+          /> */}
+
+            <TempLogo   />
+
+        </Link>
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
           <svg
             className="w-8 h-8 text-green-500"
@@ -724,6 +745,11 @@ export default function Register() {
           >
             Return to Login
           </Link>
+        </div>
+
+        {/* //? (3) ======= Footer  ======= */}
+        <div className="text-sm text-center text-gray-500 mt-auto   absolute bottom-5 left-1/2 transform -translate-x-1/2 lg:left-5 lg:transform-none z-10 ">
+          © Delighto 2025
         </div>
       </div>
       {/* //! (2) ======= Image Section  ======= */}
