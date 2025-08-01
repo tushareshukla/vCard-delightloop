@@ -1,6 +1,6 @@
 // vcard stage
 export const config = {
-    BACKEND_URL: "https://app.delighto.ai",
+    BACKEND_URL: "https://api.delighto.ai",
     FRONTEND_URL: "https://delighto.ai/",
 }
 // local
