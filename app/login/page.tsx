@@ -49,6 +49,8 @@ export default function Page() {
   const vid = searchParams.get("vid");
   const vcardsignupuser = searchParams.get("vcardsignupuser");
   const errorMessage = searchParams.get("error");
+//   for new user who comes from / page to register we are showing only linkedin and signup button
+const newUser= searchParams.get("newUser");
   useEffect(() => {
     if (vcardsignupuser) {
       setShowVCardSection(false);
@@ -56,6 +58,14 @@ export default function Page() {
       setVCardExists(true);
       setIsInitialLoading(false);
       return;
+    }
+    // if this is new user we are hiding inputs fields and showing only linkedin and signup button
+    if(newUser)
+    {
+        setShowVCardSection(false);
+        setShowLoginSection(true);
+        setBothVCRandVidCorrectButUserHaventRegistered(true);
+        setReferralCardUser(true);
     }
 
     if (vcr) {
@@ -616,7 +626,7 @@ export default function Page() {
               {bothVCRandVidCorrectButUserHaventRegistered && (
                 <Link
                   href={`/auth/register${
-                    searchParams.toString() ? `?${searchParams.toString()}` : ""
+                    searchParams.toString() && !searchParams.get('newUser') ? `?${searchParams.toString()}` : ""
                   }`}
                   className="h-11 w-full bg-white text-primary border border-primary hover:bg-primary hover:text-white font-[500] rounded-[8px] duration-300 focus:outline-none focus:ring-2 focus:ring-[#7F56D9] flex items-center justify-center"
                 >

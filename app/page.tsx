@@ -207,7 +207,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
           ))}
         </ul>
         <Link
-          href={`${isAuthenticated ? "/manage-vcard" : "/auth/register"}`}
+          href={`${isAuthenticated ? "/manage-vcard" : "/login?newUser=true"}`}
           className={`w-full block text-center py-2 rounded-md ${
             popular
               ? "bg-primary text-white hover:bg-primary/80"
@@ -436,7 +436,7 @@ export default function About() {
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
-                  href={`${isAuthenticated ? "/manage-vcard" : "/auth/register"}`}
+                  href={`${isAuthenticated ? "/manage-vcard" : "/login?newUser=true"}`}
                   className="bg-primary flex items-center justify-center gap-1  py-2.5 rounded-md px-6 text-white hover:bg-primary/80"
                 >
                   Start Free Trial
@@ -665,7 +665,7 @@ export default function About() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-                  href={`${isAuthenticated ? "/manage-vcard" : "/auth/register"}`}
+                  href={`${isAuthenticated ? "/manage-vcard" : "/login?newUser=true"}`}
                   className="bg-primary flex items-center justify-center gap-1  py-2 rounded-md px-6 text-white hover:bg-primary/80"
                 >
                 Start Your Free Trial
