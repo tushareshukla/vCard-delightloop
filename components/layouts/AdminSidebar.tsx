@@ -106,7 +106,7 @@ export default function Sidebar() {
 					mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
 				}`}
 			>
-				<div className="flex h-screen">
+				<div className="flex h-dvh">
 					<div className="w-[304px] bg-primary text-white flex flex-col">
 						{/* //? ------------ Header ------------ */}
 						<div className="px-7 py-4 border-b border-purple-400/20">
