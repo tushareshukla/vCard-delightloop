@@ -1383,14 +1383,29 @@ export default function VCardProfilePage({
                 </svg>
               )}
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              {nfcDisabled ? "NFC Not Enabled" : "Profile Not Found"}
+            <h1 className="text-2xl font-bold text-gray-900 mb-4 capitalize">
+              {nfcDisabled ? "NFC Not Enabled" : `${handle} isn't here yet, but you could be!`}
             </h1>
             <p className="text-gray-600 mb-6">
               {nfcDisabled
                 ? `${profile?.fullName}'s profile exists but NFC sharing is not enabled. Please contact them to enable NFC sharing.`
-                : error || `The profile "${handle}" doesn't exist.`}
+                : ""}
             </p>
+            {
+                !nfcDisabled && (
+                    <div className="flex flex-wrap items-center gap-4 justify-center">
+                       <Link href={`/login?newUser=true`} className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/95 transition-all duration-300">
+                       Create Your vCard
+                       </Link>
+                       <Link href={`/`} className="text-gray-600 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition-all duration-300">
+                       Learn More
+                       </Link>
+                    </div>
+                )
+            }
+            <div>
+
+            </div>
           </div>
         </div>
       </div>
