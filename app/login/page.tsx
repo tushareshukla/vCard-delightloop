@@ -49,8 +49,8 @@ export default function Page() {
   const vid = searchParams.get("vid");
   const vcardsignupuser = searchParams.get("vcardsignupuser");
   const errorMessage = searchParams.get("error");
-//   for new user who comes from / page to register we are showing only linkedin and signup button
-const newUser= searchParams.get("newUser");
+  //   for new user who comes from / page to register we are showing only linkedin and signup button
+  const newUser = searchParams.get("newUser");
   useEffect(() => {
     if (vcardsignupuser) {
       setShowVCardSection(false);
@@ -60,12 +60,11 @@ const newUser= searchParams.get("newUser");
       return;
     }
     // if this is new user we are hiding inputs fields and showing only linkedin and signup button
-    if(newUser)
-    {
-        setShowVCardSection(false);
-        setShowLoginSection(true);
-        setBothVCRandVidCorrectButUserHaventRegistered(true);
-        setReferralCardUser(true);
+    if (newUser) {
+      setShowVCardSection(false);
+      setShowLoginSection(true);
+      setBothVCRandVidCorrectButUserHaventRegistered(true);
+      setReferralCardUser(true);
     }
 
     if (vcr) {
@@ -159,14 +158,26 @@ const newUser= searchParams.get("newUser");
       if (prevInput) prevInput.focus();
     }
   };
-  const handleCodeInputPaste = (e: React.ClipboardEvent) => {
+  const handleCodeInputPaste = (
+    e: React.ClipboardEvent,
+    startIndex: number = 0
+  ) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").slice(0, 6);
     const digits = pastedData.split("").filter((char) => /\d/.test(char));
-    if (digits.length === 6) {
-      setCodeInputs(digits);
-      const lastInput = document.getElementById(`code-input-5`);
-      if (lastInput) lastInput.focus();
+
+    if (digits.length > 0) {
+      const newInputs = [...codeInputs];
+      // Fill from the current input position
+      for (let i = 0; i < digits.length && startIndex + i < 6; i++) {
+        newInputs[startIndex + i] = digits[i];
+      }
+      setCodeInputs(newInputs);
+
+      // Focus the next empty input or the last filled input
+      const nextIndex = Math.min(startIndex + digits.length, 5);
+      const nextInput = document.getElementById(`code-input-${nextIndex}`);
+      if (nextInput) nextInput.focus();
     }
   };
   const handleClaimCard = () => {
@@ -340,10 +351,13 @@ const newUser= searchParams.get("newUser");
               priority
             /> */}
           </Link>
-
         )}
 
-        <div className="w-full grid place-items-center mt-10">
+        <div className=" text-sm text-[#667085]  mt-10 flex items-center gap-1 justify-center">
+          <TempLogo />
+        </div>
+
+        <div className="w-full grid place-items-center mt-3">
           {/* --- INITIAL LOADING --- */}
           {isInitialLoading ? (
             <div className="text-center">
@@ -379,18 +393,21 @@ const newUser= searchParams.get("newUser");
             </div>
           ) : dataWithoutSecret || vCardData ? (
             <>
-              <h1
+              {/* <h1
                 className={`text-3xl font-semibold mb-2 text-[#101828] text-center capitalize ${
                   referralCardUser ? "w-[80vw]" : ""
                 }`}
               >
                 Welcome{referralCardUser ? " " : vCardHasOwner ? " back" : ","}{" "}
                 {referralCardUser ? "" : dataWithoutSecret || vCardData}
-              </h1>
+              </h1> */}
+
               {!vCardHasOwner &&
                 !bothVCRandVidCorrectButUserHaventRegistered && (
-                  <p className="font-normal text-base text-[#667085] mb-5  text-center">
-                    Let's Get Your Card Activated!
+                  <p className=" text-sm text-[#667085] mt-2 text-center">
+                    {/* Let's Get Your Card Activated! */}
+                    Your all-in-one digital business card - ready to connect
+                    anytime, anywhere.
                   </p>
                 )}
             </>
@@ -626,7 +643,9 @@ const newUser= searchParams.get("newUser");
               {bothVCRandVidCorrectButUserHaventRegistered && (
                 <Link
                   href={`/auth/register${
-                    searchParams.toString() && !searchParams.get('newUser') ? `?${searchParams.toString()}` : ""
+                    searchParams.toString() && !searchParams.get("newUser")
+                      ? `?${searchParams.toString()}`
+                      : ""
                   }`}
                   className="h-11 w-full bg-white text-primary border border-primary hover:bg-primary hover:text-white font-[500] rounded-[8px] duration-300 focus:outline-none focus:ring-2 focus:ring-[#7F56D9] flex items-center justify-center"
                 >
@@ -702,8 +721,12 @@ const newUser= searchParams.get("newUser");
                 <div className="mb-4 p-4 bg-gray-50 rounded-lg border">
                   {vCardHasOwner ? (
                     <>
-                      <p className="text-sm text-gray-600 mb-3">
-                        Sign in to manage your card, Update your profile anytime
+                      <p className=" text-gray-600  text-center">
+                        Already have a card?
+                      </p>
+                      <p className="text-xs text-gray-500 mb-4 mt-1 text-center">
+                        Log in to update your details, view your activity, or
+                        manage your profile.
                       </p>
                       <button
                         onClick={() => {
@@ -716,7 +739,7 @@ const newUser= searchParams.get("newUser");
                         }}
                         className="w-full px-4 py-2 bg-[#7F56D9] text-white rounded-md hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-[#7F56D9]"
                       >
-                        Sign In
+                        Log In to Manage My Card
                       </button>
                       {errorMessage && (
                         <div className="text-red-500 mt-2 text-sm ">
@@ -728,12 +751,18 @@ const newUser= searchParams.get("newUser");
                     </>
                   ) : (
                     <>
-                      <p className="text-sm text-gray-600 mb-3">
-                        Enter the 6-digit code to register and manage your
-                        digital information
+                      <p className=" text-gray-600  text-center">
+                        Got a Delighto card? Let&apos;s make it yours.
+                      </p>
+                      <p className="text-xs text-gray-500 mb-3 mt-2 text-center">
+                        Enter the 6-digit code printed on your physical card to
+                        activate and personalize your digital
                       </p>
                       <div className="mb-3">
-                        <div className="flex gap-2 justify-center">
+                        <div
+                          className="flex gap-2 justify-center"
+                          onPaste={(e) => handleCodeInputPaste(e, 0)}
+                        >
                           {codeInputs.map((value, index) => (
                             <input
                               key={index}
@@ -746,7 +775,7 @@ const newUser= searchParams.get("newUser");
                               onKeyDown={(e) =>
                                 handleCodeInputKeyDown(index, e)
                               }
-                              onPaste={handleCodeInputPaste}
+                              onPaste={(e) => handleCodeInputPaste(e, index)}
                               className="size-10 sm:size-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7F56D9] focus:border-transparent text-lg font-medium"
                               maxLength={1}
                               pattern="\d"
@@ -790,10 +819,10 @@ const newUser= searchParams.get("newUser");
                             />
                           </svg>
                         )}
-                        Link My Card
+                        Activate My Card
                       </button>
                       {vCardError && (
-                        <p className="mt-2 text-sm text-red-600">
+                        <p className="mt-2 text-sm text-red-600 text-center">
                           {vCardError}
                         </p>
                       )}
@@ -820,11 +849,15 @@ const newUser= searchParams.get("newUser");
                 </div>
               )}
               <div className="p-4 bg-gray-50 rounded-lg border">
-                <h3 className="text-lg font-medium text-gray-900 mb-2 capitalize">
-                  {searchParams?.get("vcr")
+                <h3 className="text-gray-600  text-center">
+                  {/* {searchParams?.get("vcr")
                     ? `Not ${dataWithoutSecret}?`
-                    : "No, but I want one!"}
+                    : "No, but I want one!"} */}
+                  Want a card like this?
                 </h3>
+                <p className="text-xs text-gray-500 mb-3 mt-1 text-center">
+                  Create your own tap-to-share card in seconds
+                </p>
                 <button
                   onClick={() => {
                     setShowVCardSection(false);
@@ -832,22 +865,22 @@ const newUser= searchParams.get("newUser");
                     setBothVCRandVidCorrectButUserHaventRegistered(true);
                     setReferralCardUser(true);
                   }}
-                  className="w-full px-4 py-2 bg-white text-[#7F56D9] border border-[#7F56D9] rounded-md hover:bg-[#7F56D9] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#7F56D9] transition-colors"
+                  className="w-full px-4 py-2 bg-white text-primary border border-primary rounded-md hover:bg-primary hover:text-white  transition-colors"
                 >
                   {searchParams?.get("vcr")
-                    ? "Get My Card"
+                    ? "Get My Own Card"
                     : "Create my free card"}
                 </button>
               </div>
             </div>
           )}
         </div>
-        {showLoginSection && (
+        {/* {showLoginSection && (
           <div className=" text-sm text-[#667085] mt-6  flex items-center gap-1 justify-center">
             Powered By <TempLogo  />
 
           </div>
-        )}
+        )} */}
       </div>
       {/* Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3  text-primary place-self-end w-screen px-4">
