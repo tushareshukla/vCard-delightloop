@@ -106,7 +106,7 @@ export default function Sidebar() {
 					mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
 				}`}
 			>
-				<div className="flex h-screen">
+				<div className="flex h-dvh">
 					<div className="w-[304px] bg-primary text-white flex flex-col">
 						{/* //? ------------ Header ------------ */}
 						<div className="px-7 py-4 border-b border-purple-400/20">
@@ -142,8 +142,7 @@ export default function Sidebar() {
 						{/* //? ------------ Bottom Section ------------ */}
 						<div className="p-4 border-t border-purple-400/20">
 							{/* User Profile */}
-							<Link
-								href={sidebarConfig.profileSection.defaultPath}
+							<div
 								className={`flex items-center space-x-3  rounded-lg  transition-all duration-200 ${
 									isMenuActive(sidebarConfig.profileSection.defaultPath)
 										? "bg-[#7F56D9] text-white"
@@ -161,11 +160,11 @@ export default function Sidebar() {
 									</p>
 								</div>
 
-								<button className="p-1 hover:bg-white/10 text-sm flex gap-2 items-center rounded transition-colors">
+								<button onClick={handleLogout} className="p-1 hover:bg-white/10 text-sm flex gap-2 items-center rounded transition-colors">
 									<LogOut className="size-4 text-white/70" />
 									Log Out
 								</button>
-							</Link>
+							</div>
 						</div>
 					</div>
 
