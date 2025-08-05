@@ -17,7 +17,6 @@
 # next.js
 /.next/
 /out/
-/utils/config.ts
 
 # production
 /build
