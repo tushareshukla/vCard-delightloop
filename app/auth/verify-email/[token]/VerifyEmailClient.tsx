@@ -21,8 +21,10 @@ export default function VerifyEmailClient({ token }: VerifyEmailClientProps) {
   const user_id = searchParams.get('user_id');
   const gift_id = searchParams.get('gift_id');
   const isVerifying = useRef(false);
+  const email = searchParams.get('email');
 
   useEffect(() => {
+    console.log("email", email);
     const verifyEmail = async () => {
       if (!token || isVerifying.current) return;
 
@@ -38,7 +40,9 @@ export default function VerifyEmailClient({ token }: VerifyEmailClientProps) {
           // Close tab after showing success message
           setTimeout(() => {
             console.log("searchParams", searchParams.toString());
-            router.push(`/login?${searchParams.toString()}`);
+            const params = new URLSearchParams(searchParams.toString());
+            params.delete('email');
+            router.push(`/login?${params.toString()}`);
             // window.close();
           }, 3000);
         } else {
@@ -65,6 +69,8 @@ export default function VerifyEmailClient({ token }: VerifyEmailClientProps) {
       isVerifying.current = false;
     };
   }, [token, router]);
+
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -130,21 +136,16 @@ export default function VerifyEmailClient({ token }: VerifyEmailClientProps) {
               {message}
             </p>
             <div className="mt-6 space-y-4 flex flex-col items-center">
-              {needsResend && userId && (
+              { email && (
+                <>
+
                 <button
                   onClick={async () => {
                     try {
                       setIsResending(true);
                       // Get user details using stored userId
                       console.log('user id ',userId);
-                      const userResponse = await fetch(`/api/users/${userId}`);
 
-                      const userData = await userResponse.json();
-                      console.log('User data:', userData);
-
-                      if (!userData.success) {
-                        throw new Error(userData.error || 'Failed to get user details');
-                      }
 
                       const response = await fetch('/api/resend-verification', {
                         method: 'POST',
@@ -152,23 +153,24 @@ export default function VerifyEmailClient({ token }: VerifyEmailClientProps) {
                           'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                          email: userData.data.email
+                          email: email
                         })
                       });
                       const data = await response.json();
                       if (data.success) {
+                        setError(null);
                         setMessage('Verification email resent successfully! Please check your inbox.');
                       } else {
-                        setMessage(data.error || 'Failed to resend verification email');
+                        setError(data.error || 'Failed to resend verification email');
                       }
                     } catch (error) {
-                      setMessage('Failed to resend verification email');
+                      setMessage(error.message || 'Failed to resend verification email');
                     } finally {
                       setIsResending(false);
                     }
                   }}
                   disabled={isResending}
-                  className="text-purple-600 hover:text-purple-500 font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-primary hover:text-primary/95 font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isResending ? (
                     <>
@@ -184,10 +186,18 @@ export default function VerifyEmailClient({ token }: VerifyEmailClientProps) {
                     </>
                   )}
                 </button>
+                {
+                    error && (
+                        <p className="text-sm text-red-600">
+                            {error}
+                        </p>
+                    )
+                }
+                </>
               )}
               <Link
                 href="/login"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
               >
                 Go to Login
               </Link>
