@@ -251,7 +251,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
     // Send verification email using SendGrid directly
 
-let verificationUrl = `${config.FRONTEND_URL}/auth/verify-email/${token}`;
+let verificationUrl = `${config.FRONTEND_URL}/auth/verify-email/${token}?email=${email}`;
     const urlParams = new URLSearchParams();
 
     if (quicksend && user_id && gift_id) {
@@ -282,7 +282,7 @@ let verificationUrl = `${config.FRONTEND_URL}/auth/verify-email/${token}`;
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2>Hi ${firstName},</h2>
-              <p>To complete your setup and access your card management account, please click the link below to verify your email address::</p>
+              <p>To complete your setup and access your card management account, please click the link below to verify your email address:</p>
               <div style="text-align: center; margin: 30px 0;">
                 <a href="${verificationUrl}" style="background-color: #7F56D9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Verify Your Email</a>
               </div>

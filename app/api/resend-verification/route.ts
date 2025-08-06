@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
     // Send verification email using SendGrid
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
-    const verificationUrl = `${config.FRONTEND_URL}/auth/verify-email/${token}`;
+    const verificationUrl = `${config.FRONTEND_URL}/auth/verify-email/${token}?email=${email}`;
 
     try {
       const msg = {
