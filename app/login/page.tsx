@@ -66,6 +66,13 @@ export default function Page() {
       setBothVCRandVidCorrectButUserHaventRegistered(true);
       setReferralCardUser(true);
     }
+    if (errorMessage) {
+      setShowVCardSection(false);
+      setShowLoginSection(true);
+      setVCardExists(false);
+      setIsInitialLoading(false);
+      return;
+    }
 
     if (vcr) {
       setIsInitialLoading(true);
