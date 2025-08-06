@@ -3590,7 +3590,7 @@ export default function ManageVCard() {
               </div>
             </div>
             {/* Footer */}
-            <div className="flex flex-col sm:flex-row sm:justify-end mt-4 sm:mb-0 mb-9 items-center justify-between gap-3  text-primary  px-4">
+            <div className="flex flex-col sm:flex-row sm:justify-end mt-4  items-center justify-between gap-3  text-primary  px-4">
               <div className="flex items-center gap-6 order-1 sm:order-2 flex-wrap justify-center ">
                 <a
                   href="mailto:success@delightloop.com"
@@ -3603,19 +3603,7 @@ export default function ManageVCard() {
                     Support
                   </span>
                 </a>
-                <Link
-                  href="https://delightloop.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
-                  title="About us"
-                >
-                  {/* <ExternalLink className="w-4 h-4 sm:hidden" /> */}
-                  <span className="flex items-center gap-1">
-                    <ExternalLink className="size-4" />
-                    About us
-                  </span>
-                </Link>
+
                 <Link
                   href="https://www.delightloop.com/bookademo"
                   target="_blank"

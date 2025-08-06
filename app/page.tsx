@@ -701,14 +701,14 @@ export default function About() {
             <div>
               <h4 className="font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-purple-200">
-                <li>
+                {/* <li>
                   <Link
                     href="https://delightloop.com/"
                     className="hover:text-white transition-colors"
                   >
                     About
                   </Link>
-                </li>
+                </li> */}
                 <li>
                   <Link
                     href="https://www.delightloop.com/bookademo"

@@ -144,8 +144,10 @@ export default function Page() {
   // ----------- VCard Code Input Handlers
   const handleCodeInputChange = (index: number, value: string) => {
     if (value.length > 1) return;
+    // Only allow alphanumeric characters
+    if (value && !/[A-Za-z0-9]/.test(value)) return;
     const newInputs = [...codeInputs];
-    newInputs[index] = value;
+    newInputs[index] = value.toUpperCase(); // Convert to uppercase for consistency
     setCodeInputs(newInputs);
     if (value && index < 5) {
       const nextInput = document.getElementById(`code-input-${index + 1}`);
@@ -164,18 +166,20 @@ export default function Page() {
   ) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").slice(0, 6);
-    const digits = pastedData.split("").filter((char) => /\d/.test(char));
+    const alphanumeric = pastedData
+      .split("")
+      .filter((char) => /[A-Za-z0-9]/.test(char));
 
-    if (digits.length > 0) {
+    if (alphanumeric.length > 0) {
       const newInputs = [...codeInputs];
       // Fill from the current input position
-      for (let i = 0; i < digits.length && startIndex + i < 6; i++) {
-        newInputs[startIndex + i] = digits[i];
+      for (let i = 0; i < alphanumeric.length && startIndex + i < 6; i++) {
+        newInputs[startIndex + i] = alphanumeric[i].toUpperCase();
       }
       setCodeInputs(newInputs);
 
       // Focus the next empty input or the last filled input
-      const nextIndex = Math.min(startIndex + digits.length, 5);
+      const nextIndex = Math.min(startIndex + alphanumeric.length, 5);
       const nextInput = document.getElementById(`code-input-${nextIndex}`);
       if (nextInput) nextInput.focus();
     }
@@ -756,7 +760,7 @@ export default function Page() {
                       </p>
                       <p className="text-xs text-gray-500 mb-3 mt-2 text-center">
                         Enter the 6-digit code printed on your physical card to
-                        activate and personalize your digital
+                        activate and personalize your digital profile
                       </p>
                       <div className="mb-3">
                         <div
@@ -778,7 +782,7 @@ export default function Page() {
                               onPaste={(e) => handleCodeInputPaste(e, index)}
                               className="size-10 sm:size-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7F56D9] focus:border-transparent text-lg font-medium"
                               maxLength={1}
-                              pattern="\d"
+                              pattern="[A-Za-z0-9]"
                             />
                           ))}
                         </div>
@@ -883,29 +887,23 @@ export default function Page() {
       </div>
       {/* Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3  text-primary place-self-end w-screen px-4">
-        <p className="font-[400] text-[14px] text-[#667085] order-2 sm:order-1">
-          © 2025 Delighto
+        <p className="font-[400] text-[14px] pr-5 text-[#667085] order-2 sm:order-1">
+          ©{new Date().getFullYear()} Delighto
         </p>
 
-        <div className="flex items-center gap-4 sm:gap-6 order-1 sm:order-2 ">
+        <div className="flex items-center gap-6 order-1 sm:order-2 flex-wrap justify-center ">
           <a
             href="mailto:success@delightloop.com"
             className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
             title="Support"
           >
-            <HelpCircle className="w-4 h-4 sm:hidden" />
-            <span className="hidden sm:inline">Support</span>
+            {/* <HelpCircle className="w-4 h-4 sm:hidden" /> */}
+            <span className="flex items-center gap-1">
+              <HelpCircle className="size-4" />
+              Support
+            </span>
           </a>
-          <Link
-            href="https://delightloop.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
-            title="About us"
-          >
-            <ExternalLink className="w-4 h-4 sm:hidden" />
-            <span className="hidden sm:inline">About us</span>
-          </Link>
+
           <Link
             href="https://www.delightloop.com/bookademo"
             target="_blank"
@@ -913,8 +911,11 @@ export default function Page() {
             className="flex items-center gap-2 hover:text-[#7F56D9] transition-colors text-[14px] font-[400]"
             title="Book a meeting"
           >
-            <Calendar className="w-4 h-4 sm:hidden" />
-            <span className="hidden sm:inline">Book a meeting</span>
+            {/* <Calendar className="w-4 h-4 sm:hidden" /> */}
+            <span className="flex items-center gap-1">
+              <Calendar className="size-4" />
+              Book a meeting
+            </span>
           </Link>
         </div>
       </div>
