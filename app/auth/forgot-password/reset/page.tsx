@@ -123,7 +123,48 @@ export default function ResetPassword() {
       setIsLoading(false);
     }
   };
+  const [isResending, setIsResending] = useState(false);
+  const [resendError, setResendError] = useState<string | null>(null);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const email = searchParams.get('email');
+  const handleResendEmail = async () => {
+    if (!email) return;
 
+    setIsResending(true);
+    setResendError(null);
+    setResendSuccess(false);
+
+    try {
+      console.log('[Resend Email] Starting resend process for:', email);
+      const response = await fetch(`${config.BACKEND_URL}/v1/password-reset/request?vcardflow=true`, {
+        //const response = await fetch(`http://localhost:5500/v1/password-reset/request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'//,
+          // "Authorization": `Bearer ${userData.authToken}`
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      console.log('[Resend Email] Response:', data);
+
+      if (!response.ok) {
+        setResendSuccess(false);
+        setResendError(data.error || 'Failed to resend email');
+        throw new Error(data.error || 'Failed to resend email');
+      }
+
+      setResendSuccess(true);
+      setResendError(null);
+      console.log('[Resend Email] Successfully resent email');
+    } catch (error: any) {
+      console.error('[Resend Email] Error:', error);
+      setResendError(error.message || 'Failed to resend email. Please try again.');
+    } finally {
+      setIsResending(false);
+    }
+  };
   if (isValidating) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
@@ -167,6 +208,33 @@ export default function ResetPassword() {
             <p className="text-base text-[#667085]">
               This password reset link has expired. Please request a new password reset link.
             </p>
+            <button
+              onClick={handleResendEmail}
+              disabled={isResending}
+              className="text-primary hover:text-primary/95 font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isResending ?<><InfinityLoader width={24} height={24} />
+              <span>Sending reset link...</span></> :
+              <>
+ <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                      </svg>
+              <span>Resend Reset Link</span></>}
+            </button>
+            {
+                resendSuccess && (
+                    <p className="text-sm text-green-600">
+                        Reset link resent successfully! Please check your inbox.
+                    </p>
+                )
+            }
+            {
+                resendError && (
+                    <p className="text-sm text-red-600">
+                        {resendError}
+                    </p>
+                )
+            }
           </div>
         </div>
 
