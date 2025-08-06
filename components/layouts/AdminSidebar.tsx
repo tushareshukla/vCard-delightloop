@@ -12,7 +12,9 @@ import TempLogo from "@/components/ui/TempLogo";
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { userId, authToken, organizationId } = useAuth();
+  const { userId, authToken, organizationId: orgId } = useAuth();
+  const organizationId =
+       orgId === "000000000000000000000000" ? "000000000000000000000001" : orgId;
 
   const [userData, setUserData] = useState<{
     firstName?: string;

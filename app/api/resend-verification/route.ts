@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     try {
       const msg = {
         to: email,
-        from: "VCard Success <vcard@mail.delightloop.ai>",
+        from: "Delighto <delighto@mail.delightloop.ai>",
         subject: "Action Required: Verify Your Email to Manage Your Card",
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
             <p>This link will expire in 24 hours for security reasons.
               Once verified, you'll be able to effortlessly manage and update your digital card's information.
               If you didn't create an account, please ignore this email.</p>
-            <p>Best regards,<br>DelightLoop VCard Team</p>
+            <p>Best regards,<br>Delighto Team</p>
           </div>
         `,
       };
