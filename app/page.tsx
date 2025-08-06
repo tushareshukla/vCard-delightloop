@@ -738,7 +738,6 @@ export default function Page() {
                               className="size-10 sm:size-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7F56D9] focus:border-transparent text-lg font-medium"
                               maxLength={1}
                               pattern="\d"
-                              inputMode="numeric"
                             />
                           ))}
                         </div>
