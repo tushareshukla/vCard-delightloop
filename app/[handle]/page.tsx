@@ -1642,7 +1642,7 @@ export default function VCardProfilePage({
                               handleLinkClick(matchingLink);
                             } else {
                               // Redirect to manage card page
-                              window.open(`/?vcr=${profile?.key}`, "_blank");
+                              window.open(`/login?vcr=${profile?.key}`, "_blank");
                             }
                           }}
                           className={` w-full flex items-center gap-3 p-3 rounded-lg transition-colors shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] duration-500 hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)]`}

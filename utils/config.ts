@@ -5,7 +5,7 @@ export const config = {
 }
 // local
 // export const config = {
-//   BACKEND_URL: "https://api.delightloop.ai",
+//   BACKEND_URL: "https://api.delighto.ai",
 //   FRONTEND_URL: "http://localhost:3000/",
 // };
 // sandbox
