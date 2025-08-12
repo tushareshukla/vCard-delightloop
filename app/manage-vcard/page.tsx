@@ -157,6 +157,7 @@ const RESERVED_HANDLES = [
   "clientinterceptor",
   "login",
   "logout",
+  "activate",
 ];
 
 const getSocialIcon = (link: {

@@ -31,7 +31,7 @@ export default function Page() {
   const [vCardExists, setVCardExists] = useState(false);
   const [vCardHasOwner, setVCardHasOwner] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(
-    !!searchParams.get("vcr") || !!searchParams.get("vid")
+    !!searchParams.get("vcr") || !!searchParams.get("vid") || !!searchParams.get("activatepath")
   );
   const [dataWithoutSecret, setDataWithoutSecret] = useState<string | null>(
     null
@@ -51,6 +51,8 @@ export default function Page() {
   const errorMessage = searchParams.get("error");
   //   for new user who comes from / page to register we are showing only linkedin and signup button
   const newUser = searchParams.get("newUser");
+  const activatePath = searchParams.get("activatepath");
+
   useEffect(() => {
     if (vcardsignupuser) {
       setShowVCardSection(false);
@@ -70,6 +72,14 @@ export default function Page() {
       setShowVCardSection(false);
       setShowLoginSection(true);
       setVCardExists(false);
+      setIsInitialLoading(false);
+      return;
+    }
+
+    if (activatePath) {
+    setShowLoginSection(false);
+      setShowVCardSection(true);
+      setVCardExists(true);
       setIsInitialLoading(false);
       return;
     }
@@ -199,7 +209,7 @@ export default function Page() {
   // ----------- VCard Authentication (by code)
   const fetchVCardData = async (secret: string) => {
     const vcr = searchParams.get("vcr");
-    if (!vcr || !secret) {
+    if ((!vcr || !secret) && !activatePath) {
       setVCardError("Both key and secret are required");
       return;
     }
@@ -212,14 +222,21 @@ export default function Page() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ key: vcr, secret }),
+          body: JSON.stringify({ key: vcr, secret, activatepath: activatePath }),
         }
       );
       const data = await response.json();
       if (data.success) {
         setVCardData(data.data.fullName);
         const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set("vid", secret.toUpperCase());
+        if (activatePath) {
+            currentUrl.searchParams.delete("activatepath");
+            currentUrl.searchParams.set("vcr", data.data.key.toUpperCase());
+          currentUrl.searchParams.set("vid", secret.toUpperCase());
+        }
+        else {
+          currentUrl.searchParams.set("vid", secret.toUpperCase());
+        }
         window.history.replaceState({}, "", currentUrl.toString());
         setShowVCardSection(false);
         setShowLoginSection(true);
@@ -858,6 +875,7 @@ export default function Page() {
                   )}
                 </div>
               )}
+              {!activatePath && (
               <div className="p-4 bg-gray-50 rounded-lg border">
                 <h3 className="text-gray-600  text-center">
                   {/* {searchParams?.get("vcr")
@@ -882,6 +900,7 @@ export default function Page() {
                     : "Create my free card"}
                 </button>
               </div>
+              )}
             </div>
           )}
         </div>
