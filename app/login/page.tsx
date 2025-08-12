@@ -31,7 +31,9 @@ export default function Page() {
   const [vCardExists, setVCardExists] = useState(false);
   const [vCardHasOwner, setVCardHasOwner] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(
-    !!searchParams.get("vcr") || !!searchParams.get("vid") || !!searchParams.get("activatepath")
+    !!searchParams.get("vcr") ||
+      !!searchParams.get("vid") ||
+      !!searchParams.get("activatepath")
   );
   const [dataWithoutSecret, setDataWithoutSecret] = useState<string | null>(
     null
@@ -77,7 +79,7 @@ export default function Page() {
     }
 
     if (activatePath) {
-    setShowLoginSection(false);
+      setShowLoginSection(false);
       setShowVCardSection(true);
       setVCardExists(true);
       setIsInitialLoading(false);
@@ -222,7 +224,11 @@ export default function Page() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ key: vcr, secret, activatepath: activatePath }),
+          body: JSON.stringify({
+            key: vcr,
+            secret,
+            activatepath: activatePath,
+          }),
         }
       );
       const data = await response.json();
@@ -230,18 +236,27 @@ export default function Page() {
         setVCardData(data.data.fullName);
         const currentUrl = new URL(window.location.href);
         if (activatePath) {
-            currentUrl.searchParams.delete("activatepath");
-            currentUrl.searchParams.set("vcr", data.data.key.toUpperCase());
+          currentUrl.searchParams.delete("activatepath");
+          currentUrl.searchParams.set("vcr", data.data.key.toUpperCase());
           currentUrl.searchParams.set("vid", secret.toUpperCase());
-        }
-        else {
+          if (data.data.userId && data.data.userId._id) {
+            console.log("existing user");
+            setVCardHasOwner(true);
+          } else {
+            console.log("new user");
+            setShowVCardSection(false);
+            setShowLoginSection(true);
+            setVCardExists(true);
+            setBothVCRandVidCorrectButUserHaventRegistered(true);
+          }
+        } else {
           currentUrl.searchParams.set("vid", secret.toUpperCase());
+          setShowVCardSection(false);
+          setShowLoginSection(true);
+          setVCardExists(true);
+          setBothVCRandVidCorrectButUserHaventRegistered(true);
         }
         window.history.replaceState({}, "", currentUrl.toString());
-        setShowVCardSection(false);
-        setShowLoginSection(true);
-        setVCardExists(true);
-        setBothVCRandVidCorrectButUserHaventRegistered(true);
       } else {
         setVCardError(data.error_message || "Authentication failed");
         setVCardData(null);
@@ -876,30 +891,30 @@ export default function Page() {
                 </div>
               )}
               {!activatePath && (
-              <div className="p-4 bg-gray-50 rounded-lg border">
-                <h3 className="text-gray-600  text-center">
-                  {/* {searchParams?.get("vcr")
+                <div className="p-4 bg-gray-50 rounded-lg border">
+                  <h3 className="text-gray-600  text-center">
+                    {/* {searchParams?.get("vcr")
                     ? `Not ${dataWithoutSecret}?`
                     : "No, but I want one!"} */}
-                  Want a card like this?
-                </h3>
-                <p className="text-xs text-gray-500 mb-3 mt-1 text-center">
-                  Create your own tap-to-share card in seconds
-                </p>
-                <button
-                  onClick={() => {
-                    setShowVCardSection(false);
-                    setShowLoginSection(true);
-                    setBothVCRandVidCorrectButUserHaventRegistered(true);
-                    setReferralCardUser(true);
-                  }}
-                  className="w-full px-4 py-2 bg-white text-primary border border-primary rounded-md hover:bg-primary hover:text-white  transition-colors"
-                >
-                  {searchParams?.get("vcr")
-                    ? "Get My Own Card"
-                    : "Create my free card"}
-                </button>
-              </div>
+                    Want a card like this?
+                  </h3>
+                  <p className="text-xs text-gray-500 mb-3 mt-1 text-center">
+                    Create your own tap-to-share card in seconds
+                  </p>
+                  <button
+                    onClick={() => {
+                      setShowVCardSection(false);
+                      setShowLoginSection(true);
+                      setBothVCRandVidCorrectButUserHaventRegistered(true);
+                      setReferralCardUser(true);
+                    }}
+                    className="w-full px-4 py-2 bg-white text-primary border border-primary rounded-md hover:bg-primary hover:text-white  transition-colors"
+                  >
+                    {searchParams?.get("vcr")
+                      ? "Get My Own Card"
+                      : "Create my free card"}
+                  </button>
+                </div>
               )}
             </div>
           )}
