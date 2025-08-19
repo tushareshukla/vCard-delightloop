@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Cookies from "js-cookie";
-import { LogOut, CircleUserRound, IdCard, Search, X } from "lucide-react";
+import { LogOut, CircleUserRound, IdCard, Search, X,Contact } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import { config } from "@/utils/config";
 import { handleLogout } from "@/utils/logout";
@@ -60,6 +60,12 @@ export default function Sidebar() {
       title: "VCard",
       icon: <IdCard className="size-[24px]" />,
       active: isMenuActive("/manage-vcard"),
+    },
+    {
+      href: "/manage-contacts",
+      title: "Contacts",
+      icon: <Contact className="size-[24px]" />,
+      active: isMenuActive("/manage-contacts"),
     }
   ];
   const sidebarConfig = {
@@ -192,18 +198,20 @@ export default function Sidebar() {
         </div>
         {/* Nav Icons */}
         <nav className="flex flex-col justify-between h-full items-center gap-5 w-full">
-          {navLinks.map((item) => (
-            <Link
-              key={item.title}
-              href={item.href}
-              className={`flex items-center justify-center w-full p-3 rounded-lg transition-all duration-300
-                ${item.active ? "bg-[#7F56D9] text-white" : "hover:bg-[#7F56D9] hover:text-white opacity-60"}
-              `}
-              title={item.title}
-            >
-              {item.icon}
-            </Link>
-          ))}
+          <div className="flex flex-col items-center gap-2">
+            {navLinks.map((item) => (
+              <Link
+                key={item.title}
+                href={item.href}
+                className={`flex items-center justify-center w-full p-3 rounded-lg transition-all duration-300
+                  ${item.active ? "bg-[#7F56D9] text-white" : "hover:bg-[#7F56D9] hover:text-white opacity-60"}
+                `}
+                title={item.title}
+              >
+                {item.icon}
+              </Link>
+            ))}
+          </div>
           {/* Logout */}
           <button
             onClick={handleLogout}
