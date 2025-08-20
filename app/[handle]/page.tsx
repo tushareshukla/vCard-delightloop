@@ -103,7 +103,6 @@ export default function VCardProfilePage({
   const [sendingError, setSendingError] = useState<string | null>(null);
   const [hideAlert, setHideAlert] = useState(false);
   const [showPulseAnimation, setShowPulseAnimation] = useState(true);
-
   // Image validation states
   const [validAvatarUrl, setValidAvatarUrl] = useState<string | null>(null);
   const [validCompanyLogoUrl, setValidCompanyLogoUrl] = useState<string | null>(
@@ -164,7 +163,6 @@ export default function VCardProfilePage({
           setNotFound(true);
           return;
         }
-
 
         const response = await fetch(
           `${config.BACKEND_URL}/v1/vcard/handle/${handle.toLowerCase()}`
@@ -289,6 +287,7 @@ export default function VCardProfilePage({
 
       // Show success state
       setSaveContactClicked(true);
+      setShowContactModal(true);
 
       // Reset after 3 seconds
       setTimeout(() => {
@@ -315,6 +314,37 @@ export default function VCardProfilePage({
         console.error("Fallback vCard creation failed:", fallbackError);
       }
     }
+  };
+
+  const handleSavingReferContact = async (data: any) => {
+    const jsonData = {
+      handle: handle,
+      fullName: data.contactName,
+      email: data.contactEmail,
+      phone: data.contactPhone,
+      linkedIn: data.contactLinkedIn,
+    };
+    try {
+      const response = await fetch(
+        `${config.BACKEND_URL}/v1/vcard/contacts`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(jsonData),
+        }
+      );
+
+      const responseData = await response.json();
+      if (response.ok) {
+        console.log("Contact saved successfully:", responseData);
+      }
+    } catch (error) {
+      console.error("Error saving contact:", error);
+    }
+    setShowContactModal(false);
   };
 
   // Helper function to convert image URL to base64 (for better Android compatibility)
@@ -1384,28 +1414,32 @@ export default function VCardProfilePage({
               )}
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-4 capitalize">
-              {nfcDisabled ? "NFC Not Enabled" : `${handle} isn't here yet, but you could be!`}
+              {nfcDisabled
+                ? "NFC Not Enabled"
+                : `${handle} isn't here yet, but you could be!`}
             </h1>
             <p className="text-gray-600 mb-6">
               {nfcDisabled
                 ? `${profile?.fullName}'s profile exists but NFC sharing is not enabled. Please contact them to enable NFC sharing.`
                 : ""}
             </p>
-            {
-                !nfcDisabled && (
-                    <div className="flex flex-wrap items-center gap-4 justify-center">
-                       <Link href={`/login?newUser=true`} className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/95 transition-all duration-300">
-                       Create Your vCard
-                       </Link>
-                       <Link href={`/`} className="text-gray-600 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition-all duration-300">
-                       Learn More
-                       </Link>
-                    </div>
-                )
-            }
-            <div>
-
-            </div>
+            {!nfcDisabled && (
+              <div className="flex flex-wrap items-center gap-4 justify-center">
+                <Link
+                  href={`/login?newUser=true`}
+                  className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/95 transition-all duration-300"
+                >
+                  Create Your vCard
+                </Link>
+                <Link
+                  href={`/`}
+                  className="text-gray-600 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition-all duration-300"
+                >
+                  Learn More
+                </Link>
+              </div>
+            )}
+            <div></div>
           </div>
         </div>
       </div>
@@ -1415,554 +1449,683 @@ export default function VCardProfilePage({
   const themeColors = getThemeColors(profile.theme);
 
   return (
-    <div className="min-h-screen bg-gradient-to-r  from-[#ECFCFF] to-[#E8C2FF] ">
-      <div className="max-w-md mx-auto  ">
-        {/* Profile Card */}
-        <div className="bg-white min-h-screen md:min-h-fit shadow-lg overflow-hidden  pb-10">
-          {/* Cover Image */}
-          <div
-            className={`h-40 pt-3 px-4 bg-gradient-to-r ${themeColors.gradient} relative`}
-          >
-            {validCoverImageUrl && (
-              <Image
-                src={validCoverImageUrl}
-                alt="Cover"
-                fill
-                className="object-contain"
-                onError={handleCoverImageError}
-              />
-            )}
-
-            {/* Alert Display */}
-            {profile.alert &&
-              profile.alert.text &&
-              !isAlertExpired(profile.alert.expiryDate) &&
-              !hideAlert && (
-                <div
-                  className={`mx-auto ${
-                    showPulseAnimation ? "animate-pulse" : ""
-                  } p-2 bg-[#FCFAFF] z-10  relative backdrop-blur-md rounded-xl w-fit`}
-                >
-                  <div className="flex items-center justify-center gap-1.5">
-                    {profile.alert.icon && (
-                      <div className={`flex-shrink-0  text-[#6941C6]`}>
-                        <div className="">
-                          {getAlertIcon(profile.alert.icon)}
-                        </div>
-                      </div>
-                    )}
-                    <div className=" font-medium">
-                      {profile.alert.type === "link" ? (
-                        <a
-                          href={
-                            profile.alert.linkName?.startsWith("http")
-                              ? profile.alert.linkName
-                              : `https://${profile.alert.linkName}`
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-[#6941C6] inline-block pb-1  underline"
-                        >
-                          {profile.alert.text}
-                        </a>
-                      ) : (
-                        <p className="text-sm text-[#6941C6] break-words">
-                          {profile.alert.text}
-                        </p>
-                      )}
-                    </div>
-                    <X
-                      height={20}
-                      width={20}
-                      onClick={() => setHideAlert(true)}
-                      className="bg-[#6941C6]/10 cursor-pointer hover:bg-[#6941C6]/20  rounded-full p-1"
-                    />
-                  </div>
-                </div>
+    <div>
+      <div className="min-h-screen bg-gradient-to-r  from-[#ECFCFF] to-[#E8C2FF] ">
+        <div className="max-w-md mx-auto  ">
+          {/* Profile Card */}
+          <div className="bg-white min-h-screen md:min-h-fit shadow-lg overflow-hidden  pb-10">
+            {/* Cover Image */}
+            <div
+              className={`h-40 pt-3 px-4 bg-gradient-to-r ${themeColors.gradient} relative`}
+            >
+              {validCoverImageUrl && (
+                <Image
+                  src={validCoverImageUrl}
+                  alt="Cover"
+                  fill
+                  className="object-contain"
+                  onError={handleCoverImageError}
+                />
               )}
 
-            <div className="absolute -bottom-24 left-1/2 transform -translate-x-1/2">
-              <div className="w-48 h-48 bg-gray-200 rounded-full border-4 border-white shadow-lg overflow-hidden">
-                {validAvatarUrl ? (
-                  <Image
-                    src={validAvatarUrl}
-                    alt={profile.fullName}
-                    width={192}
-                    height={192}
-                    className="w-full h-full object-contain"
-                    onError={handleAvatarError}
-                  />
-                ) : (
-                  <div className="w-full h-full  bg-gray-200 flex items-center justify-center text-gray-400 text-4xl font-bold">
-                    {profile?.fullName?.charAt(0).toUpperCase()}
+              {/* Alert Display */}
+              {profile.alert &&
+                profile.alert.text &&
+                !isAlertExpired(profile.alert.expiryDate) &&
+                !hideAlert && (
+                  <div
+                    className={`mx-auto ${
+                      showPulseAnimation ? "animate-pulse" : ""
+                    } p-2 bg-[#FCFAFF] z-10  relative backdrop-blur-md rounded-xl w-fit`}
+                  >
+                    <div className="flex items-center justify-center gap-1.5">
+                      {profile.alert.icon && (
+                        <div className={`flex-shrink-0  text-[#6941C6]`}>
+                          <div className="">
+                            {getAlertIcon(profile.alert.icon)}
+                          </div>
+                        </div>
+                      )}
+                      <div className=" font-medium">
+                        {profile.alert.type === "link" ? (
+                          <a
+                            href={
+                              profile.alert.linkName?.startsWith("http")
+                                ? profile.alert.linkName
+                                : `https://${profile.alert.linkName}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-[#6941C6] inline-block pb-1  underline"
+                          >
+                            {profile.alert.text}
+                          </a>
+                        ) : (
+                          <p className="text-sm text-[#6941C6] break-words">
+                            {profile.alert.text}
+                          </p>
+                        )}
+                      </div>
+                      <X
+                        height={20}
+                        width={20}
+                        onClick={() => setHideAlert(true)}
+                        className="bg-[#6941C6]/10 cursor-pointer hover:bg-[#6941C6]/20  rounded-full p-1"
+                      />
+                    </div>
+                  </div>
+                )}
+
+              <div className="absolute -bottom-24 left-1/2 transform -translate-x-1/2">
+                <div className="w-48 h-48 bg-gray-200 rounded-full border-4 border-white shadow-lg overflow-hidden">
+                  {validAvatarUrl ? (
+                    <Image
+                      src={validAvatarUrl}
+                      alt={profile.fullName}
+                      width={192}
+                      height={192}
+                      className="w-full h-full object-contain"
+                      onError={handleAvatarError}
+                    />
+                  ) : (
+                    <div className="w-full h-full  bg-gray-200 flex items-center justify-center text-gray-400 text-4xl font-bold">
+                      {profile?.fullName?.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                {validCompanyLogoUrl && (
+                  <div
+                    className={`absolute -bottom-2 -right-2 w-16 h-16 bg-white p-1 rounded-full border-2 border-gray-200 shadow-sm flex items-center justify-center overflow-hidden`}
+                  >
+                    <Image
+                      src={validCompanyLogoUrl}
+                      alt={profile.company || ""}
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-contain"
+                      onError={handleCompanyLogoError}
+                    />
                   </div>
                 )}
               </div>
-              {validCompanyLogoUrl && (
-                <div
-                  className={`absolute -bottom-2 -right-2 w-16 h-16 bg-white p-1 rounded-full border-2 border-gray-200 shadow-sm flex items-center justify-center overflow-hidden`}
-                >
-                  <Image
-                    src={validCompanyLogoUrl}
-                    alt={profile.company || ""}
-                    width={64}
-                    height={64}
-                    className="w-full h-full object-contain"
-                    onError={handleCompanyLogoError}
-                  />
+            </div>
+
+            {/* Profile Info */}
+            <div className="pt-28 pb-8 px-6 text-center">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                {profile.fullName}
+              </h2>
+              {profile.title && (
+                <p className={`${themeColors.text} text-xl font-medium mb-1.5`}>
+                  {profile.title}
+                </p>
+              )}
+              {profile.company && (
+                <p className="text-gray-600 text-lg mb-6">{profile.company}</p>
+              )}
+
+              {/* Note */}
+              {profile.note && profile.note.value.length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left break-words">
+                  <p className="text-gray-700">{profile.note.value}</p>
                 </div>
               )}
+
+              {/* Save Contact Button */}
+              <Button
+                onClick={handleSaveContact}
+                className={`w-full ${
+                  themeColors.accent
+                } text-white font-bold py-6 rounded-full mb-8 text-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl ${
+                  saveContactClicked
+                    ? "animate-pulse bg-green-600 hover:bg-green-700"
+                    : ""
+                }`}
+              >
+                {saveContactClicked ? (
+                  <div className="flex items-center justify-center">
+                    <svg
+                      className="w-6 h-6 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    Contact Saved!
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    Save Contact
+                  </div>
+                )}
+              </Button>
+
+              {/* Default Social Links */}
+              <div className="space-y-3">
+                {(() => {
+                  const defaultSections = [
+                    { type: "LinkedIn", icon: "linkedin" },
+                    { type: "Email", icon: "email" },
+                    { type: "WhatsApp", icon: "whatsapp" },
+                    { type: "Phone", icon: "phone" },
+                  ];
+
+                  // Track which specific links are used in default sections
+                  const usedLinkIds = new Set();
+
+                  return (
+                    <>
+                      {defaultSections.map((defaultSection, index) => {
+                        // Check if there's ANY matching link (visible or not) to decide if we should show this default section
+                        const anyMatchingLink = profile.links?.find(
+                          (link) =>
+                            !usedLinkIds.has(link._id) &&
+                            (link.icon?.toLowerCase() ===
+                              defaultSection.icon.toLowerCase() ||
+                              link.type?.toLowerCase() ===
+                                defaultSection.type.toLowerCase())
+                        );
+
+                        // Debug for LinkedIn specifically
+                        if (defaultSection.type === "LinkedIn") {
+                          console.log("LinkedIn Debug:", {
+                            defaultSection,
+                            profileLinks: profile.links,
+                            profileLinksLength: profile.links?.length || 0,
+                            usedLinkIds: Array.from(usedLinkIds),
+                            anyMatchingLink,
+                            shouldHide:
+                              anyMatchingLink && !anyMatchingLink.isVisible,
+                          });
+                        }
+
+                        // If there's a matching link but it's not visible (private), don't show this default section at all
+                        if (anyMatchingLink && !anyMatchingLink.isVisible) {
+                          console.log(
+                            `Hiding ${defaultSection.type} section because it's private`
+                          );
+                          return null;
+                        }
+
+                        // Find the visible matching link (for display purposes)
+                        const matchingLink =
+                          anyMatchingLink && anyMatchingLink.isVisible
+                            ? anyMatchingLink
+                            : null;
+
+                        // Mark this link as used
+                        if (matchingLink) {
+                          usedLinkIds.add(matchingLink._id);
+                        }
+
+                        const hasValue =
+                          matchingLink &&
+                          matchingLink.value &&
+                          matchingLink.value.trim() !== "";
+
+                        return (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              if (hasValue && matchingLink) {
+                                handleLinkClick(matchingLink);
+                              } else {
+                                // Redirect to manage card page
+                                window.open(
+                                  `/login?vcr=${profile?.key}`,
+                                  "_blank"
+                                );
+                              }
+                            }}
+                            className={` w-full flex items-center gap-3 p-3 rounded-lg transition-colors shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] duration-500 hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)]`}
+                          >
+                            <div className="w-10 h-10 flex items-center justify-center">
+                              {getSocialIcon({
+                                type: defaultSection.type,
+                                icon: defaultSection.icon,
+                              })}
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="font-normal text-gray-900 text-lg mb-0.5 ">
+                                {getSocialLabel(defaultSection.type)}
+                              </div>
+                              <div className="text-gray-500 text-sm">
+                                {hasValue ? (
+                                  getSocialDescription({
+                                    type: defaultSection.type,
+                                    icon: defaultSection.icon,
+                                  })
+                                ) : (
+                                  <div className="flex items-center gap-1 text-purple-600">
+                                    <svg
+                                      className="w-3 h-3"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                      />
+                                    </svg>
+                                    <span>
+                                      Click to add your{" "}
+                                      {defaultSection.type.toLowerCase()}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+
+                      {/* Additional Custom Links */}
+                      {profile.links &&
+                        profile.links
+                          .filter(
+                            (link) =>
+                              link.isVisible && !usedLinkIds.has(link._id)
+                          )
+                          .map((link, index) => {
+                            const hasValue =
+                              link.value && link.value.trim() !== "";
+
+                            return (
+                              <button
+                                key={`custom-${index}`}
+                                onClick={() => {
+                                  if (hasValue) {
+                                    handleLinkClick(link);
+                                  } else {
+                                    // Redirect to manage card page
+                                    window.open(
+                                      `/?vcr=${profile?.key}`,
+                                      "_blank"
+                                    );
+                                  }
+                                }}
+                                className="w-full flex items-center gap-3 p-3 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] duration-500  hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-lg  transition-colors"
+                              >
+                                <div className="w-10 h-10 flex items-center justify-center">
+                                  {getSocialIcon(link)}
+                                </div>
+                                <div className="flex-1 text-left">
+                                  <div className="font-normal text-gray-900 text-lg mb-0.5 break-all">
+                                    {getSocialLabel(link.type)}
+                                  </div>
+                                  <div className="text-gray-500 text-sm">
+                                    {hasValue ? (
+                                      getSocialDescription(link)
+                                    ) : (
+                                      <div className="flex items-center gap-1 text-purple-600">
+                                        <svg
+                                          className="w-3 h-3"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                          />
+                                        </svg>
+                                        <span>
+                                          Click to add your{" "}
+                                          {link.type.toLowerCase()}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
+                    </>
+                  );
+                })()}
+              </div>
             </div>
+            <Link
+              href={`${
+                isAuthenticated ? `/manage-vcard` : `/login?vcr=${profile?.key}`
+              }`}
+              className="text-gray-500 px-8 py-3.5 shadow-[0_3px_10px_rgb(0,0,0,0.2)] duration-500  hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-3xl  transition-colors font-medium bg-white flex justify-center w-fit mx-auto  "
+            >
+              Manage Your Own Card
+            </Link>
           </div>
 
-          {/* Profile Info */}
-          <div className="pt-28 pb-8 px-6 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {profile.fullName}
-            </h2>
-            {profile.title && (
-              <p className={`${themeColors.text} text-xl font-medium mb-1.5`}>
-                {profile.title}
-              </p>
-            )}
-            {profile.company && (
-              <p className="text-gray-600 text-lg mb-6">{profile.company}</p>
-            )}
+          {/* Footer */}
+          {/* <div className="text-center mt-8 pb-4">
+            <p className="text-white/60 text-sm">Powered by Delightloop</p>
+          </div> */}
+        </div>
 
-            {/* Note */}
-            {profile.note && profile.note.value.length > 0 && (
-              <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left break-words">
-                <p className="text-gray-700">{profile.note.value}</p>
-              </div>
-            )}
+        {/* Contact Slider */}
+        <div
+          className={`fixed inset-0 bg-black bg-opacity-50 z-50 transition-all duration-300 ${
+            showContactModal ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+          onClick={() => {
+            setShowContactModal(false);
+            setEmailAddress("");
+            setEmailError(null);
+            setSendingError(null);
+            setEmailSent(false);
+          }}
+        >
+          <div
+            className={`absolute bottom-0 left-1/2 -translate-x-1/2 bg-white rounded-t-3xl shadow-2xl transition-all duration-300 transform ${
+              showContactModal ? "translate-y-0" : "translate-y-full"
+            } max-w-md w-full`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Handle Bar */}
+            <div className="flex justify-center pt-4 pb-2">
+              <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
+            </div>
 
-            {/* Save Contact Button */}
-            <Button
-              onClick={handleSaveContact}
-              className={`w-full ${
-                themeColors.accent
-              } text-white font-bold py-6 rounded-full mb-8 text-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl ${
-                saveContactClicked
-                  ? "animate-pulse bg-green-600 hover:bg-green-700"
-                  : ""
-              }`}
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                setShowContactModal(false);
+                setEmailAddress("");
+                setEmailError(null);
+                setSendingError(null);
+                setEmailSent(false);
+              }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
             >
-              {saveContactClicked ? (
-                <div className="flex items-center justify-center">
-                  <svg
-                    className="w-6 h-6 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Contact Saved!
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            {/* Content */}
+            <div className="px-6 pb-8 max-h-[80vh] overflow-y-auto">
+              {/* Success State */}
+              {emailSent ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg
+                      className="w-8 h-8 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    Contact Sent!
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Check your email for {profile?.fullName}'s contact
+                    information.
+                  </p>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+                    <p className="font-medium mb-1">💡 Tip:</p>
+                    <p>
+                      Open the attached .vcf file to automatically add to your
+                      contacts
+                    </p>
+                  </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-center">
-                  Save Contact
-                </div>
-              )}
-            </Button>
+                <>
+                  {/* Slider Header */}
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6 pr-8 text-center">
+                    Get {profile?.fullName}'s contact info
+                  </h2>
 
-            {/* Default Social Links */}
-            <div className="space-y-3">
-              {(() => {
-                const defaultSections = [
-                  { type: "LinkedIn", icon: "linkedin" },
-                  { type: "Email", icon: "email" },
-                  { type: "WhatsApp", icon: "whatsapp" },
-                  { type: "Phone", icon: "phone" },
-                ];
+                  {/* Tabs */}
+                  <div className="flex justify-center mb-6">
+                    <div className="w-full flex flex-col items-center">
+                      <span
+                        className="text-[#A259F7] font-medium uppercase text-base tracking-wide text-center mb-1"
+                        style={{ letterSpacing: "0.08em" }}
+                      >
+                        EMAIL
+                      </span>
+                      <span className="block h-0.5 w-full max-w-full bg-[#A259F7] rounded-full" />
+                    </div>
+                  </div>
 
-                // Track which specific links are used in default sections
-                const usedLinkIds = new Set();
+                  {/* Error Message */}
+                  {sendingError && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-700">{sendingError}</p>
+                    </div>
+                  )}
 
-                return (
-                  <>
-                    {defaultSections.map((defaultSection, index) => {
-                      // Check if there's ANY matching link (visible or not) to decide if we should show this default section
-                      const anyMatchingLink = profile.links?.find(
-                        (link) =>
-                          !usedLinkIds.has(link._id) &&
-                          (link.icon?.toLowerCase() ===
-                            defaultSection.icon.toLowerCase() ||
-                            link.type?.toLowerCase() ===
-                              defaultSection.type.toLowerCase())
-                      );
-
-                      // Debug for LinkedIn specifically
-                      if (defaultSection.type === "LinkedIn") {
-                        console.log("LinkedIn Debug:", {
-                          defaultSection,
-                          profileLinks: profile.links,
-                          profileLinksLength: profile.links?.length || 0,
-                          usedLinkIds: Array.from(usedLinkIds),
-                          anyMatchingLink,
-                          shouldHide:
-                            anyMatchingLink && !anyMatchingLink.isVisible,
-                        });
-                      }
-
-                      // If there's a matching link but it's not visible (private), don't show this default section at all
-                      if (anyMatchingLink && !anyMatchingLink.isVisible) {
-                        console.log(
-                          `Hiding ${defaultSection.type} section because it's private`
-                        );
-                        return null;
-                      }
-
-                      // Find the visible matching link (for display purposes)
-                      const matchingLink =
-                        anyMatchingLink && anyMatchingLink.isVisible
-                          ? anyMatchingLink
-                          : null;
-
-                      // Mark this link as used
-                      if (matchingLink) {
-                        usedLinkIds.add(matchingLink._id);
-                      }
-
-                      const hasValue =
-                        matchingLink &&
-                        matchingLink.value &&
-                        matchingLink.value.trim() !== "";
-
-                      return (
-                        <button
-                          key={index}
-                          onClick={() => {
-                            if (hasValue && matchingLink) {
-                              handleLinkClick(matchingLink);
-                            } else {
-                              // Redirect to manage card page
-                              window.open(`/login?vcr=${profile?.key}`, "_blank");
-                            }
-                          }}
-                          className={` w-full flex items-center gap-3 p-3 rounded-lg transition-colors shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] duration-500 hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)]`}
+                  {/* Form Content */}
+                  <div className="mb-6">
+                    <input
+                      type="email"
+                      value={emailAddress}
+                      onChange={(e) => {
+                        setEmailAddress(e.target.value);
+                        setEmailError(null);
+                        setSendingError(null);
+                      }}
+                      placeholder="Enter your email address"
+                      className={`w-full px-4 py-3 border ${
+                        emailError ? "border-red-500" : "border-gray-300"
+                      } rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 ${
+                        emailError
+                          ? "focus:ring-red-500"
+                          : "focus:ring-purple-500"
+                      } focus:border-transparent transition-colors`}
+                      disabled={isValidatingEmail || isSendingEmail}
+                    />
+                    {emailError && (
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <svg
+                          className="w-4 h-4 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          <div className="w-10 h-10 flex items-center justify-center">
-                            {getSocialIcon({
-                              type: defaultSection.type,
-                              icon: defaultSection.icon,
-                            })}
-                          </div>
-                          <div className="flex-1 text-left">
-                            <div className="font-normal text-gray-900 text-lg mb-0.5 ">
-                              {getSocialLabel(defaultSection.type)}
-                            </div>
-                            <div className="text-gray-500 text-sm">
-                              {hasValue ? (
-                                getSocialDescription({
-                                  type: defaultSection.type,
-                                  icon: defaultSection.icon,
-                                })
-                              ) : (
-                                <div className="flex items-center gap-1 text-purple-600">
-                                  <svg
-                                    className="w-3 h-3"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                    />
-                                  </svg>
-                                  <span>
-                                    Click to add your{" "}
-                                    {defaultSection.type.toLowerCase()}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        {emailError}
+                      </p>
+                    )}
+                  </div>
+                  {/* Submit Button */}
+                  <button
+                    onClick={handleContactSubmit}
+                    disabled={
+                      isValidatingEmail ||
+                      isSendingEmail ||
+                      !emailAddress.trim()
+                    }
+                    className={`w-full font-semibold py-4 rounded-lg transition-all duration-200 ${
+                      isValidatingEmail ||
+                      isSendingEmail ||
+                      !emailAddress.trim()
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                    }`}
+                  >
+                    {isValidatingEmail ? (
+                      <div className="flex items-center justify-center">
+                        <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                        Validating Email...
+                      </div>
+                    ) : isSendingEmail ? (
+                      <div className="flex items-center justify-center">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        Sending Contact...
+                      </div>
+                    ) : (
+                      "Receive Contact"
+                    )}
+                  </button>
 
-                    {/* Additional Custom Links */}
-                    {profile.links &&
-                      profile.links
-                        .filter(
-                          (link) => link.isVisible && !usedLinkIds.has(link._id)
-                        )
-                        .map((link, index) => {
-                          const hasValue =
-                            link.value && link.value.trim() !== "";
-
-                          return (
-                            <button
-                              key={`custom-${index}`}
-                              onClick={() => {
-                                if (hasValue) {
-                                  handleLinkClick(link);
-                                } else {
-                                  // Redirect to manage card page
-                                  window.open(
-                                    `/?vcr=${profile?.key}`,
-                                    "_blank"
-                                  );
-                                }
-                              }}
-                              className="w-full flex items-center gap-3 p-3 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] duration-500  hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-lg  transition-colors"
-                            >
-                              <div className="w-10 h-10 flex items-center justify-center">
-                                {getSocialIcon(link)}
-                              </div>
-                              <div className="flex-1 text-left">
-                                <div className="font-normal text-gray-900 text-lg mb-0.5 break-all">
-                                  {getSocialLabel(link.type)}
-                                </div>
-                                <div className="text-gray-500 text-sm">
-                                  {hasValue ? (
-                                    getSocialDescription(link)
-                                  ) : (
-                                    <div className="flex items-center gap-1 text-purple-600">
-                                      <svg
-                                        className="w-3 h-3"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                        />
-                                      </svg>
-                                      <span>
-                                        Click to add your{" "}
-                                        {link.type.toLowerCase()}
-                                      </span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-                          );
-                        })}
-                  </>
-                );
-              })()}
+                  {/* Info Text */}
+                  <p className="text-xs text-gray-500 text-center mt-4">
+                    We'll send you an email with {profile?.fullName}'s contact
+                    information as a downloadable file.
+                  </p>
+                </>
+              )}
             </div>
           </div>
-          <Link
-            href={`${
-              isAuthenticated
-                ? `/manage-vcard`
-                : `/login?vcr=${profile?.key}`
-            }`}
-            className="text-gray-500 px-8 py-3.5 shadow-[0_3px_10px_rgb(0,0,0,0.2)] duration-500  hover:shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-3xl  transition-colors font-medium bg-white flex justify-center w-fit mx-auto  "
-          >
-            Manage Your Own Card
-          </Link>
         </div>
-
-        {/* Footer */}
-        {/* <div className="text-center mt-8 pb-4">
-          <p className="text-white/60 text-sm">Powered by Delightloop</p>
-        </div> */}
       </div>
-
-      {/* Contact Slider */}
-      <div
-        className={`fixed inset-0 bg-black bg-opacity-50 z-50 transition-all duration-300 ${
-          showContactModal ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        onClick={() => {
-          setShowContactModal(false);
-          setEmailAddress("");
-          setEmailError(null);
-          setSendingError(null);
-          setEmailSent(false);
-        }}
-      >
+      {showContactModal && (
         <div
-          className={`absolute bottom-0 left-1/2 -translate-x-1/2 bg-white rounded-t-3xl shadow-2xl transition-all duration-300 transform ${
-            showContactModal ? "translate-y-0" : "translate-y-full"
-          } max-w-md w-full`}
-          onClick={(e) => e.stopPropagation()}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-50"
+          onClick={() => setShowContactModal(false)}
         >
-          {/* Handle Bar */}
-          <div className="flex justify-center pt-4 pb-2">
-            <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
-          </div>
-
-          {/* Close Button */}
-          <button
-            onClick={() => {
-              setShowContactModal(false);
-              setEmailAddress("");
-              setEmailError(null);
-              setSendingError(null);
-              setEmailSent(false);
-            }}
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
+          <div
+            className={`w-full max-w-md bg-white rounded-t-3xl shadow-2xl p-6 flex flex-col justify-between transform transition-transform duration-300 ${
+              showContactModal ? "translate-y-0" : "translate-y-full"
+            }`}
+            style={{ minHeight: "60vh" }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+            {/* Modal Header */}
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold">
+                Share your information with{" "}
+                <span className="font-bold">{profile?.fullName}</span>.
+              </h2>
+            </div>
 
-          {/* Content */}
-          <div className="px-6 pb-8 max-h-[80vh] overflow-y-auto">
-            {/* Success State */}
-            {emailSent ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+            {/* Modal Body as a Form */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const data = {
+                  contactName: formData.get("contactName"),
+                  contactEmail: formData.get("contactEmail"),
+                  contactPhone: formData.get("contactPhone"),
+                  contactLinkedIn: formData.get("contactLinkedIn"),
+                };
+                console.log("Form submitted:", data);
+                handleSavingReferContact(data);
+              }}
+              className="space-y-4 flex-grow flex flex-col justify-between"
+            >
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="contactName"
+                    className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                    Full Name
+                  </label>
+                  <input
+                    id="contactName"
+                    name="contactName"
+                    type="text"
+                    placeholder="Enter your full name"
+                    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Contact Sent!
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Check your email for {profile?.fullName}'s contact
-                  information.
-                </p>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
-                  <p className="font-medium mb-1">💡 Tip:</p>
-                  <p>
-                    Open the attached .vcf file to automatically add to your
-                    contacts
-                  </p>
+
+                <div>
+                  <label
+                    htmlFor="contactEmail"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Email Address
+                  </label>
+                  <input
+                    id="contactEmail"
+                    name="contactEmail"
+                    type="email"
+                    placeholder="Enter your email address"
+                    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="contactPhone"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Phone Number
+                  </label>
+                  <input
+                    id="contactPhone"
+                    name="contactPhone"
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="contactLinkedIn"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    LinkedIn Profile
+                  </label>
+                  <input
+                    id="contactLinkedIn"
+                    name="contactLinkedIn"
+                    type="url"
+                    placeholder="Paste your LinkedIn profile link"
+                    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </div>
               </div>
-            ) : (
-              <>
-                {/* Slider Header */}
-                <h2 className="text-xl font-semibold text-gray-900 mb-6 pr-8 text-center">
-                  Get {profile?.fullName}'s contact info
-                </h2>
 
-                {/* Tabs */}
-                <div className="flex justify-center mb-6">
-                  <div className="w-full flex flex-col items-center">
-                    <span
-                      className="text-[#A259F7] font-medium uppercase text-base tracking-wide text-center mb-1"
-                      style={{ letterSpacing: "0.08em" }}
-                    >
-                      EMAIL
-                    </span>
-                    <span className="block h-0.5 w-full max-w-full bg-[#A259F7] rounded-full" />
-                  </div>
-                </div>
-
-                {/* Error Message */}
-                {sendingError && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-red-700">{sendingError}</p>
-                  </div>
-                )}
-
-                {/* Form Content */}
-                <div className="mb-6">
-                  <input
-                    type="email"
-                    value={emailAddress}
-                    onChange={(e) => {
-                      setEmailAddress(e.target.value);
-                      setEmailError(null);
-                      setSendingError(null);
-                    }}
-                    placeholder="Enter your email address"
-                    className={`w-full px-4 py-3 border ${
-                      emailError ? "border-red-500" : "border-gray-300"
-                    } rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                      emailError
-                        ? "focus:ring-red-500"
-                        : "focus:ring-purple-500"
-                    } focus:border-transparent transition-colors`}
-                    disabled={isValidatingEmail || isSendingEmail}
-                  />
-                  {emailError && (
-                    <p className="mt-2 text-sm text-red-600 flex items-center">
-                      <svg
-                        className="w-4 h-4 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {emailError}
-                    </p>
-                  )}
-                </div>
-                {/* Submit Button */}
+              {/* Footer */}
+              <div className="mt-6">
                 <button
-                  onClick={handleContactSubmit}
-                  disabled={
-                    isValidatingEmail || isSendingEmail || !emailAddress.trim()
-                  }
-                  className={`w-full font-semibold py-4 rounded-lg transition-all duration-200 ${
-                    isValidatingEmail || isSendingEmail || !emailAddress.trim()
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-                  }`}
+                  type="submit"
+                  className="w-full bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600"
                 >
-                  {isValidatingEmail ? (
-                    <div className="flex items-center justify-center">
-                      <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Validating Email...
-                    </div>
-                  ) : isSendingEmail ? (
-                    <div className="flex items-center justify-center">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Sending Contact...
-                    </div>
-                  ) : (
-                    "Receive Contact"
-                  )}
+                  Continue
                 </button>
-
-                {/* Info Text */}
-                <p className="text-xs text-gray-500 text-center mt-4">
-                  We'll send you an email with {profile?.fullName}'s contact
-                  information as a downloadable file.
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  🔒 Your data will always be kept private.
                 </p>
-              </>
-            )}
+              </div>
+            </form>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
