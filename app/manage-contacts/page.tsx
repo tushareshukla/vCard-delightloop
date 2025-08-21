@@ -6,12 +6,15 @@ import {
   Filter,
   Plus,
   ArrowUpDown,
-  X, // Imported the X icon
+  X,
   Mail,
   Phone,
+  Pencil, // Edit icon
+  Trash2, // Delete icon
 } from "lucide-react";
 import AdminSidebar from "@/components/layouts/AdminSidebar";
 import { config } from "@/utils/config";
+import Papa from "papaparse";
 
 interface Contact {
   _id: string;
@@ -35,18 +38,25 @@ export default function ContactsPage() {
 
   // Filters
   const [selectedCompany, setSelectedCompany] = useState("");
-  const [selectedCard, setSelectedCard] = useState(""); // This state is unused in the filtering logic, consider removing if not needed
+  const [selectedCard, setSelectedCard] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [tempCompany, setTempCompany] = useState("");
-  const [tempCard, setTempCard] = useState(""); // This state is unused, consider removing
+  const [tempCard, setTempCard] = useState("");
   const [tempTag, setTempTag] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
-  const [isOpen, setIsOpen] = useState(false);
-  // --- NEW: State for the create contact form ---
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const initialContactState: Contact = {
-    _id: "",
+
+  // Drawer States
+  const [isOpen, setIsOpen] = useState(false); // Details drawer
+  const [isCreateOpen, setIsCreateOpen] = useState(false); // Create drawer
+  const [isEditOpen, setIsEditOpen] = useState(false); // Edit drawer state
+
+  // Data States
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const initialContactState: Omit<
+    Contact,
+    "_id" | "handle" | "isDeleted" | "createdAt" | "updatedAt"
+  > = {
     fullName: "",
     email: "",
     phone: "",
@@ -55,14 +65,15 @@ export default function ContactsPage() {
     company: "",
     tags: [],
     avatar: "",
-    handle: "",
-    isDeleted: false,
-    createdAt: "",
-    updatedAt: "",
   };
-  const [newContactData, setNewContactData] =
-    useState<Contact>(initialContactState);
-  // --- END NEW ---
+  const [newContactData, setNewContactData] = useState(initialContactState);
+  const [editingContactData, setEditingContactData] = useState<Contact | null>(
+    null
+  );
+
+  // Tag input states for create/edit forms
+  const [tagInput, setTagInput] = useState("");
+  const [editTagInput, setEditTagInput] = useState("");
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -119,10 +130,8 @@ export default function ContactsPage() {
       .join(" ")
       .toLowerCase()
       .includes(search.toLowerCase());
-
     const companyMatch = selectedCompany ? c.company === selectedCompany : true;
     const tagMatch = selectedTag ? c.tags?.includes(selectedTag) : true;
-
     return searchText && companyMatch && tagMatch;
   });
 
@@ -159,41 +168,32 @@ export default function ContactsPage() {
     );
   };
 
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-
   const handleContactSelection = (contact: Contact) => {
     setSelectedContact(contact);
     setIsOpen(true);
   };
 
-  // --- NEW: Handlers for the create contact form ---
+  // --- Create Contact Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewContactData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    const tagsArray = value
+    const tagsArray = e.target.value
       .split(",")
       .map((tag) => tag.trim())
-      .filter((tag) => tag); // Handle empty tags
+      .filter(Boolean);
+    setTagInput(e.target.value);
     setNewContactData((prev) => ({ ...prev, tags: tagsArray }));
   };
 
   const handleCreateContact = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // setNewContactData((prev) => ({
-      //   ...prev,
-      //   handle: "",//handle has to pass
-      // }));
-      console.log("Creating contact with data:", newContactData);
       const response = await fetch(`${config.BACKEND_URL}/v1/vcard/contacts`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newContactData),
       });
 
@@ -202,20 +202,126 @@ export default function ContactsPage() {
         setContacts((prev) => [createdContact.data, ...prev]);
         setIsCreateOpen(false);
         setNewContactData(initialContactState);
+        setTagInput("");
       } else {
         console.error("Failed to create contact:", response.statusText);
-        // Here you could show an error message to the user
       }
     } catch (error) {
       console.error("Error creating contact:", error);
     }
   };
-  // --- END NEW ---
+
+  // --- Edit and Delete Handlers ---
+  const handleEditClick = () => {
+    if (selectedContact) {
+      setEditingContactData(selectedContact);
+      setEditTagInput(selectedContact.tags?.join(", ") || "");
+      setIsEditOpen(true);
+      setIsOpen(false);
+    }
+  };
+
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (editingContactData) {
+      setEditingContactData({ ...editingContactData, [name]: value });
+    }
+  };
+
+  const handleEditTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const tagsArray = e.target.value
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+    setEditTagInput(e.target.value);
+    if (editingContactData) {
+      setEditingContactData({ ...editingContactData, tags: tagsArray });
+    }
+  };
+
+  const handleUpdateContact = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingContactData) return;
+
+    try {
+      const response = await fetch(
+        `${config.BACKEND_URL}/v1/vcard/contacts/${editingContactData._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editingContactData),
+        }
+      );
+
+      if (response.ok) {
+        const updatedContact = await response.json();
+        setContacts((prev) =>
+          prev.map((c) =>
+            c._id === updatedContact.data._id ? updatedContact.data : c
+          )
+        );
+        setIsEditOpen(false);
+        setEditingContactData(null);
+      } else {
+        console.error("Failed to update contact:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error updating contact:", error);
+    }
+  };
+
+  const handleDeleteContact = async (contactId: string) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this contact? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${config.BACKEND_URL}/v1/vcard/contacts/${contactId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        setContacts((prev) => prev.filter((c) => c._id !== contactId));
+        setIsOpen(false);
+      } else {
+        console.error("Failed to delete contact:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error deleting contact:", error);
+    }
+  };
+
+  const handleDownloadCSV = () => {
+    const dataToExport = filteredContacts.map((c) => ({
+      "Full Name": c.fullName,
+      Email: c.email,
+      Phone: c.phone,
+      "Job Title": c.jobTitle,
+      Company: c.company,
+      Tags: c.tags?.join(" , ") || "",
+      "Date Added": formatDate(c.createdAt),
+    }));
+    const csv = Papa.unparse(dataToExport);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "contacts.csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="flex h-screen flex-col sm:flex-row">
       <AdminSidebar />
-
       <div className="flex-1 flex flex-col h-screen bg-gray-50 overflow-auto">
         <header className="flex justify-between items-center px-4 sm:px-6 py-4 bg-white border-b">
           <h1 className="text-lg sm:text-xl font-semibold">Contacts</h1>
@@ -234,11 +340,12 @@ export default function ContactsPage() {
             className="flex items-center gap-2 justify-end relative"
             ref={filterRef}
           >
-            <button className="flex items-center gap-1 px-3 py-2 border rounded hover:bg-gray-100">
+            <button
+              onClick={handleDownloadCSV}
+              className="flex items-center gap-1 px-3 py-2 border rounded hover:bg-gray-100"
+            >
               <Download size={16} />
-              <span className="hidden sm:inline">Download</span>
             </button>
-
             <div className="relative">
               <button
                 className="flex items-center gap-1 px-3 py-2 border rounded hover:bg-gray-100"
@@ -247,7 +354,6 @@ export default function ContactsPage() {
                 <Filter size={16} />
                 <span className="hidden sm:inline">Filters</span>
               </button>
-
               {filterOpen && (
                 <div className="absolute right-0 mt-2 w-64 bg-white border rounded shadow-lg p-4 z-50">
                   <h3 className="font-semibold mb-2">Filter Contacts</h3>
@@ -313,7 +419,6 @@ export default function ContactsPage() {
                 </div>
               )}
             </div>
-
             <button
               className="flex items-center gap-1 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
               onClick={() => setIsCreateOpen(true)}
@@ -336,8 +441,8 @@ export default function ContactsPage() {
                 Add another contact!
               </h2>
               <p className="max-w-md text-sm sm:text-base">
-                You don’t have any new contacts within HiHello. Try sharing one
-                of your cards, scanning a paper card, or adding your own!
+                You don’t have any new contacts. Try sharing one of your cards
+                or adding one manually!
               </p>
             </div>
           ) : (
@@ -457,12 +562,10 @@ export default function ContactsPage() {
             onClick={() => setIsOpen(false)}
           />
         )}
-
-        {/* --- MODIFICATION START --- */}
         <div
-          className={`fixed top-0 right-0 h-full bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out w-full max-w-md sm:w-96 overflow-y-auto
-          ${isOpen ? "translate-x-0" : "translate-x-full"}
-        `}
+          className={`fixed top-0 right-0 h-full bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out w-full max-w-md sm:w-96 flex flex-col ${
+            isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         >
           <div className="flex items-center justify-end p-4 border-b">
             <button
@@ -472,62 +575,74 @@ export default function ContactsPage() {
               <X size={24} />
             </button>
           </div>
-
           {selectedContact && (
-            <div className="flex flex-col">
-              <div className="bg-gray-700 relative h-[200px] sm:h-[300px] overflow-hidden">
-                {selectedContact.avatar ? (
-                  <img
-                    src={selectedContact.avatar}
-                    alt={selectedContact.fullName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <svg
-                    className="absolute bottom-0 left-0 w-full"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 500 150"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M-0.27,97.08 C149.99,150.00 349.20,30.00 500.00,97.08 L500.00,0.00 L0.00,0.00 Z"
-                      className="fill-white"
-                    ></path>
-                  </svg>
-                )}
-              </div>
-
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4">
-                  {selectedContact.fullName}
-                </h2>
-
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <div className="bg-gray-700 text-white p-2 rounded-full">
-                      <Mail size={18} />
+            <>
+              <div className="flex-1 overflow-y-auto">
+                <div className="bg-gray-700 relative h-[200px] sm:h-[300px] overflow-hidden">
+                  {selectedContact.avatar ? (
+                    <img
+                      src={selectedContact.avatar}
+                      alt={selectedContact.fullName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <svg
+                      className="absolute bottom-0 left-0 w-full"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 500 150"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M-0.27,97.08 C149.99,150.00 349.20,30.00 500.00,97.08 L500.00,0.00 L0.00,0.00 Z"
+                        className="fill-white"
+                      ></path>
+                    </svg>
+                  )}
+                </div>
+                <div className="p-6">
+                  <h2 className="text-2xl font-bold mb-4">
+                    {selectedContact.fullName}
+                  </h2>
+                  <div className="space-y-4">
+                    <div className="flex items-center">
+                      <div className="bg-gray-700 text-white p-2 rounded-full">
+                        <Mail size={18} />
+                      </div>
+                      <span className="ml-3 text-gray-700 break-all">
+                        {selectedContact.email}
+                      </span>
                     </div>
-                    <span className="ml-3 text-gray-700 break-all">
-                      {selectedContact.email}
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="bg-gray-700 text-white p-2 rounded-full">
-                      <Phone size={18} />
+                    <div className="flex items-center">
+                      <div className="bg-gray-700 text-white p-2 rounded-full">
+                        <Phone size={18} />
+                      </div>
+                      <span className="ml-3 text-gray-700">
+                        {selectedContact.phone}
+                      </span>
                     </div>
-                    <span className="ml-3 text-gray-700">
-                      {selectedContact.phone}
-                    </span>
                   </div>
                 </div>
               </div>
-            </div>
+              <div className="p-4 border-t flex justify-end gap-3 bg-gray-50">
+                <button
+                  onClick={() => handleDeleteContact(selectedContact._id)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-md hover:bg-red-50"
+                >
+                  <Trash2 size={16} /> Delete
+                </button>
+                <button
+                  onClick={handleEditClick}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-600 border border-purple-200 rounded-md hover:bg-purple-50"
+                >
+                  <Pencil size={16} /> Edit
+                </button>
+              </div>
+            </>
           )}
         </div>
-        {/* --- MODIFICATION END --- */}
       </div>
 
-      {/* --- NEW: Create Contact Drawer --- */}
+      {/* Create Contact Drawer */}
       <div className="relative">
         {isCreateOpen && (
           <div
@@ -536,9 +651,9 @@ export default function ContactsPage() {
           />
         )}
         <div
-          className={`fixed top-0 right-0 h-full bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out w-full max-w-md sm:w-96
-          ${isCreateOpen ? "translate-x-0" : "translate-x-full"}
-        `}
+          className={`fixed top-0 right-0 h-full bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out w-full max-w-md sm:w-96 ${
+            isCreateOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         >
           <form onSubmit={handleCreateContact} className="flex flex-col h-full">
             <div className="flex items-center justify-between p-4 border-b">
@@ -678,7 +793,7 @@ export default function ContactsPage() {
                   type="text"
                   name="tags"
                   id="tags"
-                  value={newContactData.tags?.join(", ")}
+                  value={tagInput}
                   onChange={handleTagsChange}
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                 />
@@ -700,6 +815,187 @@ export default function ContactsPage() {
               </button>
             </div>
           </form>
+        </div>
+      </div>
+
+      {/* Edit Contact Drawer */}
+      <div className="relative">
+        {isEditOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-40 z-40"
+            onClick={() => setIsEditOpen(false)}
+          />
+        )}
+        <div
+          className={`fixed top-0 right-0 h-full bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out w-full max-w-md sm:w-96 ${
+            isEditOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          {editingContactData && (
+            <form
+              onSubmit={handleUpdateContact}
+              className="flex flex-col h-full"
+            >
+              <div className="flex items-center justify-between p-4 border-b">
+                <h2 className="text-lg font-semibold">Edit Contact</h2>
+                <button
+                  type="button"
+                  onClick={() => setIsEditOpen(false)}
+                  className="text-gray-500 hover:text-gray-800"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              <div className="flex-1 p-6 space-y-4 overflow-y-auto">
+                <div>
+                  <label
+                    htmlFor="edit_fullName"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    id="edit_fullName"
+                    value={editingContactData.fullName}
+                    onChange={handleEditInputChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit_email"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    id="edit_email"
+                    value={editingContactData.email}
+                    onChange={handleEditInputChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit_phone"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    id="edit_phone"
+                    value={editingContactData.phone}
+                    onChange={handleEditInputChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit_jobTitle"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Job Title
+                  </label>
+                  <input
+                    type="text"
+                    name="jobTitle"
+                    id="edit_jobTitle"
+                    value={editingContactData.jobTitle}
+                    onChange={handleEditInputChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit_company"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Company
+                  </label>
+                  <input
+                    type="text"
+                    name="company"
+                    id="edit_company"
+                    value={editingContactData.company}
+                    onChange={handleEditInputChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit_linkedIn"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    LinkedIn URL
+                  </label>
+                  <input
+                    type="url"
+                    name="linkedIn"
+                    id="edit_linkedIn"
+                    value={editingContactData.linkedIn}
+                    onChange={handleEditInputChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit_avatar"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Avatar URL
+                  </label>
+                  <input
+                    type="url"
+                    name="avatar"
+                    id="edit_avatar"
+                    value={editingContactData.avatar}
+                    onChange={handleEditInputChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit_tags"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Tags (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    name="tags"
+                    id="edit_tags"
+                    value={editTagInput}
+                    onChange={handleEditTagsChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+              </div>
+              <div className="p-4 border-t flex justify-end gap-3 bg-gray-50">
+                <button
+                  type="button"
+                  onClick={() => setIsEditOpen(false)}
+                  className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700"
+                >
+                  Update Contact
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>
